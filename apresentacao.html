@@ -146,8 +146,9 @@
   .ed-prog b { margin-left: 8px; font-weight: 600; }
   .ed-grid { display: grid; grid-template-columns: 34fr 66fr; gap: 24px; flex: 1; min-height: 0; }
   .ed-grid > * { min-width: 0; }
-  .ed-info p { font-size: 21px; }
-  .ed-info .peq { font-size: 19px; }
+  .ed-info p { font-size: 19px; }
+  .ed-info .peq { font-size: 17px; }
+  .ed-info h3 { font-size: 22px; }
   pre.code.ed-code { font-size: 17px; white-space: pre-wrap; align-self: start; max-height: 100%; }
   pre.code.ed-code .ctx { opacity: .45; display: inline-block; width: 100%; white-space: pre; overflow: hidden; text-overflow: ellipsis; vertical-align: top; }
   pre.code.ed-code .add, pre.code.ed-code .del { padding-left: 0; }
@@ -333,7 +334,7 @@ leftEyeLower0: [263, 249, 390, 373, 374, 380, 381, 382, 362], // linha 35</pre>
         <li class="frag"><code>aberturaOlho</code>: distância entre a pálpebra de cima e a de baixo de um olho</li>
         <li class="frag"><code>abertura</code>: média dos dois olhos, em pixels. É esse número que aparece na tela</li>
       </ul>
-      <p class="peq suave" style="margin-top:12px">Prévia: você cola esse código nas edições do passo 2, a seguir.</p>
+      <p class="peq suave" style="margin-top:12px">No próximo slide esse código continua: com a abertura, contamos a piscada.</p>
     </div>
     <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">// [canto externo, canto interno, palpebra de cima, palpebra de baixo]
 const OLHO_DIR = [33, 133, 159, 145];
@@ -355,8 +356,8 @@ const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, 
 
 <!-- 10. PASSO 2 MAQUINA DE ESTADOS -->
 <section class="slide" data-titulo="Passo 2: contar uma piscada">
-  <h2><span class="passo">Passo 2</span> · Contar piscada é tratar keydown / keyup</h2>
-  <div class="cols">
+  <h2><span class="passo">Passo 2</span> · Com a abertura, contar a piscada</h2>
+  <div class="cols" style="grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr)">
     <div class="cartao">
       <h3>Errado: contar "olho fechado"</h3>
       <p class="peq">O olho fica fechado por vários quadros. Uma piscada viraria 3 ou 4 contagens, como contar quantas vezes o <code>keydown</code> repete com a tecla segurada.</p>
@@ -372,17 +373,27 @@ const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, 
         <span class="estado ativo">ABERTO</span>
       </div>
     </div>
-    <pre class="code frag" data-lang="js" style="font-size:16px;white-space:pre-wrap">const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado
-let piscadas = 0;        // fora da funcao: lembra entre quadros
-let olhoFechado = false;
-
-// a cada quadro (abertura calculada no slide anterior):
-if (abertura &lt; LIMIAR_PX) {
-  olhoFechado = true;
-} else if (olhoFechado) { // estava fechado e abriu
-  piscadas++;
-  olhoFechado = false;
-}</pre>
+    <div class="edicao">
+      <pre class="code ed-code cresce" data-lang="cresce" style="font-size:15px;max-width:100%;overflow:hidden">  const OLHO_DIR = [33, 133, 159, 145];
+  const OLHO_ESQ = [263, 362, 386, 374];
+  function distancia(a, b) { ... }
+  function aberturaOlho(mesh, olho) { ... }
+  const rosto = human.result.face[0];
+  const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;
++
++ const LIMIAR_PX = 6;     // abertura abaixo disso = olho fechado
++ let piscadas = 0;        // fora da funcao: lembra entre quadros
++ let olhoFechado = false;
++
++ if (abertura &lt; LIMIAR_PX) {
++   olhoFechado = true;
++ } else if (olhoFechado) { // estava fechado e abriu
++   piscadas++;
++   olhoFechado = false;
++ }</pre>
+      <p class="peq suave">Apagado: o código do slide anterior. Em destaque: o que entra agora.</p>
+      <p class="peq frag">Esse é o código do passo 2. Ele vai no arquivo <code>human/demo/video/piscadas.html</code>: nas próximas edições você cola, de baixo para cima.</p>
+    </div>
   </div>
 </section>
 
@@ -472,7 +483,7 @@ longe:  10 px / 25 px = 0,40</pre>
         <li class="frag">A função devolve a divisão: um número sem unidade, perto de 0,4 com o olho aberto</li>
         <li class="frag">A máquina de estados continua igual; só troca a medida e o limiar</li>
       </ul>
-      <p class="peq suave" style="margin-top:12px">Prévia do código completo. As edições a seguir colam isso no arquivo, de baixo para cima.</p>
+      <p class="peq suave" style="margin-top:12px">Prévia do código completo. Arquivo: <code>human/demo/video/piscadas.html</code>. As edições a seguir colam isso, de baixo para cima.</p>
     </div>
     <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">const LIMIAR_RAZAO = 0.20; // razao abaixo disso = olho fechado
 
@@ -501,7 +512,7 @@ if (razao &lt; LIMIAR_RAZAO) {
   <h2><span class="passo">Passo 3</span> · Testar</h2>
   <div class="cartao" style="align-self:flex-start;min-width:760px">
     <ol class="passos">
-      <li>Salve e recarregue a página</li>
+      <li>Salve o <code>human/demo/video/piscadas.html</code> e recarregue a página</li>
       <li>No canto aparece <b class="amarelo">Razão: 0.3</b> a <b class="amarelo">0.4</b> com o olho aberto</li>
       <li>Pisque: a razão cai e o contador sobe</li>
       <li>Chegue perto e se afaste da câmera piscando: agora conta nas duas distâncias</li>
@@ -591,7 +602,7 @@ if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&
         <li class="frag"><code>rosto.emotion[0].emotion</code>: a emoção dominante, ex.: <code>'happy'</code></li>
         <li class="frag"><code>EMOCOES['happy']</code> vira <code>'feliz'</code>, que vai para a tela (e no passo 6 para o micro:bit)</li>
       </ul>
-      <p class="peq suave" style="margin-top:12px">Prévia do código completo. As edições a seguir colam isso no arquivo, de baixo para cima.</p>
+      <p class="peq suave" style="margin-top:12px">Prévia do código completo. Arquivo: <code>human/demo/video/piscadas.html</code>. As edições a seguir colam isso, de baixo para cima.</p>
     </div>
     <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">const EMOCOES = { angry: 'raiva', disgust: 'nojo', fear: 'medo', happy: 'feliz',
                   sad: 'triste', surprise: 'surpresa', neutral: 'neutro' };
@@ -618,7 +629,7 @@ lerEmocao();</pre>
   <div class="cols c64">
     <div class="cartao">
       <ol class="passos">
-        <li>Salve e recarregue a página</li>
+        <li>Salve o <code>human/demo/video/piscadas.html</code> e recarregue a página</li>
         <li>No canto aparece a terceira linha: <b class="amarelo">Emoção: neutro</b></li>
         <li>Sorria, feche a cara, abra a boca de surpresa, franza o nariz</li>
         <li>O quadro de rótulos da biblioteca volta a mostrar a emoção com a porcentagem</li>
@@ -690,6 +701,7 @@ lerEmocao();</pre>
 <section class="slide" data-titulo="Passo 5: 01_ola.py">
   <h2><span class="passo">Passo 5</span> · <code>01_ola.py</code></h2>
   <div class="ed-prog"><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>programa 1 de 5 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/01_ola.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
   <div class="cols c64">
     <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 01: matriz de LED (funciona no V1 e no V2)
 from microbit import *
@@ -711,6 +723,7 @@ display.show(Image.HAPPY)</pre>
 <section class="slide" data-titulo="Passo 5: 02_botoes.py">
   <h2><span class="passo">Passo 5</span> · <code>02_botoes.py</code></h2>
   <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><b>programa 2 de 5 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/02_botoes.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
   <div class="cols c64">
     <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 02: botoes A e B (funciona no V1 e no V2)
 from microbit import *
@@ -738,6 +751,7 @@ while True:  # o programa do micro:bit roda para sempre, igual a um game loop
 <section class="slide" data-titulo="Passo 5: 03_sensores.py">
   <h2><span class="passo">Passo 5</span> · <code>03_sensores.py</code></h2>
   <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><b>programa 3 de 5 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/03_sensores.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
   <div class="cols c64">
     <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 03: sensores embutidos (funciona no V1 e no V2)
 #   sacudir -&gt; dado de 1 a 6 (acelerometro)
@@ -769,6 +783,7 @@ while True:
 <section class="slide" data-titulo="Passo 5: 04_print_serial.py">
   <h2><span class="passo">Passo 5</span> · <code>04_print_serial.py</code></h2>
   <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><b>programa 4 de 5 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/04_print_serial.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
   <div class="cols c64">
     <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 04: serial no sentido micro:bit -&gt; PC (funciona no V1 e no V2)
 # Tudo que vai no print() sai pelo cabo USB. No python.microbit.org,
@@ -794,6 +809,7 @@ while True:
 <section class="slide" data-titulo="Passo 5: 05_som_v2.py">
   <h2><span class="passo">Passo 5</span> · <code>05_som_v2.py</code></h2>
   <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><b>programa 5 de 5 · só V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/05_som_v2.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
   <div class="cols c64">
     <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 05: som, microfone e logo de toque (SO micro:bit V2)
 #   botao A -&gt; som feliz | botao B -&gt; som triste
@@ -849,14 +865,14 @@ while True:
   <p class="peq suave">Trechos dos dois lados. O código completo vem nos próximos slides.</p>
   <div class="cols">
     <div class="edicao">
-      <p class="peq"><b>Navegador</b>: manda a palavra com <code>\n</code>, só quando muda</p>
+      <p class="peq"><b>Navegador</b> (<code>human/demo/video/piscadas.html</code>): manda a palavra com <code>\n</code>, só quando muda</p>
       <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">if (emocao === ultimaEnviada) return; // igual: nao envia
 ultimaEnviada = emocao;
 // 'feliz' + '\n' vira os bytes 66 65 6c 69 7a 0a
 await escritor.write(new TextEncoder().encode(emocao + '\n'));</pre>
     </div>
     <div class="edicao frag">
-      <p class="peq"><b>micro:bit</b>: junta os bytes até achar o <code>\n</code></p>
+      <p class="peq"><b>micro:bit</b> (<code>microbit_receptor.py</code>): junta os bytes até achar o <code>\n</code></p>
       <pre class="code" data-lang="py" style="font-size:16px;white-space:pre-wrap">uart.init(baudrate=115200)  # mesma velocidade
 
 buffer += uart.read()       # chega aos pedacos
@@ -896,6 +912,7 @@ display.show(IMAGENS[texto])         # Image.HAPPY</pre>
 <!-- 25. PASSO 6 MICROBIT -->
 <section class="slide" data-titulo="Passo 6: o micro:bit">
   <h2><span class="passo">Passo 6</span> · Parte A: o receptor no micro:bit</h2>
+  <p class="peq">Arquivo: <code>passo_6_emocao_no_microbit/microbit_receptor.py</code> (ou o que a LLM gerou), colado no <b>python.microbit.org</b> e gravado na placa.</p>
   <div class="cols c64">
     <pre class="code" data-lang="py" style="font-size:15px;line-height:1.25">from microbit import *
 
@@ -948,7 +965,7 @@ while True:
   <div class="cols">
     <div class="cartao">
       <ol class="passos">
-        <li>Salve e recarregue a página</li>
+        <li>Salve o <code>human/demo/video/piscadas.html</code> e recarregue a página</li>
         <li>Clique em <b>Conectar micro:bit</b>, no canto de cima</li>
         <li>Escolha a placa na janela e clique em <b>Conectar</b></li>
         <li>O botão muda para <b>micro:bit conectado</b></li>
@@ -1042,7 +1059,11 @@ function montarCodigo(pre) {
   const bruto = pre.dataset.bruto ?? pre.textContent.replace(/^\n/, '').replace(/\s+$/, '');
   pre.dataset.bruto = bruto;
   let html;
-  if (lang === 'diff') {
+  if (lang === 'cresce') { // codigo que cresce: '+ ' = linha nova, resto = ja visto
+    html = bruto.split('\n').map((l) => (l === '+' || l.startsWith('+ '))
+      ? `<span class="add">${realcar(l.slice(2), 'js')}</span>`
+      : `<span class="ctx">${realcar(l.replace(/^  /, ''), 'js')}</span>`).join('\n');
+  } else if (lang === 'diff') {
     html = bruto.split('\n').map((l) => {
       const cls = l.startsWith('+') ? 'add' : l.startsWith('-') ? 'del' : '';
       const corpo = realcar(l, 'js');
@@ -1060,7 +1081,7 @@ function montarCodigo(pre) {
   b.className = 'copiar'; b.textContent = 'copiar';
   b.onclick = (e) => {
     e.stopPropagation();
-    const texto = lang === 'diff' ? bruto.split('\n').filter((l) => !l.startsWith('-')).map((l) => l.replace(/^\+/, '')).join('\n') : bruto;
+    const texto = lang === 'cresce' ? bruto.split('\n').map((l) => l.replace(/^(\+ |\+$|  )/, '')).join('\n') : lang === 'diff' ? bruto.split('\n').filter((l) => !l.startsWith('-')).map((l) => l.replace(/^\+/, '')).join('\n') : bruto;
     navigator.clipboard?.writeText(texto).then(() => { b.textContent = 'copiado'; setTimeout(() => (b.textContent = 'copiar'), 1200); }).catch(() => {});
   };
   pre.appendChild(b);
@@ -1083,7 +1104,7 @@ document.querySelectorAll('section.edicoes').forEach((ph) => {
     s.innerHTML = `<h2><span class="passo">Passo ${passo}</span> · ${e.titulo}</h2>
       <div class="ed-prog">${barras}<b>edição ${e.n} de ${e.total}</b></div>
       <div class="ed-grid">
-        <div class="cartao ed-info"><h3>Onde</h3><p>${e.onde}</p><h3 style="margin-top:18px">Por quê</h3><p class="peq">${e.porque}</p></div>
+        <div class="cartao ed-info"><h3>Arquivo</h3><p>${e.lang === 'bash' ? 'cria <code>piscadas.html</code> copiando <code>index.html</code>' : '<code>human/demo/video/piscadas.html</code>'}</p><h3 style="margin-top:14px">Onde</h3><p>${e.onde}</p><h3 style="margin-top:18px">Por quê</h3><p class="peq">${e.porque}</p></div>
         <pre class="code ed-code">${corpo}</pre>
       </div>`;
     const pre = s.querySelector('pre');
@@ -1379,7 +1400,7 @@ function criarMatriz(placa) {
 })();
 
 // ---------- início ----------
-document.querySelectorAll('pre.code:not(.ed-code)').forEach((pre) => { if (pre.id !== 'cfgCodigo' && pre.id !== 'progCodigo') montarCodigo(pre); });
+document.querySelectorAll('pre.code:not(.ed-code), pre.code.cresce').forEach((pre) => { if (pre.id !== 'cfgCodigo' && pre.id !== 'progCodigo') montarCodigo(pre); });
 desenharConfig();
 escalar();
 const inicial = parseInt(location.hash.slice(1), 10);
