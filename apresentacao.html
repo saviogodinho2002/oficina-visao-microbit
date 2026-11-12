@@ -151,6 +151,11 @@
   pre.code.ed-code { font-size: 17px; white-space: pre-wrap; align-self: start; max-height: 100%; }
   pre.code.ed-code .ctx { opacity: .45; display: inline-block; width: 100%; white-space: pre; overflow: hidden; text-overflow: ellipsis; vertical-align: top; }
   pre.code.ed-code .add, pre.code.ed-code .del { padding-left: 0; }
+
+  ol.passos { margin: 0; padding-left: 30px; }
+  ol.passos li { margin: 12px 0; }
+  ol.passos code { overflow-wrap: anywhere; }
+  ol.passos li::marker { color: var(--amarelo); font-weight: 800; }
 </style>
 </head>
 <body>
@@ -339,6 +344,28 @@ npx serve                      # http://localhost:3000
 <!-- edicoes do passo 2: geradas a partir de EDICOES -->
 <section class="edicoes" data-passo="2"></section>
 
+<!-- PASSO 2 TESTAR -->
+<section class="slide" data-titulo="Passo 2: testar e calibrar">
+  <h2><span class="passo">Passo 2</span> · Testar e calibrar o limiar</h2>
+  <div class="cols">
+    <div class="cartao">
+      <ol class="passos">
+        <li>Salve o <code>piscadas.html</code></li>
+        <li>Abra <code>localhost:PORTA/demo/video/piscadas.html</code></li>
+        <li>No canto aparecem <b class="amarelo">Piscadas: 0</b> e <b class="amarelo">Abertura: ... px</b></li>
+        <li>Anote a abertura com o olho <b>aberto</b> e com o olho <b>fechado</b></li>
+        <li>Troque o <code>6</code> da linha 39 por um valor entre os dois</li>
+        <li>Pisque: o contador sobe</li>
+      </ol>
+    </div>
+    <div class="edicao">
+      <p><span class="badge">linha 39</span>o valor que você ajusta</p>
+      <pre class="code" data-lang="js" data-inicio="39" style="font-size:17px;white-space:pre-wrap">const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado</pre>
+      <p class="peq suave" style="margin-top:10px">Exemplo: aberto 10 px e fechado 3 px, um limiar 6 funciona. O valor muda de pessoa para pessoa e com a distância até a câmera. É isso que vamos testar agora.</p>
+    </div>
+  </div>
+</section>
+
 <!-- 12. PASSO 2 SIMULADOR -->
 <section class="slide" data-titulo="Passo 2: o problema">
   <h2><span class="passo">Passo 2</span> · Agora chegue perto e se afaste da câmera</h2>
@@ -382,7 +409,7 @@ longe:  10 px / 25 px = 0,40</pre>
       <h3>Referências</h3>
       <ul class="peq">
         <li>Versão simplificada do <b>EAR (Eye Aspect Ratio)</b>: Soukupová e Čech, <i>Real-Time Eye Blink Detection using Facial Landmarks</i> (2016), com 6 pontos por olho</li>
-        <li>O próprio Human faz conta parecida para o gesto <code>blink left eye</code>: <code>src/gesture/gesture.ts</code>, linhas 64 a 68, com limiar <code>0.2</code></li>
+        <li>O próprio Human faz conta parecida para o gesto <code>blink left eye</code>: <code>src/gesture/gesture.ts</code>, linhas 65 a 68, com limiar <code>0.2</code></li>
       </ul>
       <p class="peq" style="margin-top:12px">Os cantos (33, 133, 263, 362) já estavam em <code>OLHO_DIR</code> e <code>OLHO_ESQ</code> desde o passo 2.</p>
     </div>
@@ -391,6 +418,20 @@ longe:  10 px / 25 px = 0,40</pre>
 
 <!-- edicoes do passo 3: geradas a partir de EDICOES -->
 <section class="edicoes" data-passo="3"></section>
+
+<!-- PASSO 3 TESTAR -->
+<section class="slide" data-titulo="Passo 3: testar">
+  <h2><span class="passo">Passo 3</span> · Testar</h2>
+  <div class="cartao" style="align-self:flex-start;min-width:760px">
+    <ol class="passos">
+      <li>Salve e recarregue a página</li>
+      <li>No canto aparece <b class="amarelo">Razão: 0.3</b> a <b class="amarelo">0.4</b> com o olho aberto</li>
+      <li>Pisque: a razão cai e o contador sobe</li>
+      <li>Chegue perto e se afaste da câmera piscando: agora conta nas duas distâncias</li>
+      <li>Não precisa mais calibrar: o 0,20 vale para todo mundo</li>
+    </ol>
+  </div>
+</section>
 
 <!-- 16. PASSO 3 SIMULADOR -->
 <section class="slide" data-titulo="Passo 3: repetir o teste">
@@ -410,6 +451,34 @@ longe:  10 px / 25 px = 0,40</pre>
     </table>
   </div>
   <p class="frag">A abertura em pixels caiu para menos de um quarto. A razão ficou entre 0,37 e 0,40, sempre longe do limiar <b class="amarelo">0,20</b>.</p>
+</section>
+
+<!-- PASSO 3 GESTO PRONTO -->
+<section class="slide" data-titulo="Passo 3: o gesto pronto">
+  <h2><span class="passo">Passo 3</span> · O repositório já tinha algo parecido</h2>
+  <p class="peq"><code>human/src/gesture/gesture.ts</code>, linhas 65 a 68: o gesto <code>blink</code> que aparecia no canto da demo no passo 1.</p>
+  <pre class="code" data-lang="js" data-inicio="65" style="white-space:pre-wrap;font-size:13px;line-height:1.35">const openLeft = Math.abs(res[i].mesh[374][1] - res[i].mesh[386][1]) / Math.abs(res[i].mesh[443][1] - res[i].mesh[450][1]); // center of eye inner lid y coord div center of wider eye border y coord
+if (openLeft &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink left eye&#x27; });
+const openRight = Math.abs(res[i].mesh[145][1] - res[i].mesh[159][1]) / Math.abs(res[i].mesh[223][1] - res[i].mesh[230][1]); // center of eye inner lid y coord div center of wider eye border y coord
+if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&#x27; });</pre>
+  <div class="cols c64" style="gap:18px">
+    <div class="cartao frag">
+      <table style="width:100%;font-size:17px">
+        <tr><th></th><th>gesto do Human</th><th>nosso contador</th></tr>
+        <tr><td>abertura</td><td>pálpebras (só o <code>y</code>)</td><td>pálpebras (<code>x</code> e <code>y</code>)</td></tr>
+        <tr><td>divide por</td><td>altura de uma faixa em volta do olho (443 a 450, 223 a 230)</td><td>largura do olho (cantos)</td></tr>
+        <tr><td>limiar</td><td class="num">0.2</td><td class="num">0.20</td></tr>
+        <tr><td>resultado</td><td>"olho fechado <b>neste quadro</b>"</td><td><b>conta</b> piscadas</td></tr>
+      </table>
+    </div>
+    <div class="cartao frag">
+      <h3>Mesma ideia</h3>
+      <p class="peq">Os dois dividem a abertura por outra medida do próprio rosto, para não depender da distância.</p>
+      <h3 style="margin-top:14px">O que o gesto não faz</h3>
+      <p class="peq">Com o olho fechado por 4 quadros, o gesto aparece 4 vezes. Contar é o trabalho da nossa máquina de estados.</p>
+      <p class="peq suave" style="margin-top:10px">Desafio: refazer o contador lendo <code>human.result.gesture</code> (precisa de <code>gesture: { enabled: true }</code>).</p>
+    </div>
+  </div>
 </section>
 
 <!-- 18. PASSO 4 -->
@@ -435,6 +504,26 @@ longe:  10 px / 25 px = 0,40</pre>
 
 <!-- edicoes do passo 4: geradas a partir de EDICOES -->
 <section class="edicoes" data-passo="4"></section>
+
+<!-- PASSO 4 TESTAR -->
+<section class="slide" data-titulo="Passo 4: testar">
+  <h2><span class="passo">Passo 4</span> · Testar</h2>
+  <div class="cols c64">
+    <div class="cartao">
+      <ol class="passos">
+        <li>Salve e recarregue a página</li>
+        <li>No canto aparece a terceira linha: <b class="amarelo">Emoção: neutro</b></li>
+        <li>Sorria, feche a cara, abra a boca de surpresa, franza o nariz</li>
+        <li>O quadro de rótulos da biblioteca volta a mostrar a emoção com a porcentagem</li>
+        <li>As piscadas continuam sendo contadas</li>
+      </ol>
+    </div>
+    <div class="cartao">
+      <p class="medidas amarelo">Piscadas: 0<br>Razão: 0.41<br>Emoção: feliz</p>
+      <p class="peq suave" style="margin-top:12px">Caretas exageradas funcionam melhor. Nojo e medo são as mais difíceis. O FPS cai um pouco: é um modelo a mais rodando em cada quadro.</p>
+    </div>
+  </div>
+</section>
 
 <!-- 20. PASSO 5 -->
 <section class="slide" id="passo5" data-titulo="Passo 5: micro:bit">
@@ -475,13 +564,156 @@ longe:  10 px / 25 px = 0,40</pre>
   </div>
 </section>
 
-<!-- 21. PASSO 5 PROGRAMAS -->
-<section class="slide" data-titulo="Passo 5: programas">
-  <h2><span class="passo">Passo 5</span> · Programas da pasta <code>passo_5_microbit/</code></h2>
-  <div class="abas" id="abasProg"></div>
+<!-- PASSO 5 COMO GRAVAR -->
+<section class="slide" data-titulo="Passo 5: como gravar">
+  <h2><span class="passo">Passo 5</span> · Como gravar um programa</h2>
+  <div class="cartao" style="align-self:flex-start;min-width:900px">
+    <ol class="passos">
+      <li>Ligue o micro:bit no computador com um cabo micro USB <b>de dados</b></li>
+      <li>Abra <b>python.microbit.org</b> no Chrome ou Edge</li>
+      <li>Apague o código de exemplo e cole o programa</li>
+      <li>Clique em <b>Send to micro:bit</b> e escolha a placa na janela</li>
+      <li>Não conectou? Clique em <b>Save</b> e arraste o arquivo <code>.hex</code> para a unidade <b>MICROBIT</b></li>
+      <li>Para ver o que o programa imprime: <b>Show serial</b></li>
+    </ol>
+  </div>
+</section>
+
+<!-- PASSO 5 PROGRAMA 1 -->
+<section class="slide" data-titulo="Passo 5: 01_ola.py">
+  <h2><span class="passo">Passo 5</span> · <code>01_ola.py</code></h2>
+  <div class="ed-prog"><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>programa 1 de 5 · V1 e V2</b></div>
   <div class="cols c64">
-    <pre class="code" data-lang="py" id="progCodigo" style="font-size:16px"></pre>
-    <div class="cartao" id="progNota"></div>
+    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 01: matriz de LED (funciona no V1 e no V2)
+from microbit import *
+
+display.scroll(&quot;Ola, oficina!&quot;)  # texto rolando na matriz 5x5
+display.show(Image.HEART)        # imagem pronta da biblioteca
+sleep(1000)                      # espera 1 segundo (em milissegundos)
+display.show(Image.HAPPY)</pre>
+    <div class="cartao">
+      <h3>Na placa</h3>
+      <p class="peq">O texto rola, aparece um coração e depois uma carinha feliz.</p>
+      <h3 style="margin-top:16px">Por quê</h3>
+      <p class="peq"><code>Image.HAPPY</code>, <code>Image.SAD</code> e as outras são desenhos 5x5 que já vêm na biblioteca. No passo 6 cada emoção vira uma delas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PASSO 5 PROGRAMA 2 -->
+<section class="slide" data-titulo="Passo 5: 02_botoes.py">
+  <h2><span class="passo">Passo 5</span> · <code>02_botoes.py</code></h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><b>programa 2 de 5 · V1 e V2</b></div>
+  <div class="cols c64">
+    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 02: botoes A e B (funciona no V1 e no V2)
+from microbit import *
+
+while True:  # o programa do micro:bit roda para sempre, igual a um game loop
+    if button_a.is_pressed() and button_b.is_pressed():
+        display.show(Image.HEART)
+    elif button_a.is_pressed():
+        display.show(Image.HAPPY)
+    elif button_b.is_pressed():
+        display.show(Image.SAD)
+    else:
+        display.clear()
+    sleep(50)</pre>
+    <div class="cartao">
+      <h3>Na placa</h3>
+      <p class="peq">Segure A: feliz. Segure B: triste. Os dois juntos: coração. Solte: apaga.</p>
+      <h3 style="margin-top:16px">Por quê</h3>
+      <p class="peq">Todo programa de micro:bit é um laço infinito, igual ao <code>drawLoop</code> da página. O <code>sleep(50)</code> evita rodar mais rápido que o necessário.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PASSO 5 PROGRAMA 3 -->
+<section class="slide" data-titulo="Passo 5: 03_sensores.py">
+  <h2><span class="passo">Passo 5</span> · <code>03_sensores.py</code></h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><b>programa 3 de 5 · V1 e V2</b></div>
+  <div class="cols c64">
+    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 03: sensores embutidos (funciona no V1 e no V2)
+#   sacudir -&gt; dado de 1 a 6 (acelerometro)
+#   botao A -&gt; temperatura em graus C
+#   botao B -&gt; nivel de luz (0 a 255), medido pela propria matriz de LED
+from microbit import *
+import random
+
+while True:
+    if accelerometer.was_gesture(&quot;shake&quot;):
+        display.show(str(random.randint(1, 6)))
+        sleep(1000)
+        display.clear()
+    if button_a.was_pressed():
+        display.scroll(str(temperature()) + &quot;C&quot;)
+    if button_b.was_pressed():
+        display.scroll(str(display.read_light_level()))
+    sleep(50)</pre>
+    <div class="cartao">
+      <h3>Na placa</h3>
+      <p class="peq">Sacuda: um número de 1 a 6. Botão A: temperatura. Botão B: luz ambiente (0 a 255).</p>
+      <h3 style="margin-top:16px">Por quê</h3>
+      <p class="peq"><code>was_pressed()</code> lembra o clique enquanto o texto rola; <code>is_pressed()</code> só vê o estado atual. A luz é medida pela própria matriz de LED.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PASSO 5 PROGRAMA 4 -->
+<section class="slide" data-titulo="Passo 5: 04_print_serial.py">
+  <h2><span class="passo">Passo 5</span> · <code>04_print_serial.py</code></h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><b>programa 4 de 5 · V1 e V2</b></div>
+  <div class="cols c64">
+    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 04: serial no sentido micro:bit -&gt; PC (funciona no V1 e no V2)
+# Tudo que vai no print() sai pelo cabo USB. No python.microbit.org,
+# abra &quot;Show serial&quot; para ver as linhas chegando.
+# No passo 6 fazemos o caminho contrario: PC -&gt; micro:bit.
+from microbit import *
+
+while True:
+    x = accelerometer.get_x()  # inclinacao para os lados, de -2048 a 2047 aprox.
+    print(&quot;inclinacao:&quot;, x, &quot;temperatura:&quot;, temperature())
+    display.show(Image.ARROW_E if x &gt; 300 else Image.ARROW_W if x &lt; -300 else Image.SQUARE_SMALL)
+    sleep(500)</pre>
+    <div class="cartao">
+      <h3>Na placa</h3>
+      <p class="peq">Incline a placa: a seta acompanha. Clique em <b>Show serial</b> no editor e veja as linhas chegando.</p>
+      <h3 style="margin-top:16px">Por quê</h3>
+      <p class="peq">Cada <code>print()</code> sai pelo cabo USB: é a serial no sentido micro:bit para PC. No passo 6 fazemos o contrário.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PASSO 5 PROGRAMA 5 -->
+<section class="slide" data-titulo="Passo 5: 05_som_v2.py">
+  <h2><span class="passo">Passo 5</span> · <code>05_som_v2.py</code></h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><b>programa 5 de 5 · só V2</b></div>
+  <div class="cols c64">
+    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 05: som, microfone e logo de toque (SO micro:bit V2)
+#   botao A -&gt; som feliz | botao B -&gt; som triste
+#   tocar no logo dourado -&gt; coracao
+#   bater palma perto -&gt; carinha surpresa
+from microbit import *
+import audio
+
+while True:
+    if button_a.was_pressed():
+        audio.play(Sound.HAPPY)
+    if button_b.was_pressed():
+        audio.play(Sound.SAD)
+    if pin_logo.is_touched():
+        display.show(Image.HEART)
+    elif microphone.sound_level() &gt; 150:
+        display.show(Image.SURPRISED)
+        sleep(500)
+    else:
+        display.clear()
+    sleep(50)</pre>
+    <div class="cartao">
+      <h3>Na placa</h3>
+      <p class="peq">A: som feliz. B: som triste. Toque no logo dourado: coração. Bata palma perto: carinha surpresa.</p>
+      <h3 style="margin-top:16px">Por quê</h3>
+      <p class="peq">No V1 dá erro: ele não tem alto-falante, microfone nem logo de toque.</p>
+    </div>
   </div>
 </section>
 
@@ -514,12 +746,24 @@ longe:  10 px / 25 px = 0,40</pre>
   <p class="peq suave">Se o código gerado não funcionar, use a versão pronta da pasta <code>passo_6_emocao_no_microbit/</code>.</p>
 </section>
 
-<!-- edicoes do passo 6: geradas a partir de EDICOES -->
-<section class="edicoes" data-passo="6"></section>
+<!-- PASSO 6 PARTE A GRAVAR -->
+<section class="slide" data-titulo="Passo 6: gravar o receptor">
+  <h2><span class="passo">Passo 6</span> · Parte A: gravar o receptor</h2>
+  <div class="cartao" style="align-self:flex-start;min-width:900px">
+    <ol class="passos">
+      <li>Abra <b>python.microbit.org</b></li>
+      <li>Cole o programa do micro:bit (o que a LLM gerou ou <code>microbit_receptor.py</code>)</li>
+      <li><b>Send to micro:bit</b> (ou <b>Save</b> e arrastar o <code>.hex</code>)</li>
+      <li>A matriz mostra a carinha dormindo: está esperando mensagem</li>
+      <li><b>Feche a aba do python.microbit.org</b>: ela segura a porta USB e a página não conseguiria abrir</li>
+    </ol>
+  </div>
+  <p class="peq suave">Depois, a Parte B: as edições na página.</p>
+</section>
 
 <!-- 25. PASSO 6 MICROBIT -->
 <section class="slide" data-titulo="Passo 6: o micro:bit">
-  <h2><span class="passo">Passo 6</span> · Lado do micro:bit (MicroPython)</h2>
+  <h2><span class="passo">Passo 6</span> · Parte A: o receptor no micro:bit</h2>
   <div class="cols c64">
     <pre class="code" data-lang="py" style="font-size:15px;line-height:1.25">from microbit import *
 
@@ -563,6 +807,35 @@ while True:
   </div>
 </section>
 
+<!-- edicoes do passo 6: geradas a partir de EDICOES -->
+<section class="edicoes" data-passo="6"></section>
+
+<!-- PASSO 6 TESTAR -->
+<section class="slide" data-titulo="Passo 6: testar">
+  <h2><span class="passo">Passo 6</span> · Testar</h2>
+  <div class="cols">
+    <div class="cartao">
+      <ol class="passos">
+        <li>Salve e recarregue a página</li>
+        <li>Clique em <b>Conectar micro:bit</b>, no canto de cima</li>
+        <li>Escolha a placa na janela e clique em <b>Conectar</b></li>
+        <li>O botão muda para <b>micro:bit conectado</b></li>
+        <li>Faça caretas: a matriz troca a carinha junto com a tela</li>
+      </ol>
+    </div>
+    <div class="cartao">
+      <h3>Se não funcionar</h3>
+      <ul class="peq">
+        <li><b>Janela vazia</b>: cabo só de carga; troque por um de dados</li>
+        <li><b>Failed to open serial port</b>: feche o python.microbit.org e outros monitores serial</li>
+        <li><b>Linux</b>: <code>sudo usermod -aG dialout $USER</code> e entre de novo na sessão</li>
+        <li><b>"Use Chrome ou Edge"</b>: Firefox e Safari não têm Web Serial</li>
+        <li><b>Matriz continua dormindo</b>: confira 115200 nos dois lados e as palavras sem acento</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <!-- 26. FIM -->
 <section class="slide" data-titulo="Fechamento">
   <h2>O que você construiu</h2>
@@ -582,6 +855,7 @@ while True:
         <li>Só enviar a emoção depois de 10 leituras iguais seguidas</li>
         <li>Mandar <code>piscou</code> e mostrar <code>Image.YES</code> por meio segundo</li>
         <li>Caminho de volta: botão A do micro:bit zera o contador na página</li>
+        <li>Refazer o contador lendo <code>human.result.gesture</code></li>
       </ul>
       <h3 style="margin-top:16px">Material</h3>
       <p class="peq"><code>github.com/saviogodinho2002/oficina-visao-microbit</code></p>
@@ -660,7 +934,7 @@ function montarCodigo(pre) {
   pre.appendChild(b);
 }
 
-const EDICOES = [{"passo": 2, "titulo": "Copiar a demo", "onde": "Na pasta <code>human/demo/video/</code>", "porque": "O <code>index.html</code> original fica intacto para comparar. Todas as edições da oficina vão no <code>piscadas.html</code>.", "lang": "bash", "linhas": [[null, "add", "cp index.html piscadas.html"], [null, "ctx", "# Windows: copy index.html piscadas.html"], [null, "ctx", "# ou no VS Code: botão direito, Copy, Paste e renomear"]], "n": 1, "total": 7}, {"passo": 2, "titulo": "Chamar a contagem a cada quadro", "onde": "Depois da <b>linha 38</b> (<code>await human.draw.all(...)</code>)", "porque": "O <code>drawLoop</code> roda umas 30 vezes por segundo. A chamada vem <b>depois</b> do <code>draw.all</code>: cada volta repinta a webcam no canvas e apagaria um texto escrito antes.<br><br>A função ainda não existe. A página volta a funcionar quando ela for colada (edição 6).", "lang": "js", "linhas": [[37, "ctx", "        human.draw.canvas(human.webcam.element, canvas); // draw webcam video to screen canvas // better than using procesed image as this loop happens faster than processing loop"], [38, "ctx", "        await human.draw.all(canvas, interpolated); // draw labels, boxes, lines, etc."], [39, "add", "        contarPiscadas(); // OFICINA"], [40, "ctx", "        setTimeout(drawLoop, 30); // use to slow down refresh from max refresh rate to target of 1000/30 ~ 30 fps"], [41, "ctx", "      }"]], "n": 2, "total": 7}, {"passo": 2, "titulo": "Pontos do olho e estado do contador", "onde": "Depois da <b>linha 34</b> (a linha em branco depois de <code>const canvas</code>)", "porque": "Os índices vêm de <code>src/face/facemeshcoords.ts</code>. Ordem no array: canto externo, canto interno, pálpebra de cima, pálpebra de baixo. Os cantos só serão usados no passo 3.<br><br><code>piscadas</code> e <code>olhoFechado</code> ficam fora da função porque precisam lembrar o valor de um quadro para o outro.", "lang": "js", "linhas": [[33, "ctx", "      const canvas = document.getElementById('canvas'); // output canvas to draw both webcam and detection results"], [34, "ctx", ""], [35, "add", "      // OFICINA: pontos da malha usados (mesma numeracao do MediaPipe FaceMesh)"], [36, "add", "      // ordem: [canto externo, canto interno, palpebra de cima, palpebra de baixo]"], [37, "add", "      const OLHO_DIR = [33, 133, 159, 145];"], [38, "add", "      const OLHO_ESQ = [263, 362, 386, 374];"], [39, "add", "      const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado"], [40, "add", "      let piscadas = 0;"], [41, "add", "      let olhoFechado = false;"], [42, "add", ""], [43, "ctx", "      async function drawLoop() { // main screen refresh loop"], [44, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 3, "total": 7}, {"passo": 2, "titulo": "Medir a abertura em pixels", "onde": "Depois da <b>linha 42</b> (fim do trecho anterior)", "porque": "<code>distancia</code>: Pitágoras entre dois pontos <code>[x, y]</code> (o <code>z</code> fica de fora).<br><br><code>aberturaOlho</code>: distância entre as pálpebras, posições 2 e 3 do array do olho.", "lang": "js", "linhas": [[41, "ctx", "      let olhoFechado = false;"], [42, "ctx", ""], [43, "add", "      function distancia(a, b) { // distancia entre dois pontos [x, y]"], [44, "add", "        return Math.hypot(a[0] - b[0], a[1] - b[1]);"], [45, "add", "      }"], [46, "add", ""], [47, "add", "      function aberturaOlho(mesh, olho) { // distancia entre as palpebras, em pixels"], [48, "add", "        return distancia(mesh[olho[2]], mesh[olho[3]]);"], [49, "add", "      }"], [50, "add", ""], [51, "ctx", "      async function drawLoop() { // main screen refresh loop"], [52, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 4, "total": 7}, {"passo": 2, "titulo": "Escrever na tela", "onde": "Depois da <b>linha 50</b> (fim do trecho anterior)", "porque": "Texto amarelo com contorno preto no canto de cima do canvas, legível sobre qualquer fundo. <code>linha</code> empilha os textos, 50 px cada.", "lang": "js", "linhas": [[49, "ctx", "      }"], [50, "ctx", ""], [51, "add", "      function escrever(texto, linha) { // escreve no canto de cima do canvas"], [52, "add", "        const ctx = canvas.getContext('2d');"], [53, "add", "        ctx.font = 'bold 36px sans-serif';"], [54, "add", "        ctx.lineWidth = 6;"], [55, "add", "        ctx.strokeStyle = 'black';"], [56, "add", "        ctx.strokeText(texto, 20, 50 * linha);"], [57, "add", "        ctx.fillStyle = 'yellow';"], [58, "add", "        ctx.fillText(texto, 20, 50 * linha);"], [59, "add", "      }"], [60, "add", ""], [61, "ctx", "      async function drawLoop() { // main screen refresh loop"], [62, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 5, "total": 7}, {"passo": 2, "titulo": "A máquina de estados", "onde": "Depois da <b>linha 60</b> (fim do trecho anterior)", "porque": "Pega o primeiro rosto de <code>human.result</code> e faz a média da abertura dos dois olhos.<br><br>Abaixo do limiar: marca fechado. Acima <b>e</b> estava fechado: conta +1. Igual a tratar <code>keyup</code> em vez de <code>keydown</code>.<br><br>Com este trecho a página volta a funcionar.", "lang": "js", "linhas": [[59, "ctx", "      }"], [60, "ctx", ""], [61, "add", "      function contarPiscadas() {"], [62, "add", "        const rosto = human.result.face[0];"], [63, "add", "        if (!rosto || !rosto.mesh || rosto.mesh.length < 468) return; // sem rosto na tela"], [64, "add", "        const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;"], [65, "add", "        if (abertura < LIMIAR_PX) {"], [66, "add", "          olhoFechado = true;"], [67, "add", "        } else if (olhoFechado) { // estava fechado e abriu: conta uma piscada"], [68, "add", "          piscadas++;"], [69, "add", "          olhoFechado = false;"], [70, "add", "        }"], [71, "add", "        escrever(`Piscadas: ${piscadas}`, 1);"], [72, "add", "        escrever(`Abertura: ${abertura.toFixed(1)} px`, 2);"], [73, "add", "      }"], [74, "add", ""], [75, "ctx", "      async function drawLoop() { // main screen refresh loop"], [76, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 6, "total": 7}, {"passo": 2, "titulo": "Desligar o que não usamos", "onde": "<b>Linhas 25 a 28</b>: <code>true</code> vira <code>false</code>", "porque": "Idade, gênero, emoção, corpo, mãos e gestos não entram neste passo. Menos modelos rodando: mais FPS e tela mais limpa. A emoção volta no passo 4.<br><br>Salvar e abrir <code>/demo/video/piscadas.html</code>.", "lang": "js", "linhas": [[23, "ctx", "        modelBasePath: '../../models', // models can be loaded directly from cdn as well"], [24, "ctx", "        filter: { enabled: true, equalization: true, flip: false },"], [null, "del", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: true }, emotion: { enabled: true } },"], [null, "del", "        body: { enabled: true },"], [null, "del", "        hand: { enabled: true },"], [null, "del", "        gesture: { enabled: true },"], [25, "add", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: false }, emotion: { enabled: false } },"], [26, "add", "        body: { enabled: false },"], [27, "add", "        hand: { enabled: false },"], [28, "add", "        gesture: { enabled: false },"], [29, "ctx", "        object: { enabled: false },"], [30, "ctx", "        segmentation: { enabled: false },"]], "n": 7, "total": 7}, {"passo": 3, "titulo": "Mostrar a razão na tela", "onde": "<b>Linha 72</b>", "porque": "O texto da linha 2 da tela passa a mostrar a razão, com 2 casas decimais.<br><br>A página só volta a funcionar depois das 4 trocas.", "lang": "js", "linhas": [[70, "ctx", "        }"], [71, "ctx", "        escrever(`Piscadas: ${piscadas}`, 1);"], [null, "del", "        escrever(`Abertura: ${abertura.toFixed(1)} px`, 2);"], [72, "add", "        escrever(`Razão: ${razao.toFixed(2)}`, 2);"], [73, "ctx", "      }"], [74, "ctx", ""]], "n": 1, "total": 4}, {"passo": 3, "titulo": "Calcular a razão e comparar", "onde": "<b>Linhas 64 e 65</b>", "porque": "Média da razão dos dois olhos, comparada com o limiar novo. A máquina de estados embaixo continua igual.<br><br>A página só volta a funcionar depois das 4 trocas.", "lang": "js", "linhas": [[62, "ctx", "        const rosto = human.result.face[0];"], [63, "ctx", "        if (!rosto || !rosto.mesh || rosto.mesh.length < 468) return; // sem rosto na tela"], [null, "del", "        const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;"], [null, "del", "        if (abertura < LIMIAR_PX) {"], [64, "add", "        const razao = (razaoAberturaOlho(rosto.mesh, OLHO_DIR) + razaoAberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;"], [65, "add", "        if (razao < LIMIAR_RAZAO) {"], [66, "ctx", "          olhoFechado = true;"], [67, "ctx", "        } else if (olhoFechado) { // estava fechado e abriu: conta uma piscada"]], "n": 2, "total": 4}, {"passo": 3, "titulo": "A função nova: abertura / largura", "onde": "<b>Linhas 47 a 49</b>: trocar a função inteira", "porque": "Largura = distância entre os cantos (posições 0 e 1 do array).<br><br>Quando o rosto se aproxima, abertura e largura crescem juntas. A divisão cancela a escala, como usar <code>%</code> em vez de <code>px</code> num layout.", "lang": "js", "linhas": [[45, "ctx", "      }"], [46, "ctx", ""], [null, "del", "      function aberturaOlho(mesh, olho) { // distancia entre as palpebras, em pixels"], [null, "del", "        return distancia(mesh[olho[2]], mesh[olho[3]]);"], [47, "add", "      function razaoAberturaOlho(mesh, olho) { // abertura dividida pela largura: nao depende da distancia ate a camera"], [48, "add", "        const abertura = distancia(mesh[olho[2]], mesh[olho[3]]);"], [49, "add", "        const largura = distancia(mesh[olho[0]], mesh[olho[1]]);"], [50, "add", "        return abertura / largura;"], [51, "ctx", "      }"], [52, "ctx", ""]], "n": 3, "total": 4}, {"passo": 3, "titulo": "O limiar vira proporção", "onde": "<b>Linha 39</b>", "porque": "0,20 vale para qualquer distância. É o mesmo valor que o próprio Human usa no gesto <code>blink</code> (<code>src/gesture/gesture.ts</code>, linhas 64 a 68).<br><br>Salvar e recarregar.", "lang": "js", "linhas": [[37, "ctx", "      const OLHO_DIR = [33, 133, 159, 145];"], [38, "ctx", "      const OLHO_ESQ = [263, 362, 386, 374];"], [null, "del", "      const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado"], [39, "add", "      const LIMIAR_RAZAO = 0.20; // razao abaixo disso = olho fechado"], [40, "ctx", "      let piscadas = 0;"], [41, "ctx", "      let olhoFechado = false;"]], "n": 4, "total": 4}, {"passo": 4, "titulo": "Chamar a leitura de emoção", "onde": "Depois da <b>linha 81</b> (<code>contarPiscadas();</code>)", "porque": "Lê a emoção a cada quadro, logo depois da contagem de piscadas. A função é criada nas próximas duas edições.", "lang": "js", "linhas": [[80, "ctx", "        await human.draw.all(canvas, interpolated); // draw labels, boxes, lines, etc."], [81, "ctx", "        contarPiscadas(); // OFICINA"], [82, "add", "        lerEmocao(); // OFICINA"], [83, "ctx", "        setTimeout(drawLoop, 30); // use to slow down refresh from max refresh rate to target of 1000/30 ~ 30 fps"], [84, "ctx", "      }"]], "n": 1, "total": 4}, {"passo": 4, "titulo": "Traduzir os rótulos", "onde": "Depois da <b>linha 76</b> (a linha em branco depois de <code>contarPiscadas</code>)", "porque": "Os rótulos que o modelo devolve estão em <code>src/gear/emotion.ts</code>, linha 29. Um objeto serve de dicionário.<br><br>Sem acento de propósito: no passo 6 essas palavras viajam pela serial.", "lang": "js", "linhas": [[75, "ctx", "      }"], [76, "ctx", ""], [77, "add", "      // OFICINA: rotulos que o modelo de emocao devolve (src/gear/emotion.ts) traduzidos"], [78, "add", "      const EMOCOES = { angry: 'raiva', disgust: 'nojo', fear: 'medo', happy: 'feliz', sad: 'triste', surprise: 'surpresa', neutral: 'neutro' };"], [79, "add", "      let emocaoAtual = '';"], [80, "add", ""], [81, "ctx", "      async function drawLoop() { // main screen refresh loop"], [82, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 2, "total": 4}, {"passo": 4, "titulo": "Ler a emoção dominante", "onde": "Depois da <b>linha 80</b> (fim do trecho anterior)", "porque": "<code>rosto.emotion</code> é uma lista de <code>{ score, emotion }</code> já ordenada do maior score para o menor (<code>emotion.ts</code>, linha 80). Então <code>[0]</code> é a dominante.<br><br>Escreve na linha 3 da tela, reaproveitando <code>escrever</code>.", "lang": "js", "linhas": [[79, "ctx", "      let emocaoAtual = '';"], [80, "ctx", ""], [81, "add", "      function lerEmocao() {"], [82, "add", "        const rosto = human.result.face[0];"], [83, "add", "        if (!rosto || !rosto.emotion || rosto.emotion.length === 0) return;"], [84, "add", "        emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // a lista vem ordenada, maior score primeiro"], [85, "add", "        escrever(`Emoção: ${emocaoAtual}`, 3);"], [86, "add", "      }"], [87, "add", ""], [88, "ctx", "      async function drawLoop() { // main screen refresh loop"], [89, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 3, "total": 4}, {"passo": 4, "titulo": "Ligar o modelo de emoção", "onde": "<b>Linha 25</b>: <code>emotion: { enabled: false }</code> vira <code>true</code>", "porque": "O modelo já está no repositório (<code>models/emotion.bin</code>, ~800 KB). Uma flag faz a biblioteca carregar e rodar ele em cada rosto. É a \"ativação da função\".<br><br>Salvar e recarregar: aparece <code>Emoção: feliz</code>.", "lang": "js", "linhas": [[23, "ctx", "        modelBasePath: '../../models', // models can be loaded directly from cdn as well"], [24, "ctx", "        filter: { enabled: true, equalization: true, flip: false },"], [null, "del", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: false }, emotion: { enabled: false } },"], [25, "add", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: false }, emotion: { enabled: true } },"], [26, "ctx", "        body: { enabled: false },"], [27, "ctx", "        hand: { enabled: false },"]], "n": 4, "total": 4}, {"passo": 6, "titulo": "Estado da conexão", "onde": "Depois da <b>linha 87</b> (a linha em branco depois de <code>lerEmocao</code>)<br><span class=\"suave\">ou o trecho equivalente que a LLM gerou</span>", "porque": "<code>botao</code>: o elemento da página.<br><code>escritor</code>: por onde mandamos bytes; <code>null</code> enquanto não conectou.<br><code>ultimaEnviada</code>: para só enviar quando a emoção muda.", "lang": "js", "linhas": [[86, "ctx", "      }"], [87, "ctx", ""], [88, "add", "      // OFICINA: envio pela serial (trecho gerado com LLM na oficina)"], [89, "add", "      const botao = document.getElementById('conectar');"], [90, "add", "      let escritor = null; // writer da porta serial aberta"], [91, "add", "      let ultimaEnviada = '';"], [92, "add", ""], [93, "ctx", "      async function drawLoop() { // main screen refresh loop"], [94, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 1, "total": 5}, {"passo": 6, "titulo": "Conectar ao micro:bit", "onde": "Depois da <b>linha 92</b> (fim do trecho anterior)<br><span class=\"suave\">ou o trecho equivalente que a LLM gerou</span>", "porque": "<code>requestPort</code> abre a janela de escolha da porta; o navegador só deixa chamar num clique. O filtro <code>0x0d28</code> mostra só o micro:bit.<br><br><code>open</code> a 115200, a mesma velocidade do <code>uart.init</code> no micro:bit. <code>getWriter</code> devolve o escritor.", "lang": "js", "linhas": [[91, "ctx", "      let ultimaEnviada = '';"], [92, "ctx", ""], [93, "add", "      botao.onclick = async () => {"], [94, "add", "        if (!('serial' in navigator)) {"], [95, "add", "          botao.textContent = 'Use Chrome ou Edge (sem Web Serial)';"], [96, "add", "          return;"], [97, "add", "        }"], [98, "add", "        try {"], [99, "add", "          const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit"], [100, "add", "          await porta.open({ baudRate: 115200 });"], [101, "add", "          escritor = porta.writable.getWriter();"], [102, "add", "          ultimaEnviada = '';"], [103, "add", "          botao.textContent = 'micro:bit conectado';"], [104, "add", "        } catch (erro) {"], [105, "add", "          botao.textContent = 'Falhou: ' + erro.message;"], [106, "add", "        }"], [107, "add", "      };"], [108, "add", ""], [109, "ctx", "      async function drawLoop() { // main screen refresh loop"], [110, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 2, "total": 5}, {"passo": 6, "titulo": "Enviar a palavra", "onde": "Depois da <b>linha 108</b> (fim do trecho anterior)<br><span class=\"suave\">ou o trecho equivalente que a LLM gerou</span>", "porque": "Sai cedo se não conectou ou se a palavra é igual à última.<br><br><code>TextEncoder</code> transforma o texto em bytes UTF-8; o <code>\\n</code> marca o fim da linha. Se o cabo sair, volta ao estado desconectado.", "lang": "js", "linhas": [[107, "ctx", "      };"], [108, "ctx", ""], [109, "add", "      async function enviarEmocao(emocao) {"], [110, "add", "        if (!escritor || emocao === ultimaEnviada) return; // so envia quando muda"], [111, "add", "        ultimaEnviada = emocao;"], [112, "add", "        try {"], [113, "add", "          await escritor.write(new TextEncoder().encode(emocao + '\\n'));"], [114, "add", "        } catch (erro) {"], [115, "add", "          escritor = null;"], [116, "add", "          botao.textContent = 'Desconectou, clique para conectar';"], [117, "add", "        }"], [118, "add", "      }"], [119, "add", ""], [120, "ctx", "      async function drawLoop() { // main screen refresh loop"], [121, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 3, "total": 5}, {"passo": 6, "titulo": "Mandar a emoção", "onde": "Depois da <b>linha 85</b> (<code>escrever(`Emoção: ...`)</code>)", "porque": "Chama o envio a cada leitura. Quem filtra as repetições é o próprio <code>enviarEmocao</code>.", "lang": "js", "linhas": [[84, "ctx", "        emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // a lista vem ordenada, maior score primeiro"], [85, "ctx", "        escrever(`Emoção: ${emocaoAtual}`, 3);"], [86, "add", "        enviarEmocao(emocaoAtual);"], [87, "ctx", "      }"], [88, "ctx", ""]], "n": 4, "total": 5}, {"passo": 6, "titulo": "O botão de conectar", "onde": "Depois da <b>linha 17</b> (<code>&lt;canvas ...&gt;</code>)", "porque": "O navegador só abre uma porta serial a partir de um clique do usuário, por isso precisa de um botão.<br><br>Salvar, recarregar, clicar em <b>Conectar micro:bit</b> e escolher a placa.", "lang": "html", "linhas": [[16, "ctx", "  <body>"], [17, "ctx", "    <canvas id=\"canvas\" style=\"margin: 0 auto; width: 100%\"></canvas>"], [18, "add", "    <button id=\"conectar\" style=\"position: fixed; top: 12px; right: 12px; font-size: 20px; padding: 8px 16px\">Conectar micro:bit</button>"], [19, "ctx", "    <pre id=\"log\" style=\"padding: 8px; position: fixed; bottom: 0\"></pre>"], [20, "ctx", "    <script type=\"module\">"]], "n": 5, "total": 5}];
+const EDICOES = [{"passo": 2, "titulo": "Copiar a demo", "onde": "Na pasta <code>human/demo/video/</code>", "porque": "O <code>index.html</code> original fica intacto para comparar. Todas as edições da oficina vão no <code>piscadas.html</code>.", "lang": "bash", "linhas": [[null, "add", "cp index.html piscadas.html"], [null, "ctx", "# Windows: copy index.html piscadas.html"], [null, "ctx", "# ou no VS Code: botão direito, Copy, Paste e renomear"]], "n": 1, "total": 7}, {"passo": 2, "titulo": "Chamar a contagem a cada quadro", "onde": "Depois da <b>linha 38</b> (<code>await human.draw.all(...)</code>)", "porque": "O <code>drawLoop</code> roda umas 30 vezes por segundo. A chamada vem <b>depois</b> do <code>draw.all</code>: cada volta repinta a webcam no canvas e apagaria um texto escrito antes.<br><br>A função ainda não existe. A página volta a funcionar quando ela for colada (edição 6).", "lang": "js", "linhas": [[37, "ctx", "        human.draw.canvas(human.webcam.element, canvas); // draw webcam video to screen canvas // better than using procesed image as this loop happens faster than processing loop"], [38, "ctx", "        await human.draw.all(canvas, interpolated); // draw labels, boxes, lines, etc."], [39, "add", "        contarPiscadas(); // OFICINA"], [40, "ctx", "        setTimeout(drawLoop, 30); // use to slow down refresh from max refresh rate to target of 1000/30 ~ 30 fps"], [41, "ctx", "      }"]], "n": 2, "total": 7}, {"passo": 2, "titulo": "Pontos do olho e estado do contador", "onde": "Depois da <b>linha 34</b> (a linha em branco depois de <code>const canvas</code>)", "porque": "Os índices vêm de <code>src/face/facemeshcoords.ts</code>. Ordem no array: canto externo, canto interno, pálpebra de cima, pálpebra de baixo. Os cantos só serão usados no passo 3.<br><br><code>piscadas</code> e <code>olhoFechado</code> ficam fora da função porque precisam lembrar o valor de um quadro para o outro.", "lang": "js", "linhas": [[33, "ctx", "      const canvas = document.getElementById('canvas'); // output canvas to draw both webcam and detection results"], [34, "ctx", ""], [35, "add", "      // OFICINA: pontos da malha usados (mesma numeracao do MediaPipe FaceMesh)"], [36, "add", "      // ordem: [canto externo, canto interno, palpebra de cima, palpebra de baixo]"], [37, "add", "      const OLHO_DIR = [33, 133, 159, 145];"], [38, "add", "      const OLHO_ESQ = [263, 362, 386, 374];"], [39, "add", "      const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado"], [40, "add", "      let piscadas = 0;"], [41, "add", "      let olhoFechado = false;"], [42, "add", ""], [43, "ctx", "      async function drawLoop() { // main screen refresh loop"], [44, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 3, "total": 7}, {"passo": 2, "titulo": "Medir a abertura em pixels", "onde": "Depois da <b>linha 42</b> (fim do trecho anterior)", "porque": "<code>distancia</code>: Pitágoras entre dois pontos <code>[x, y]</code> (o <code>z</code> fica de fora).<br><br><code>aberturaOlho</code>: distância entre as pálpebras, posições 2 e 3 do array do olho.", "lang": "js", "linhas": [[41, "ctx", "      let olhoFechado = false;"], [42, "ctx", ""], [43, "add", "      function distancia(a, b) { // distancia entre dois pontos [x, y]"], [44, "add", "        return Math.hypot(a[0] - b[0], a[1] - b[1]);"], [45, "add", "      }"], [46, "add", ""], [47, "add", "      function aberturaOlho(mesh, olho) { // distancia entre as palpebras, em pixels"], [48, "add", "        return distancia(mesh[olho[2]], mesh[olho[3]]);"], [49, "add", "      }"], [50, "add", ""], [51, "ctx", "      async function drawLoop() { // main screen refresh loop"], [52, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 4, "total": 7}, {"passo": 2, "titulo": "Escrever na tela", "onde": "Depois da <b>linha 50</b> (fim do trecho anterior)", "porque": "Texto amarelo com contorno preto no canto de cima do canvas, legível sobre qualquer fundo. <code>linha</code> empilha os textos, 50 px cada.", "lang": "js", "linhas": [[49, "ctx", "      }"], [50, "ctx", ""], [51, "add", "      function escrever(texto, linha) { // escreve no canto de cima do canvas"], [52, "add", "        const ctx = canvas.getContext('2d');"], [53, "add", "        ctx.font = 'bold 36px sans-serif';"], [54, "add", "        ctx.lineWidth = 6;"], [55, "add", "        ctx.strokeStyle = 'black';"], [56, "add", "        ctx.strokeText(texto, 20, 50 * linha);"], [57, "add", "        ctx.fillStyle = 'yellow';"], [58, "add", "        ctx.fillText(texto, 20, 50 * linha);"], [59, "add", "      }"], [60, "add", ""], [61, "ctx", "      async function drawLoop() { // main screen refresh loop"], [62, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 5, "total": 7}, {"passo": 2, "titulo": "A máquina de estados", "onde": "Depois da <b>linha 60</b> (fim do trecho anterior)", "porque": "Pega o primeiro rosto de <code>human.result</code> e faz a média da abertura dos dois olhos.<br><br>Abaixo do limiar: marca fechado. Acima <b>e</b> estava fechado: conta +1. Igual a tratar <code>keyup</code> em vez de <code>keydown</code>.<br><br>Com este trecho a página volta a funcionar.", "lang": "js", "linhas": [[59, "ctx", "      }"], [60, "ctx", ""], [61, "add", "      function contarPiscadas() {"], [62, "add", "        const rosto = human.result.face[0];"], [63, "add", "        if (!rosto || !rosto.mesh || rosto.mesh.length < 468) return; // sem rosto na tela"], [64, "add", "        const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;"], [65, "add", "        if (abertura < LIMIAR_PX) {"], [66, "add", "          olhoFechado = true;"], [67, "add", "        } else if (olhoFechado) { // estava fechado e abriu: conta uma piscada"], [68, "add", "          piscadas++;"], [69, "add", "          olhoFechado = false;"], [70, "add", "        }"], [71, "add", "        escrever(`Piscadas: ${piscadas}`, 1);"], [72, "add", "        escrever(`Abertura: ${abertura.toFixed(1)} px`, 2);"], [73, "add", "      }"], [74, "add", ""], [75, "ctx", "      async function drawLoop() { // main screen refresh loop"], [76, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 6, "total": 7}, {"passo": 2, "titulo": "Desligar o que não usamos", "onde": "<b>Linhas 25 a 28</b>: <code>true</code> vira <code>false</code>", "porque": "Idade, gênero, emoção, corpo, mãos e gestos não entram neste passo. Menos modelos rodando: mais FPS e tela mais limpa. A emoção volta no passo 4.<br><br>Salvar e abrir <code>/demo/video/piscadas.html</code>.", "lang": "js", "linhas": [[23, "ctx", "        modelBasePath: '../../models', // models can be loaded directly from cdn as well"], [24, "ctx", "        filter: { enabled: true, equalization: true, flip: false },"], [null, "del", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: true }, emotion: { enabled: true } },"], [null, "del", "        body: { enabled: true },"], [null, "del", "        hand: { enabled: true },"], [null, "del", "        gesture: { enabled: true },"], [25, "add", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: false }, emotion: { enabled: false } },"], [26, "add", "        body: { enabled: false },"], [27, "add", "        hand: { enabled: false },"], [28, "add", "        gesture: { enabled: false },"], [29, "ctx", "        object: { enabled: false },"], [30, "ctx", "        segmentation: { enabled: false },"]], "n": 7, "total": 7}, {"passo": 3, "titulo": "Mostrar a razão na tela", "onde": "<b>Linha 72</b>", "porque": "O texto da linha 2 da tela passa a mostrar a razão, com 2 casas decimais.<br><br>A página só volta a funcionar depois das 4 trocas.", "lang": "js", "linhas": [[70, "ctx", "        }"], [71, "ctx", "        escrever(`Piscadas: ${piscadas}`, 1);"], [null, "del", "        escrever(`Abertura: ${abertura.toFixed(1)} px`, 2);"], [72, "add", "        escrever(`Razão: ${razao.toFixed(2)}`, 2);"], [73, "ctx", "      }"], [74, "ctx", ""]], "n": 1, "total": 4}, {"passo": 3, "titulo": "Calcular a razão e comparar", "onde": "<b>Linhas 64 e 65</b>", "porque": "Média da razão dos dois olhos, comparada com o limiar novo. A máquina de estados embaixo continua igual.<br><br>A página só volta a funcionar depois das 4 trocas.", "lang": "js", "linhas": [[62, "ctx", "        const rosto = human.result.face[0];"], [63, "ctx", "        if (!rosto || !rosto.mesh || rosto.mesh.length < 468) return; // sem rosto na tela"], [null, "del", "        const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;"], [null, "del", "        if (abertura < LIMIAR_PX) {"], [64, "add", "        const razao = (razaoAberturaOlho(rosto.mesh, OLHO_DIR) + razaoAberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;"], [65, "add", "        if (razao < LIMIAR_RAZAO) {"], [66, "ctx", "          olhoFechado = true;"], [67, "ctx", "        } else if (olhoFechado) { // estava fechado e abriu: conta uma piscada"]], "n": 2, "total": 4}, {"passo": 3, "titulo": "A função nova: abertura / largura", "onde": "<b>Linhas 47 a 49</b>: trocar a função inteira", "porque": "Largura = distância entre os cantos (posições 0 e 1 do array).<br><br>Quando o rosto se aproxima, abertura e largura crescem juntas. A divisão cancela a escala, como usar <code>%</code> em vez de <code>px</code> num layout.", "lang": "js", "linhas": [[45, "ctx", "      }"], [46, "ctx", ""], [null, "del", "      function aberturaOlho(mesh, olho) { // distancia entre as palpebras, em pixels"], [null, "del", "        return distancia(mesh[olho[2]], mesh[olho[3]]);"], [47, "add", "      function razaoAberturaOlho(mesh, olho) { // abertura dividida pela largura: nao depende da distancia ate a camera"], [48, "add", "        const abertura = distancia(mesh[olho[2]], mesh[olho[3]]);"], [49, "add", "        const largura = distancia(mesh[olho[0]], mesh[olho[1]]);"], [50, "add", "        return abertura / largura;"], [51, "ctx", "      }"], [52, "ctx", ""]], "n": 3, "total": 4}, {"passo": 3, "titulo": "O limiar vira proporção", "onde": "<b>Linha 39</b>", "porque": "0,20 vale para qualquer distância. É o mesmo valor que o próprio Human usa no gesto <code>blink</code> (<code>src/gesture/gesture.ts</code>, linhas 65 a 68).<br><br>Salvar e recarregar.", "lang": "js", "linhas": [[37, "ctx", "      const OLHO_DIR = [33, 133, 159, 145];"], [38, "ctx", "      const OLHO_ESQ = [263, 362, 386, 374];"], [null, "del", "      const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado"], [39, "add", "      const LIMIAR_RAZAO = 0.20; // razao abaixo disso = olho fechado"], [40, "ctx", "      let piscadas = 0;"], [41, "ctx", "      let olhoFechado = false;"]], "n": 4, "total": 4}, {"passo": 4, "titulo": "Chamar a leitura de emoção", "onde": "Depois da <b>linha 81</b> (<code>contarPiscadas();</code>)", "porque": "Lê a emoção a cada quadro, logo depois da contagem de piscadas. A função é criada nas próximas duas edições.", "lang": "js", "linhas": [[80, "ctx", "        await human.draw.all(canvas, interpolated); // draw labels, boxes, lines, etc."], [81, "ctx", "        contarPiscadas(); // OFICINA"], [82, "add", "        lerEmocao(); // OFICINA"], [83, "ctx", "        setTimeout(drawLoop, 30); // use to slow down refresh from max refresh rate to target of 1000/30 ~ 30 fps"], [84, "ctx", "      }"]], "n": 1, "total": 4}, {"passo": 4, "titulo": "Traduzir os rótulos", "onde": "Depois da <b>linha 76</b> (a linha em branco depois de <code>contarPiscadas</code>)", "porque": "Os rótulos que o modelo devolve estão em <code>src/gear/emotion.ts</code>, linha 29. Um objeto serve de dicionário.<br><br>Sem acento de propósito: no passo 6 essas palavras viajam pela serial.", "lang": "js", "linhas": [[75, "ctx", "      }"], [76, "ctx", ""], [77, "add", "      // OFICINA: rotulos que o modelo de emocao devolve (src/gear/emotion.ts) traduzidos"], [78, "add", "      const EMOCOES = { angry: 'raiva', disgust: 'nojo', fear: 'medo', happy: 'feliz', sad: 'triste', surprise: 'surpresa', neutral: 'neutro' };"], [79, "add", "      let emocaoAtual = '';"], [80, "add", ""], [81, "ctx", "      async function drawLoop() { // main screen refresh loop"], [82, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 2, "total": 4}, {"passo": 4, "titulo": "Ler a emoção dominante", "onde": "Depois da <b>linha 80</b> (fim do trecho anterior)", "porque": "<code>rosto.emotion</code> é uma lista de <code>{ score, emotion }</code> já ordenada do maior score para o menor (<code>emotion.ts</code>, linha 80). Então <code>[0]</code> é a dominante.<br><br>Escreve na linha 3 da tela, reaproveitando <code>escrever</code>.", "lang": "js", "linhas": [[79, "ctx", "      let emocaoAtual = '';"], [80, "ctx", ""], [81, "add", "      function lerEmocao() {"], [82, "add", "        const rosto = human.result.face[0];"], [83, "add", "        if (!rosto || !rosto.emotion || rosto.emotion.length === 0) return;"], [84, "add", "        emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // a lista vem ordenada, maior score primeiro"], [85, "add", "        escrever(`Emoção: ${emocaoAtual}`, 3);"], [86, "add", "      }"], [87, "add", ""], [88, "ctx", "      async function drawLoop() { // main screen refresh loop"], [89, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 3, "total": 4}, {"passo": 4, "titulo": "Ligar o modelo de emoção", "onde": "<b>Linha 25</b>: <code>emotion: { enabled: false }</code> vira <code>true</code>", "porque": "O modelo já está no repositório (<code>models/emotion.bin</code>, ~800 KB). Uma flag faz a biblioteca carregar e rodar ele em cada rosto. É a \"ativação da função\".<br><br>Salvar e recarregar: aparece <code>Emoção: feliz</code>.", "lang": "js", "linhas": [[23, "ctx", "        modelBasePath: '../../models', // models can be loaded directly from cdn as well"], [24, "ctx", "        filter: { enabled: true, equalization: true, flip: false },"], [null, "del", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: false }, emotion: { enabled: false } },"], [25, "add", "        face: { enabled: true, detector: { rotation: false }, mesh: { enabled: true }, attention: { enabled: false }, iris: { enabled: true }, description: { enabled: false }, emotion: { enabled: true } },"], [26, "ctx", "        body: { enabled: false },"], [27, "ctx", "        hand: { enabled: false },"]], "n": 4, "total": 4}, {"passo": 6, "titulo": "Estado da conexão", "onde": "Depois da <b>linha 87</b> (a linha em branco depois de <code>lerEmocao</code>)<br><span class=\"suave\">ou o trecho equivalente que a LLM gerou</span>", "porque": "<code>botao</code>: o elemento da página.<br><code>escritor</code>: por onde mandamos bytes; <code>null</code> enquanto não conectou.<br><code>ultimaEnviada</code>: para só enviar quando a emoção muda.", "lang": "js", "linhas": [[86, "ctx", "      }"], [87, "ctx", ""], [88, "add", "      // OFICINA: envio pela serial (trecho gerado com LLM na oficina)"], [89, "add", "      const botao = document.getElementById('conectar');"], [90, "add", "      let escritor = null; // writer da porta serial aberta"], [91, "add", "      let ultimaEnviada = '';"], [92, "add", ""], [93, "ctx", "      async function drawLoop() { // main screen refresh loop"], [94, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 1, "total": 5}, {"passo": 6, "titulo": "Conectar ao micro:bit", "onde": "Depois da <b>linha 92</b> (fim do trecho anterior)<br><span class=\"suave\">ou o trecho equivalente que a LLM gerou</span>", "porque": "<code>requestPort</code> abre a janela de escolha da porta; o navegador só deixa chamar num clique. O filtro <code>0x0d28</code> mostra só o micro:bit.<br><br><code>open</code> a 115200, a mesma velocidade do <code>uart.init</code> no micro:bit. <code>getWriter</code> devolve o escritor.", "lang": "js", "linhas": [[91, "ctx", "      let ultimaEnviada = '';"], [92, "ctx", ""], [93, "add", "      botao.onclick = async () => {"], [94, "add", "        if (!('serial' in navigator)) {"], [95, "add", "          botao.textContent = 'Use Chrome ou Edge (sem Web Serial)';"], [96, "add", "          return;"], [97, "add", "        }"], [98, "add", "        try {"], [99, "add", "          const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit"], [100, "add", "          await porta.open({ baudRate: 115200 });"], [101, "add", "          escritor = porta.writable.getWriter();"], [102, "add", "          ultimaEnviada = '';"], [103, "add", "          botao.textContent = 'micro:bit conectado';"], [104, "add", "        } catch (erro) {"], [105, "add", "          botao.textContent = 'Falhou: ' + erro.message;"], [106, "add", "        }"], [107, "add", "      };"], [108, "add", ""], [109, "ctx", "      async function drawLoop() { // main screen refresh loop"], [110, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 2, "total": 5}, {"passo": 6, "titulo": "Enviar a palavra", "onde": "Depois da <b>linha 108</b> (fim do trecho anterior)<br><span class=\"suave\">ou o trecho equivalente que a LLM gerou</span>", "porque": "Sai cedo se não conectou ou se a palavra é igual à última.<br><br><code>TextEncoder</code> transforma o texto em bytes UTF-8; o <code>\\n</code> marca o fim da linha. Se o cabo sair, volta ao estado desconectado.", "lang": "js", "linhas": [[107, "ctx", "      };"], [108, "ctx", ""], [109, "add", "      async function enviarEmocao(emocao) {"], [110, "add", "        if (!escritor || emocao === ultimaEnviada) return; // so envia quando muda"], [111, "add", "        ultimaEnviada = emocao;"], [112, "add", "        try {"], [113, "add", "          await escritor.write(new TextEncoder().encode(emocao + '\\n'));"], [114, "add", "        } catch (erro) {"], [115, "add", "          escritor = null;"], [116, "add", "          botao.textContent = 'Desconectou, clique para conectar';"], [117, "add", "        }"], [118, "add", "      }"], [119, "add", ""], [120, "ctx", "      async function drawLoop() { // main screen refresh loop"], [121, "ctx", "        const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video"]], "n": 3, "total": 5}, {"passo": 6, "titulo": "Mandar a emoção", "onde": "Depois da <b>linha 85</b> (<code>escrever(`Emoção: ...`)</code>)", "porque": "Chama o envio a cada leitura. Quem filtra as repetições é o próprio <code>enviarEmocao</code>.", "lang": "js", "linhas": [[84, "ctx", "        emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // a lista vem ordenada, maior score primeiro"], [85, "ctx", "        escrever(`Emoção: ${emocaoAtual}`, 3);"], [86, "add", "        enviarEmocao(emocaoAtual);"], [87, "ctx", "      }"], [88, "ctx", ""]], "n": 4, "total": 5}, {"passo": 6, "titulo": "O botão de conectar", "onde": "Depois da <b>linha 17</b> (<code>&lt;canvas ...&gt;</code>)", "porque": "O navegador só abre uma porta serial a partir de um clique do usuário, por isso precisa de um botão.<br><br>Salvar, recarregar, clicar em <b>Conectar micro:bit</b> e escolher a placa.", "lang": "html", "linhas": [[16, "ctx", "  <body>"], [17, "ctx", "    <canvas id=\"canvas\" style=\"margin: 0 auto; width: 100%\"></canvas>"], [18, "add", "    <button id=\"conectar\" style=\"position: fixed; top: 12px; right: 12px; font-size: 20px; padding: 8px 16px\">Conectar micro:bit</button>"], [19, "ctx", "    <pre id=\"log\" style=\"padding: 8px; position: fixed; bottom: 0\"></pre>"], [20, "ctx", "    <script type=\"module\">"]], "n": 5, "total": 5}];
 // ---------- slides de edicao, um por edicao ----------
 document.querySelectorAll('section.edicoes').forEach((ph) => {
   const passo = +ph.dataset.passo;
@@ -931,81 +1205,6 @@ function criarMatriz(placa) {
   const set = (v) => () => { press.A = press.B = v; placa.querySelectorAll('.bt').forEach((b) => b.classList.toggle('press', v)); render(); };
   ab.addEventListener('pointerdown', set(true)); ab.addEventListener('pointerup', set(false)); ab.addEventListener('pointerleave', set(false));
   render();
-})();
-
-// ---------- passo 5: abas de programas ----------
-const PROGRAMAS = [
-  { nome: '01_ola.py', v: 'V1 e V2', codigo: `# 01: matriz de LED (funciona no V1 e no V2)
-from microbit import *
-
-display.scroll("Ola, oficina!")  # texto rolando na matriz 5x5
-display.show(Image.HEART)        # imagem pronta da biblioteca
-sleep(1000)                      # espera 1 segundo (em milissegundos)
-display.show(Image.HAPPY)`, nota: '<code>Image.HAPPY</code>, <code>Image.SAD</code> e outras são imagens 5x5 que já vêm na biblioteca. No passo 6 usamos elas para desenhar a emoção.' },
-  { nome: '02_botoes.py', v: 'V1 e V2', codigo: `# 02: botoes A e B (funciona no V1 e no V2)
-from microbit import *
-
-while True:  # o programa roda para sempre, igual a um game loop
-    if button_a.is_pressed() and button_b.is_pressed():
-        display.show(Image.HEART)
-    elif button_a.is_pressed():
-        display.show(Image.HAPPY)
-    elif button_b.is_pressed():
-        display.show(Image.SAD)
-    else:
-        display.clear()
-    sleep(50)`, nota: 'É o que a placa do slide anterior simula. O <code>sleep(50)</code> evita que o laço rode mais rápido que o necessário.' },
-  { nome: '03_sensores.py', v: 'V1 e V2', codigo: `# 03: sensores embutidos (funciona no V1 e no V2)
-from microbit import *
-import random
-
-while True:
-    if accelerometer.was_gesture("shake"):
-        display.show(str(random.randint(1, 6)))
-        sleep(1000)
-        display.clear()
-    if button_a.was_pressed():
-        display.scroll(str(temperature()) + "C")
-    if button_b.was_pressed():
-        display.scroll(str(display.read_light_level()))
-    sleep(50)`, nota: 'Sacudir vira dado. <code>was_pressed()</code> lembra o clique desde a última consulta (não perde o clique enquanto o texto rola), diferente de <code>is_pressed()</code>, que só olha o estado atual.' },
-  { nome: '04_print_serial.py', v: 'V1 e V2', codigo: `# 04: serial no sentido micro:bit -> PC (funciona no V1 e no V2)
-from microbit import *
-
-while True:
-    x = accelerometer.get_x()  # inclinacao para os lados
-    print("inclinacao:", x, "temperatura:", temperature())
-    display.show(Image.ARROW_E if x > 300 else Image.ARROW_W if x < -300 else Image.SQUARE_SMALL)
-    sleep(500)`, nota: 'Introduz a <b>serial</b>: cada <code>print()</code> vira uma linha que sai pelo cabo USB e aparece em <b>Show serial</b> no editor. No passo 6 fazemos o caminho contrário.' },
-  { nome: '05_som_v2.py', v: 'só V2', codigo: `# 05: som, microfone e logo de toque (SO micro:bit V2)
-from microbit import *
-import audio
-
-while True:
-    if button_a.was_pressed():
-        audio.play(Sound.HAPPY)
-    if button_b.was_pressed():
-        audio.play(Sound.SAD)
-    if pin_logo.is_touched():
-        display.show(Image.HEART)
-    elif microphone.sound_level() > 150:
-        display.show(Image.SURPRISED)
-        sleep(500)
-    else:
-        display.clear()
-    sleep(50)`, nota: '<b class="vermelho">Só V2.</b> No V1 dá erro: ele não tem alto-falante, microfone nem logo de toque. Bater palma perto mostra a carinha surpresa.' },
-];
-(() => {
-  const abas = document.getElementById('abasProg');
-  const pre = document.getElementById('progCodigo');
-  const nota = document.getElementById('progNota');
-  function sel(i) {
-    [...abas.children].forEach((b, k) => b.classList.toggle('sel', k === i));
-    pre.textContent = PROGRAMAS[i].codigo; delete pre.dataset.bruto; montarCodigo(pre);
-    nota.innerHTML = `<h3>${PROGRAMAS[i].nome}</h3><p class="peq suave">${PROGRAMAS[i].v}</p><p class="peq" style="margin-top:10px">${PROGRAMAS[i].nota}</p>`;
-  }
-  PROGRAMAS.forEach((p, i) => { const b = document.createElement('button'); b.textContent = p.nome; b.onclick = () => sel(i); abas.appendChild(b); });
-  sel(0);
 })();
 
 // ---------- passo 6: animação da serial ----------

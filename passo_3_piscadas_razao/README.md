@@ -30,7 +30,7 @@ Com o olho aberto a razão fica perto de 0,3 a 0,4; ao fechar, ela cai bastante 
 Referências:
 
 - Essa medida é uma versão simplificada do **EAR (Eye Aspect Ratio)** de Soukupová e Čech, "Real-Time Eye Blink Detection using Facial Landmarks" (2016), que usa 6 pontos por olho (duas aberturas verticais e a largura).
-- O próprio Human faz uma conta parecida para o gesto `blink left eye`: `human/src/gesture/gesture.ts`, linhas 64 a 68, com limiar 0.2.
+- O próprio Human faz uma conta parecida para o gesto `blink left eye`: `human/src/gesture/gesture.ts`, linhas 65 a 68, com limiar 0.2.
 
 ## Fazer
 
@@ -170,3 +170,16 @@ A abertura em pixels caiu para menos de um quarto. A razão ficou entre 0,37 e 0
 - **`ReferenceError: aberturaOlho is not defined`** no console (F12): a função foi renomeada na edição 3, mas a edição 2 não foi feita (ou o contrário). Todos os usos precisam do nome novo.
 - **`ReferenceError: abertura is not defined`**: faltou a edição 1.
 - **Razão em 0 ou `NaN`**: conferir os índices `[olho[0]]` e `[olho[1]]` na largura.
+
+## O gesto pronto do Human (comparação)
+
+A demo do passo 1 já mostrava `blink left eye` no canto. Esse gesto vem de `human/src/gesture/gesture.ts`, linhas 65 a 68:
+
+- **abertura**: diferença do `y` entre as pálpebras (374 e 386; 145 e 159);
+- **divide por**: altura de uma faixa maior em volta do olho (443 e 450; 223 e 230), não pela largura do olho como a gente;
+- **limiar**: 0.2;
+- **resultado**: um aviso de "olho fechado **neste quadro**". Com o olho fechado por 4 quadros, o gesto aparece 4 vezes. Ele não conta piscadas.
+
+A ideia é a mesma do nosso passo 3 (dividir por outra medida do próprio rosto para não depender da distância). O que fizemos a mais foi contar, com a máquina de estados do passo 2.
+
+**Desafio**: refazer o contador lendo `human.result.gesture` em vez de calcular a razão. Precisa religar `gesture: { enabled: true }` na linha 28.
