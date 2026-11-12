@@ -1,0 +1,74 @@
+# Oficina: visão computacional no navegador + micro:bit
+
+A ideia da oficina é mostrar que dá para montar um projeto de visão computacional bem legal sem escrever nada do zero e sem pedir código para IA. O caminho é achar um repositório pronto, entender onde mexer e ajustar poucas linhas.
+
+O que vamos construir, em 6 passos:
+
+| Passo | Pasta | O que acontece | Esforço |
+|---|---|---|---|
+| 1 | [passo_1_malha_facial](passo_1_malha_facial/) | Clonar um repositório e ver a malha 3D do rosto na webcam | nenhuma linha |
+| 2 | [passo_2_piscadas_distancia](passo_2_piscadas_distancia/) | Contar piscadas medindo a abertura do olho em pixels (e ver isso falhar) | 4 linhas trocadas, ~40 coladas |
+| 3 | [passo_3_piscadas_razao](passo_3_piscadas_razao/) | Consertar: usar a razão abertura / largura do olho | 4 trechos trocados |
+| 4 | [passo_4_emocoes](passo_4_emocoes/) | Ligar o detector de emoções que já vem no repositório | 1 palavra + 12 linhas |
+| 5 | [passo_5_microbit](passo_5_microbit/) | Conhecer o micro:bit com programas curtos em Python | programas prontos |
+| 6 | [passo_6_emocao_no_microbit](passo_6_emocao_no_microbit/) | Mandar a emoção do PC para a matriz de LED do micro:bit pela USB | trecho gerado por LLM |
+
+A única parte em que usamos LLM é o código de comunicação serial do passo 6. A pasta do passo traz uma versão de referência caso a LLM gere algo que não funcione.
+
+## Repositório usado
+
+**Human**, de Vladimir Mandic: <https://github.com/vladmandic/human> (licença MIT).
+
+É uma biblioteca JavaScript que roda modelos de visão no navegador: detecção de rosto, malha facial de 468 pontos (mais 10 de íris), idade, gênero, emoção, corpo, mãos e gestos. Escolhemos ela porque:
+
+- roda no navegador, então funciona igual em Windows, Linux e macOS, sem instalar Python nem bibliotecas nativas;
+- a demo `demo/video/index.html` é um único arquivo HTML de 58 linhas, com JavaScript puro, sem etapa de build: dá para editar e recarregar a página;
+- os modelos (`models/`) e a biblioteca já compilada (`dist/human.esm.js`) vêm dentro do repositório, então depois de baixar tudo roda sem internet.
+
+Por que não Python: a forma mais conhecida de fazer isso em Python (MediaPipe com `mp.solutions.face_mesh`, usada por tutoriais e pela biblioteca cvzone) foi removida no MediaPipe 0.10.30, e as versões atuais (1.x) quebram esses exemplos. Somando com conflitos de versão do OpenCV entre bibliotecas, a instalação em máquinas diferentes vira o assunto da aula.
+
+## O que cada aluno precisa
+
+- **Chrome ou Edge** (o passo 6 usa Web Serial, que Firefox e Safari não têm).
+- **Webcam**.
+- Um **editor de texto** (VS Code recomendado).
+- **Git** ou só baixar o ZIP do GitHub.
+- Um jeito de servir arquivos em `localhost`. Qualquer um destes:
+  - Node.js LTS: `npx serve`
+  - Python 3: `python -m http.server 8000` (no Windows pode ser `py -m http.server 8000`)
+  - Extensão "Live Server" do VS Code
+- Para os passos 5 e 6: um **micro:bit** (V1 ou V2) e cabo **micro USB de dados** (cabo só de carga não funciona).
+
+Por que precisa de servidor: abrir o HTML com duplo clique (`file://`) bloqueia a câmera e o carregamento dos modelos. O navegador só libera câmera e serial em página segura, e `http://localhost` conta como segura.
+
+## Preparação (antes da aula)
+
+```bash
+git clone --depth 1 https://github.com/vladmandic/human.git
+```
+
+O `--depth 1` baixa só a versão atual, sem o histórico: cerca de 116 MB no disco em vez de mais de 600 MB. Com uma turma inteira baixando ao mesmo tempo no Wi-Fi da sala, vale levar a pasta `human` num pendrive ou o ZIP (<https://github.com/vladmandic/human/archive/refs/heads/main.zip>) como plano B.
+
+Versão testada: commit `d0c4c83` (13/12/2025), Human 3.3.6.
+
+Para servir (sempre de dentro da pasta `human`, porque a demo busca `../../dist` e `../../models`):
+
+```bash
+cd human
+npx serve            # abre em http://localhost:3000
+# ou
+python -m http.server 8000   # abre em http://localhost:8000
+```
+
+Daqui pra frente os endereços usam a porta 3000. Se usar Python, troque por 8000.
+
+## Se alguém se perder
+
+Cada pasta de passo (a partir do 2) tem uma subpasta `gabarito/` com o arquivo `piscadas.html` completo do fim daquele passo. Basta copiar esse arquivo para `human/demo/video/piscadas.html`, recarregar a página e seguir junto com a turma.
+
+## Conceitos que aparecem
+
+- **Malha facial (face mesh)**: o modelo devolve 478 pontos `[x, y, z]` com posição fixa no rosto. O ponto 159 é sempre o meio da pálpebra de cima do olho direito, em qualquer pessoa. É como um array com índice estável: a gente só precisa saber quais índices ler.
+- **Máquina de estados**: contar piscada é parecido com tratar `keydown`/`keyup`. Não se conta "olho fechado" a cada quadro (seriam várias contagens por piscada); conta-se a transição fechado para aberto.
+- **Invariância de escala**: medida em pixels muda quando o rosto chega perto ou se afasta da câmera. Divisão de duas medidas do mesmo objeto cancela essa escala.
+- **Serial**: um fluxo de bytes pelo cabo USB, como um `stdin`/`stdout` entre PC e micro:bit. Combinamos um protocolo simples: uma palavra por linha, terminada em `\n`.
