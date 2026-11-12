@@ -32,6 +32,7 @@
   .amarelo { color: var(--amarelo); } .ciano { color: var(--ciano); } .verde { color: var(--verde); } .vermelho { color: var(--vermelho); }
   code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .88em; background: var(--painel2); padding: 1px 6px; border-radius: 5px; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; min-height: 0; }
+  .cols > *, .sim > *, .serial > * { min-width: 0; }
   .cols.c37 { grid-template-columns: 3fr 7fr; } .cols.c46 { grid-template-columns: 4fr 6fr; } .cols.c64 { grid-template-columns: 6fr 4fr; } .cols.c73 { grid-template-columns: 7fr 3fr; }
   .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; padding: 18px 22px; }
   ul { margin: 0; padding-left: 26px; } li { margin: 6px 0; }
@@ -41,6 +42,7 @@
 
   pre.code { margin: 0; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 16px; line-height: 1.45; overflow: auto; position: relative; white-space: pre; }
   pre.code.grande { font-size: 19px; }
+  pre.code[data-lang="diff"] { white-space: pre-wrap; }
   pre.code .k { color: var(--roxo); } pre.code .s { color: var(--verde); } pre.code .n { color: #f6a35a; } pre.code .c { color: var(--suave); font-style: italic; }
   :root[data-tema="claro"] pre.code .n { color: #b5560b; }
   pre.code .ln { display: inline-block; width: 2.6em; color: var(--suave); opacity: .6; user-select: none; }
@@ -49,7 +51,7 @@
   .copiar { position: absolute; top: 8px; right: 8px; font-size: 13px; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--borda); background: var(--painel2); color: var(--suave); cursor: pointer; font-family: inherit; }
   .copiar:hover { color: var(--texto); }
   .badge { display: inline-block; font-size: 16px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--amarelo); color: #1b1300; margin-right: 8px; vertical-align: middle; }
-  .edicao { display: flex; flex-direction: column; gap: 6px; }
+  .edicao { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
   .edicao p { font-size: 20px; }
 
   #barra { position: fixed; left: 0; bottom: 0; height: 5px; background: var(--amarelo); transition: width .3s; z-index: 5; }
@@ -630,7 +632,7 @@ function lerEmocao() {
   <h2><span class="passo">Passo 5</span> · Programas da pasta <code>passo_5_microbit/</code></h2>
   <div class="abas" id="abasProg"></div>
   <div class="cols c64">
-    <pre class="code grande" data-lang="py" id="progCodigo"></pre>
+    <pre class="code" data-lang="py" id="progCodigo" style="font-size:16px"></pre>
     <div class="cartao" id="progNota"></div>
   </div>
 </section>
@@ -714,7 +716,7 @@ async function enviarEmocao(emocao) {
 <section class="slide" data-titulo="Passo 6: o micro:bit">
   <h2><span class="passo">Passo 6</span> · Lado do micro:bit (MicroPython)</h2>
   <div class="cols c64">
-    <pre class="code" data-lang="py" style="font-size:15.5px">from microbit import *
+    <pre class="code" data-lang="py" style="font-size:13.5px;line-height:1.3">from microbit import *
 
 IMAGENS = {
     "feliz": Image.HAPPY,    "triste": Image.SAD,
@@ -1020,7 +1022,7 @@ function criarSimulador(raiz) {
     if (fechouPelaRegra) fechado = true;
     else if (fechado) { piscadas++; fechado = false; }
     // desenho: o olho encolhe/cresce com a distância
-    const cx = 210, cy = 115, w = 300 * esc / 1.8 * 1.6, h = w * razao;
+    const cx = 210, cy = 115, w = 215 * esc, h = w * razao;
     const ext = [cx - w / 2, cy], int = [cx + w / 2, cy], cima = [cx, cy - h / 2], baixo = [cx, cy + h / 2];
     const ri = Math.min(h / 2, w * 0.13);
     svg.innerHTML = `
