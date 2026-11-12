@@ -25,6 +25,8 @@ Objetivo: baixar um repositório, rodar a demo dele e entender as poucas linhas 
    (ou `python -m http.server 8000`)
 
 3. Abra no Chrome: <http://localhost:3000/demo/video/>
+
+   Abrindo só `http://localhost:3000/` aparece uma lista de arquivos ("Index of human/"). É normal: a raiz do repositório não tem página. Complete o endereço com `/demo/video/` ou clique em `demo/` e depois em `video/`.
 4. Permita o uso da câmera quando o navegador perguntar.
 
 O primeiro carregamento demora alguns segundos (o navegador baixa os modelos da pasta `models/` e prepara a GPU).
