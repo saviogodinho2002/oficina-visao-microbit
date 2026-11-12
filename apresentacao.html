@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oficina: visão computacional + micro:bit</title>
+<style>
+  :root {
+    --bg: #0e1621; --painel: #16212f; --painel2: #1d2b3c; --borda: #2b3d52;
+    --texto: #e9eef4; --suave: #9fb0c3; --amarelo: #ffd23f; --ciano: #4fd1e8;
+    --verde: #5ad17a; --vermelho: #ff6b6b; --roxo: #b794f6; --led: #ff3b30;
+    --code-bg: #0a1018;
+  }
+  :root[data-tema="claro"] {
+    --bg: #f4f6f9; --painel: #ffffff; --painel2: #eef2f7; --borda: #cfd8e3;
+    --texto: #142233; --suave: #51657c; --amarelo: #b8860b; --ciano: #0b7f99;
+    --verde: #1d8a45; --vermelho: #c62828; --roxo: #6b46c1; --code-bg: #f7f9fc;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+  #palco { position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px; transform-origin: center center; }
+  .slide { position: absolute; inset: 0; padding: 56px 72px 64px; display: none; flex-direction: column; gap: 18px; font-size: 24px; line-height: 1.4; }
+  .slide.ativo { display: flex; animation: entra .35s ease; }
+  @keyframes entra { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  h1 { font-size: 60px; margin: 0; line-height: 1.1; }
+  h2 { font-size: 40px; margin: 0; }
+  h2 .passo { color: var(--amarelo); }
+  h3 { font-size: 26px; margin: 0 0 6px; color: var(--ciano); }
+  p { margin: 0; }
+  .suave { color: var(--suave); }
+  .peq { font-size: 19px; }
+  .amarelo { color: var(--amarelo); } .ciano { color: var(--ciano); } .verde { color: var(--verde); } .vermelho { color: var(--vermelho); }
+  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .88em; background: var(--painel2); padding: 1px 6px; border-radius: 5px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; min-height: 0; }
+  .cols.c37 { grid-template-columns: 3fr 7fr; } .cols.c46 { grid-template-columns: 4fr 6fr; } .cols.c64 { grid-template-columns: 6fr 4fr; } .cols.c73 { grid-template-columns: 7fr 3fr; }
+  .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; padding: 18px 22px; }
+  ul { margin: 0; padding-left: 26px; } li { margin: 6px 0; }
+  .frag { opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s; }
+  .frag.visivel { opacity: 1; transform: none; }
+  .frag.atual { outline: 2px solid var(--amarelo); outline-offset: 4px; border-radius: 10px; }
+
+  pre.code { margin: 0; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 16px; line-height: 1.45; overflow: auto; position: relative; white-space: pre; }
+  pre.code.grande { font-size: 19px; }
+  pre.code .k { color: var(--roxo); } pre.code .s { color: var(--verde); } pre.code .n { color: #f6a35a; } pre.code .c { color: var(--suave); font-style: italic; }
+  :root[data-tema="claro"] pre.code .n { color: #b5560b; }
+  pre.code .ln { display: inline-block; width: 2.6em; color: var(--suave); opacity: .6; user-select: none; }
+  pre.code .add { background: rgba(90, 209, 122, .14); display: inline-block; width: 100%; }
+  pre.code .del { background: rgba(255, 107, 107, .14); display: inline-block; width: 100%; text-decoration: line-through; text-decoration-color: rgba(255,107,107,.6); }
+  .copiar { position: absolute; top: 8px; right: 8px; font-size: 13px; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--borda); background: var(--painel2); color: var(--suave); cursor: pointer; font-family: inherit; }
+  .copiar:hover { color: var(--texto); }
+  .badge { display: inline-block; font-size: 16px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--amarelo); color: #1b1300; margin-right: 8px; vertical-align: middle; }
+  .edicao { display: flex; flex-direction: column; gap: 6px; }
+  .edicao p { font-size: 20px; }
+
+  #barra { position: fixed; left: 0; bottom: 0; height: 5px; background: var(--amarelo); transition: width .3s; z-index: 5; }
+  #contador { position: fixed; right: 16px; bottom: 12px; font-size: 14px; color: var(--suave); z-index: 5; }
+  #dica { position: fixed; left: 16px; bottom: 12px; font-size: 14px; color: var(--suave); z-index: 5; }
+  #ajuda { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; z-index: 10; }
+  #ajuda .cartao { font-size: 20px; max-width: 560px; }
+  #ajuda.aberto { display: flex; }
+  button.acao { font: inherit; font-size: 18px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--borda); background: var(--painel2); color: var(--texto); cursor: pointer; }
+  button.acao:hover { border-color: var(--amarelo); }
+  button.acao.principal { background: var(--amarelo); color: #1b1300; border-color: var(--amarelo); font-weight: 700; }
+
+  /* capa */
+  .capa { justify-content: center; }
+  .capa .linha { height: 4px; width: 120px; background: var(--amarelo); border-radius: 2px; }
+  .pipeline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pipeline .no { padding: 12px 18px; border-radius: 12px; background: var(--painel); border: 1px solid var(--borda); font-weight: 600; opacity: 0; transform: scale(.9); }
+  .pipeline .seta { color: var(--suave); opacity: 0; }
+  .slide.ativo .pipeline .no, .slide.ativo .pipeline .seta { animation: aparece .4s ease forwards; }
+  @keyframes aparece { to { opacity: 1; transform: none; } }
+
+  /* roteiro */
+  .roteiro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .roteiro .cartao { cursor: pointer; transition: border-color .2s, transform .2s; }
+  .roteiro .cartao:hover { border-color: var(--amarelo); transform: translateY(-3px); }
+  .roteiro .num { font-size: 44px; font-weight: 800; color: var(--amarelo); line-height: 1; }
+  .roteiro .esf { font-size: 16px; color: var(--suave); margin-top: 6px; }
+
+  /* config toggles */
+  .chave { display: flex; align-items: center; gap: 12px; margin: 8px 0; font-size: 21px; cursor: pointer; user-select: none; }
+  .chave input { display: none; }
+  .chave .trilho { width: 52px; height: 28px; border-radius: 14px; background: var(--borda); position: relative; transition: background .2s; flex: none; }
+  .chave .trilho::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .chave input:checked + .trilho { background: var(--verde); }
+  .chave input:checked + .trilho::after { left: 27px; }
+
+  /* loop */
+  .loop { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .loop .etapa { padding: 14px 16px; border-radius: 12px; background: var(--painel); border: 2px solid var(--borda); font-size: 20px; transition: border-color .2s, background .2s; }
+  .loop .etapa.ligada { border-color: var(--amarelo); background: var(--painel2); }
+
+  /* olho */
+  .sim { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; flex: 1; min-height: 0; }
+  .sim svg { width: 100%; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 12px; }
+  .sim .controles label { display: block; font-size: 19px; margin-top: 10px; }
+  .sim input[type=range] { width: 100%; accent-color: var(--amarelo); }
+  .medidas { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 20px; line-height: 1.6; }
+  .veredito { font-size: 21px; font-weight: 700; padding: 10px 14px; border-radius: 10px; margin-top: 10px; }
+  .veredito.ok { background: rgba(90,209,122,.15); color: var(--verde); }
+  .veredito.erro { background: rgba(255,107,107,.15); color: var(--vermelho); }
+  .estados { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 18px; }
+  .estado { padding: 6px 14px; border-radius: 999px; border: 2px solid var(--borda); color: var(--suave); font-weight: 700; }
+  .estado.ativo { border-color: var(--amarelo); color: var(--amarelo); }
+  .contagem { font-size: 34px; font-weight: 800; color: var(--amarelo); }
+
+  table { border-collapse: collapse; font-size: 20px; }
+  th, td { border-bottom: 1px solid var(--borda); padding: 6px 14px; text-align: left; }
+  th { color: var(--suave); font-weight: 600; }
+  td.num { text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+  /* micro:bit */
+  .placa { width: 300px; height: 230px; border-radius: 22px; background: #1b1b1f; border: 3px solid #3a3a42; position: relative; display: flex; align-items: center; justify-content: center; flex: none; }
+  .matriz { display: grid; grid-template-columns: repeat(5, 22px); gap: 12px; }
+  .matriz .led { width: 22px; height: 22px; border-radius: 4px; background: #2a1212; transition: background .15s, box-shadow .15s; }
+  .matriz .led.on { background: var(--led); box-shadow: 0 0 12px var(--led); }
+  .placa .bt { position: absolute; top: 50%; width: 46px; height: 46px; margin-top: -23px; border-radius: 50%; background: #2d2d33; border: 3px solid #555; color: #ddd; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; font-size: 18px; }
+  .placa .bt.a { left: 14px; } .placa .bt.b { right: 14px; }
+  .placa .bt:active, .placa .bt.press { background: var(--amarelo); color: #1b1300; }
+  .placa .rot { position: absolute; bottom: 8px; width: 100%; text-align: center; font-size: 13px; color: #888; }
+  .abas { display: flex; gap: 6px; flex-wrap: wrap; }
+  .abas button { font: inherit; font-size: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--borda); background: var(--painel2); color: var(--suave); cursor: pointer; }
+  .abas button.sel { color: #1b1300; background: var(--amarelo); border-color: var(--amarelo); }
+
+  /* serial */
+  .serial { display: grid; grid-template-columns: 330px 1fr 300px; gap: 18px; align-items: center; }
+  .emos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .emos button { font: inherit; font-size: 19px; padding: 10px; border-radius: 10px; border: 1px solid var(--borda); background: var(--painel2); color: var(--texto); cursor: pointer; }
+  .emos button:hover { border-color: var(--amarelo); }
+  .cabo { position: relative; height: 64px; border-top: 4px dashed var(--borda); margin-top: 32px; }
+  .byte { position: absolute; top: -21px; padding: 4px 8px; border-radius: 6px; background: var(--ciano); color: #001018; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; white-space: nowrap; }
+  .log { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 16px; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 10px; padding: 10px 12px; height: 150px; overflow: auto; white-space: pre; }
+</style>
+</head>
+<body>
+<div id="palco">
+
+<!-- 1. CAPA -->
+<section class="slide capa" data-titulo="Capa">
+  <div class="linha"></div>
+  <h1>Visão computacional<br>sem escrever do zero<br><span class="amarelo">+ micro:bit</span></h1>
+  <p class="suave" style="font-size:28px">Achar um repositório, ajustar poucas linhas, juntar funções e levar o resultado para fora da tela.</p>
+  <div class="pipeline" style="margin-top:24px">
+    <span class="no" style="animation-delay:.1s">📷 webcam</span><span class="seta" style="animation-delay:.2s">→</span>
+    <span class="no" style="animation-delay:.3s">malha 478 pontos</span><span class="seta" style="animation-delay:.4s">→</span>
+    <span class="no" style="animation-delay:.5s">piscadas</span><span class="seta" style="animation-delay:.6s">→</span>
+    <span class="no" style="animation-delay:.7s">emoção</span><span class="seta" style="animation-delay:.8s">→</span>
+    <span class="no" style="animation-delay:.9s">serial USB</span><span class="seta" style="animation-delay:1s">→</span>
+    <span class="no" style="animation-delay:1.1s">🟥 matriz de LED</span>
+  </div>
+  <p class="suave peq" style="margin-top:30px">Use ← → ou espaço para navegar · <b>?</b> mostra os atalhos</p>
+</section>
+
+<!-- 2. PROPOSTA -->
+<section class="slide" data-titulo="A proposta">
+  <h2>A proposta</h2>
+  <div class="cols">
+    <div class="cartao">
+      <h3>Quatro verbos</h3>
+      <ul>
+        <li class="frag"><b class="amarelo">Achar</b> um repositório que já faz quase tudo</li>
+        <li class="frag"><b class="amarelo">Ajustar</b> poucas linhas para fazer o que a gente quer</li>
+        <li class="frag"><b class="amarelo">Juntar</b> outra função que já existe</li>
+        <li class="frag"><b class="amarelo">Externalizar</b>: tirar a informação do PC e levar para um objeto físico</li>
+      </ul>
+    </div>
+    <div class="cartao frag">
+      <h3>A regra</h3>
+      <p>Nenhum código pedido para IA.</p>
+      <p style="margin-top:12px">Exceção: o código de comunicação serial do passo 6, que qualquer LLM gratuita gera em segundos. Ele é o "cano" entre as partes, e o interessante está nas pontas.</p>
+      <p class="suave peq" style="margin-top:16px">Todo o material: <code>github.com/saviogodinho2002/oficina-visao-microbit</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. ROTEIRO -->
+<section class="slide" data-titulo="Roteiro">
+  <h2>Roteiro</h2>
+  <p class="suave peq">Clique num passo para ir direto a ele.</p>
+  <div class="roteiro">
+    <div class="cartao" data-ir="passo1"><div class="num">1</div><b>Malha facial</b><div class="esf">clonar e rodar · 0 linhas</div></div>
+    <div class="cartao" data-ir="passo2"><div class="num">2</div><b>Piscadas em pixels</b><div class="esf">4 trocadas, ~40 coladas · e ver falhar</div></div>
+    <div class="cartao" data-ir="passo3"><div class="num">3</div><b>Piscadas por razão</b><div class="esf">4 trechos trocados</div></div>
+    <div class="cartao" data-ir="passo4"><div class="num">4</div><b>Emoções</b><div class="esf">1 palavra + 12 linhas</div></div>
+    <div class="cartao" data-ir="passo5"><div class="num">5</div><b>Conhecendo o micro:bit</b><div class="esf">programas prontos</div></div>
+    <div class="cartao" data-ir="passo6"><div class="num">6</div><b>Emoção no micro:bit</b><div class="esf">serial gerada por LLM</div></div>
+  </div>
+</section>
+
+<!-- 4. POR QUE NAVEGADOR -->
+<section class="slide" data-titulo="Por que no navegador">
+  <h2>Por que no navegador e não em Python?</h2>
+  <div class="cols">
+    <div class="cartao frag">
+      <h3>O caminho "clássico" quebrou</h3>
+      <ul class="peq">
+        <li>Tutoriais e a biblioteca cvzone usam <code>mp.solutions.face_mesh</code> do MediaPipe</li>
+        <li>Essa API foi <b class="vermelho">removida no MediaPipe 0.10.30</b> (dez/2025); a versão atual é 1.x</li>
+        <li>Somando o detector de emoção (DeepFace), ficam 3 pacotes de OpenCV instalados ao mesmo tempo e o numpy troca de versão</li>
+        <li>Com máquinas Windows, Linux e macOS, a instalação vira o assunto da aula</li>
+      </ul>
+    </div>
+    <div class="cartao frag">
+      <h3>No navegador</h3>
+      <ul class="peq">
+        <li>Só precisa de <b>Chrome ou Edge</b> e de um servidor local</li>
+        <li>Mesmo comportamento em qualquer sistema</li>
+        <li>Repositório escolhido: <b class="amarelo">vladmandic/human</b> (MIT): malha, íris, emoção, corpo, mãos, gestos</li>
+        <li>Os modelos e a biblioteca compilada vêm dentro do repositório: depois de baixar, roda sem internet</li>
+        <li>O navegador ainda fala com o micro:bit pela USB (<b>Web Serial</b>)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5. SETUP -->
+<section class="slide" data-titulo="Preparação">
+  <h2>Preparação</h2>
+  <div class="cols c64">
+    <div class="edicao">
+      <pre class="code grande" data-lang="bash"># 1. baixar (só a versão atual, ~116 MB)
+git clone --depth 1 https://github.com/vladmandic/human.git
+
+# 2. servir a pasta human
+cd human
+npx serve                      # http://localhost:3000
+# ou: python -m http.server 3000
+
+# 3. abrir no Chrome
+# http://localhost:3000/demo/video/</pre>
+      <p class="suave peq">Turma inteira baixando no mesmo Wi-Fi: leve a pasta num pendrive.</p>
+    </div>
+    <div class="cartao frag">
+      <h3>Por que precisa de servidor?</h3>
+      <p class="peq">Com duplo clique o endereço vira <code>file:///...</code> e o Chrome bloqueia o <code>import</code> da biblioteca:</p>
+      <pre class="code" data-lang="text" style="margin-top:10px;white-space:pre-wrap;color:var(--vermelho)">Access to script at 'file:///.../human.esm.js'
+from origin 'null' has been blocked by CORS policy</pre>
+      <p class="peq" style="margin-top:10px">A câmera nem chega a ser pedida. Câmera e serial só funcionam em <code>https://</code> ou em <code>http://localhost</code>, que o navegador trata como seguro.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. PASSO 1 -->
+<section class="slide" id="passo1" data-titulo="Passo 1: malha">
+  <h2><span class="passo">Passo 1</span> · Malha facial sem escrever código</h2>
+  <div class="cols">
+    <div class="cartao">
+      <h3>Abra <code>localhost:3000/demo/video/</code></h3>
+      <ul>
+        <li class="frag">Malha triangulada sobre o rosto: <b>468 pontos</b> + 10 da íris</li>
+        <li class="frag">Rótulos: idade, gênero, <b>emoção</b>, ângulo da cabeça</li>
+        <li class="frag">Esqueleto do corpo e das mãos</li>
+        <li class="frag">Gestos no canto: <code>facing center</code>, <code>blink left eye</code>...</li>
+        <li class="frag">Clique na imagem pausa</li>
+      </ul>
+    </div>
+    <div class="cartao frag">
+      <h3>O arquivo inteiro tem 58 linhas</h3>
+      <p class="peq"><code>human/demo/video/index.html</code></p>
+      <ul class="peq" style="margin-top:8px">
+        <li>HTML com JavaScript puro dentro</li>
+        <li>Sem etapa de build, sem TypeScript</li>
+        <li>Editar, salvar, recarregar a página</li>
+      </ul>
+      <p class="peq" style="margin-top:12px">Três partes importam: o <b>import</b> (linha 20), a <b>configuração</b> (22 a 31) e o <b>laço de desenho</b> (35 a 40).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. PASSO 1 CONFIG -->
+<section class="slide" data-titulo="Passo 1: configuração">
+  <h2><span class="passo">Passo 1</span> · A configuração é um painel de feature flags</h2>
+  <div class="cols c37">
+    <div class="cartao" id="chaves">
+      <h3>Ligar / desligar</h3>
+      <label class="chave"><input type="checkbox" data-flag="description" checked><span class="trilho"></span>idade e gênero</label>
+      <label class="chave"><input type="checkbox" data-flag="emotion" checked><span class="trilho"></span>emoção</label>
+      <label class="chave"><input type="checkbox" data-flag="body" checked><span class="trilho"></span>corpo</label>
+      <label class="chave"><input type="checkbox" data-flag="hand" checked><span class="trilho"></span>mãos</label>
+      <label class="chave"><input type="checkbox" data-flag="gesture" checked><span class="trilho"></span>gestos</label>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="acao" id="cfgOriginal">original</button>
+        <button class="acao" id="cfgPasso2">como no passo 2</button>
+      </div>
+      <p class="suave peq" style="margin-top:12px">Cada <code>true</code> carrega mais um modelo e roda ele em todo quadro. Menos coisa ligada, mais FPS.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
+      <pre class="code" id="cfgCodigo" data-lang="js" data-inicio="22"></pre>
+      <p class="peq suave" id="cfgMuda">Linhas 22 a 31 de <code>demo/video/index.html</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8. PASSO 1 LOOP -->
+<section class="slide" data-titulo="Passo 1: laço de desenho">
+  <h2><span class="passo">Passo 1</span> · O laço de desenho é um game loop</h2>
+  <div class="cols c46">
+    <div class="loop" id="loopEtapas">
+      <div class="etapa"><b>1.</b> pega o resultado mais recente<br><code>human.next()</code></div>
+      <div class="etapa"><b>2.</b> pinta o quadro da webcam<br><code>human.draw.canvas(...)</code></div>
+      <div class="etapa"><b>4.</b> agenda a próxima volta<br><code>setTimeout(drawLoop, 30)</code></div>
+      <div class="etapa"><b>3.</b> desenha a detecção por cima<br><code>human.draw.all(...)</code></div>
+    </div>
+    <div class="edicao">
+      <pre class="code grande" data-lang="js" data-inicio="35">async function drawLoop() {
+  const interpolated = human.next();
+  human.draw.canvas(human.webcam.element, canvas);
+  await human.draw.all(canvas, interpolated);
+  setTimeout(drawLoop, 30);
+}</pre>
+      <p class="peq frag">A detecção roda em paralelo (linha 45, <code>human.video(...)</code>). O resultado bruto mais recente fica sempre em <b class="amarelo"><code>human.result</code></b>. É de lá que vamos ler os pontos.</p>
+      <p class="peq frag">Qualquer coisa que a gente queira <b>desenhar</b> precisa entrar <b>depois</b> do <code>draw.all</code>, senão a imagem da webcam apaga.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. PASSO 2 IDEIA -->
+<section class="slide" id="passo2" data-titulo="Passo 2: os pontos do olho">
+  <h2><span class="passo">Passo 2</span> · A malha é um array com índice fixo</h2>
+  <div class="cols c46">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <svg viewBox="0 0 420 210" id="olhoIndices" style="width:100%;background:var(--code-bg);border:1px solid var(--borda);border-radius:12px"></svg>
+      <p class="peq suave">O ponto 159 é sempre o meio da pálpebra de cima do olho direito, em qualquer pessoa.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <table>
+        <tr><th></th><th>canto externo</th><th>canto interno</th><th>pálpebra cima</th><th>pálpebra baixo</th></tr>
+        <tr><td>olho direito</td><td class="num">33</td><td class="num">133</td><td class="num">159</td><td class="num">145</td></tr>
+        <tr><td>olho esquerdo</td><td class="num">263</td><td class="num">362</td><td class="num">386</td><td class="num">374</td></tr>
+      </table>
+      <p class="peq frag">De onde saem esses números? Do próprio repositório: <code>human/src/face/facemeshcoords.ts</code>, linhas 24, 25, 34 e 35 (<code>rightEyeUpper0</code>, <code>rightEyeLower0</code>...).</p>
+      <p class="peq frag">Cada ponto de <code>rosto.mesh</code> é <code>[x, y, z]</code> em pixels da imagem.</p>
+      <p class="peq frag"><b class="amarelo">Abertura</b> = distância entre 159 e 145 (e entre 386 e 374), média dos dois olhos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10. PASSO 2 MAQUINA DE ESTADOS -->
+<section class="slide" data-titulo="Passo 2: contar uma piscada">
+  <h2><span class="passo">Passo 2</span> · Contar piscada é tratar keydown / keyup</h2>
+  <div class="cols">
+    <div class="cartao">
+      <h3>Errado: contar "olho fechado"</h3>
+      <p class="peq">O olho fica fechado por vários quadros. Uma piscada viraria 3 ou 4 contagens, como contar quantas vezes o <code>keydown</code> repete com a tecla segurada.</p>
+      <h3 style="margin-top:16px">Certo: contar a transição</h3>
+      <div class="estados" style="font-size:22px">
+        <span class="estado ativo">ABERTO</span>
+        <span>abertura &lt; limiar →</span>
+        <span class="estado">FECHADO</span>
+      </div>
+      <div class="estados" style="font-size:22px">
+        <span class="estado">FECHADO</span>
+        <span>abriu → <b class="amarelo">+1 piscada</b> →</span>
+        <span class="estado ativo">ABERTO</span>
+      </div>
+    </div>
+    <pre class="code frag" data-lang="js">if (abertura &lt; LIMIAR_PX) {
+  olhoFechado = true;
+} else if (olhoFechado) { // estava fechado e abriu
+  piscadas++;
+  olhoFechado = false;
+}</pre>
+  </div>
+</section>
+
+<!-- 11. PASSO 2 EDICOES -->
+<section class="slide" data-titulo="Passo 2: edições">
+  <h2><span class="passo">Passo 2</span> · Edições, de baixo para cima</h2>
+  <p class="peq suave">Colar embaixo primeiro não muda o número das linhas de cima, como remover itens de um array percorrendo do fim.</p>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="edicao frag">
+        <p><span class="badge">1</span>Copiar <code>demo/video/index.html</code> para <code>piscadas.html</code></p>
+        <pre class="code" data-lang="bash">cp index.html piscadas.html      # Windows: copy index.html piscadas.html</pre>
+      </div>
+      <div class="edicao frag">
+        <p><span class="badge">2</span>Depois da <b>linha 38</b> (<code>await human.draw.all(...)</code>):</p>
+        <pre class="code" data-lang="js">        contarPiscadas(); // OFICINA</pre>
+      </div>
+      <div class="edicao frag">
+        <p><span class="badge">4</span><b>Linhas 25 a 28</b>: desligar o que não usamos</p>
+        <pre class="code" data-lang="diff">-  description: { enabled: true }, emotion: { enabled: true } },
+-  body: { enabled: true },  hand: { enabled: true },  gesture: { enabled: true },
++  description: { enabled: false }, emotion: { enabled: false } },
++  body: { enabled: false }, hand: { enabled: false }, gesture: { enabled: false },</pre>
+      </div>
+    </div>
+    <div class="edicao frag">
+      <p><span class="badge">3</span>Depois da <b>linha 33</b> (<code>const canvas = ...</code>) e da linha em branco:</p>
+      <pre class="code" data-lang="js" style="flex:1;font-size:14px">// OFICINA: pontos da malha usados (mesma numeracao do MediaPipe FaceMesh)
+// ordem: [canto externo, canto interno, palpebra de cima, palpebra de baixo]
+const OLHO_DIR = [33, 133, 159, 145];
+const OLHO_ESQ = [263, 362, 386, 374];
+const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado
+let piscadas = 0;
+let olhoFechado = false;
+
+function distancia(a, b) { // distancia entre dois pontos [x, y]
+  return Math.hypot(a[0] - b[0], a[1] - b[1]);
+}
+
+function aberturaOlho(mesh, olho) { // distancia entre as palpebras, em pixels
+  return distancia(mesh[olho[2]], mesh[olho[3]]);
+}
+
+function escrever(texto, linha) { // escreve no canto de cima do canvas
+  const ctx = canvas.getContext('2d');
+  ctx.font = 'bold 36px sans-serif';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'black';
+  ctx.strokeText(texto, 20, 50 * linha);
+  ctx.fillStyle = 'yellow';
+  ctx.fillText(texto, 20, 50 * linha);
+}
+
+function contarPiscadas() {
+  const rosto = human.result.face[0];
+  if (!rosto || !rosto.mesh || rosto.mesh.length &lt; 468) return; // sem rosto na tela
+  const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;
+  if (abertura &lt; LIMIAR_PX) {
+    olhoFechado = true;
+  } else if (olhoFechado) { // estava fechado e abriu: conta uma piscada
+    piscadas++;
+    olhoFechado = false;
+  }
+  escrever(`Piscadas: ${piscadas}`, 1);
+  escrever(`Abertura: ${abertura.toFixed(1)} px`, 2);
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 12. PASSO 2 SIMULADOR -->
+<section class="slide" data-titulo="Passo 2: o problema">
+  <h2><span class="passo">Passo 2</span> · Agora chegue perto e se afaste da câmera</h2>
+  <div class="sim" data-sim="px"></div>
+</section>
+
+<!-- 13. PASSO 2 DADOS -->
+<section class="slide" data-titulo="Passo 2: medido de verdade">
+  <h2><span class="passo">Passo 2</span> · Medido com uma foto real em três tamanhos</h2>
+  <div class="cols">
+    <div class="cartao">
+      <table style="font-size:24px">
+        <tr><th>tamanho do rosto</th><th>abertura (px)</th><th>com LIMIAR_PX = 6</th></tr>
+        <tr><td>100%</td><td class="num">18,3</td><td class="verde">aberto ✓</td></tr>
+        <tr><td>50%</td><td class="num">9,5</td><td class="verde">aberto ✓</td></tr>
+        <tr class="frag"><td>25%</td><td class="num">4,3</td><td class="vermelho">fechado ✗</td></tr>
+      </table>
+      <p class="peq suave" style="margin-top:14px">Mesma foto, mesmo olho, igualmente aberto. Só mudou o tamanho na imagem.</p>
+    </div>
+    <div class="cartao frag">
+      <h3>Conclusão</h3>
+      <p>Pixel depende da distância até a câmera e da resolução da webcam.</p>
+      <p style="margin-top:12px">Precisamos de uma medida que <b class="amarelo">não mude com a escala</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 14. PASSO 3 IDEIA -->
+<section class="slide" id="passo3" data-titulo="Passo 3: a razão">
+  <h2><span class="passo">Passo 3</span> · Dividir pela largura do próprio olho</h2>
+  <div class="cols">
+    <div class="cartao">
+      <p>Quando o rosto se aproxima, <b>tudo</b> cresce na mesma proporção.</p>
+      <pre class="code grande" data-lang="text" style="margin-top:14px">razão = abertura / largura
+
+perto:  20 px / 50 px = 0,40
+longe:  10 px / 25 px = 0,40</pre>
+      <p class="peq frag" style="margin-top:14px">Mesma ideia de usar <code>%</code> em vez de <code>px</code> num layout responsivo: o valor fica relativo ao tamanho do próprio elemento.</p>
+    </div>
+    <div class="cartao frag">
+      <h3>Referências</h3>
+      <ul class="peq">
+        <li>Versão simplificada do <b>EAR (Eye Aspect Ratio)</b>: Soukupová e Čech, <i>Real-Time Eye Blink Detection using Facial Landmarks</i> (2016), com 6 pontos por olho</li>
+        <li>O próprio Human faz conta parecida para o gesto <code>blink left eye</code>: <code>src/gesture/gesture.ts</code>, linhas 64 a 68, com limiar <code>0.2</code></li>
+      </ul>
+      <p class="peq" style="margin-top:12px">Os cantos (33, 133, 263, 362) já estavam em <code>OLHO_DIR</code> e <code>OLHO_ESQ</code> desde o passo 2.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 15. PASSO 3 EDICOES -->
+<section class="slide" data-titulo="Passo 3: edições">
+  <h2><span class="passo">Passo 3</span> · Quatro trocas, de baixo para cima</h2>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="edicao frag"><p><span class="badge">1</span><b>Linha 72</b></p>
+<pre class="code" data-lang="diff">-  escrever(`Abertura: ${abertura.toFixed(1)} px`, 2);
++  escrever(`Razão: ${razao.toFixed(2)}`, 2);</pre></div>
+      <div class="edicao frag"><p><span class="badge">2</span><b>Linhas 64 e 65</b></p>
+<pre class="code" data-lang="diff" style="font-size:14px">-  const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;
+-  if (abertura &lt; LIMIAR_PX) {
++  const razao = (razaoAberturaOlho(rosto.mesh, OLHO_DIR) + razaoAberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;
++  if (razao &lt; LIMIAR_RAZAO) {</pre></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="edicao frag"><p><span class="badge">3</span><b>Linhas 47 a 49</b>: a função inteira</p>
+<pre class="code" data-lang="diff" style="font-size:15px">-function aberturaOlho(mesh, olho) {
+-  return distancia(mesh[olho[2]], mesh[olho[3]]);
+-}
++function razaoAberturaOlho(mesh, olho) {
++  const abertura = distancia(mesh[olho[2]], mesh[olho[3]]);
++  const largura = distancia(mesh[olho[0]], mesh[olho[1]]);
++  return abertura / largura;
++}</pre></div>
+      <div class="edicao frag"><p><span class="badge">4</span><b>Linha 39</b></p>
+<pre class="code" data-lang="diff">-const LIMIAR_PX = 6;
++const LIMIAR_RAZAO = 0.20;</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- 16. PASSO 3 SIMULADOR -->
+<section class="slide" data-titulo="Passo 3: repetir o teste">
+  <h2><span class="passo">Passo 3</span> · Repetir o teste: perto e longe</h2>
+  <div class="sim" data-sim="razao"></div>
+</section>
+
+<!-- 17. PASSO 3 DADOS -->
+<section class="slide" data-titulo="Passo 3: medido de verdade">
+  <h2><span class="passo">Passo 3</span> · A mesma foto, os mesmos três tamanhos</h2>
+  <div class="cartao" style="align-self:flex-start">
+    <table style="font-size:26px">
+      <tr><th>tamanho do rosto</th><th>abertura (px)</th><th>razão</th></tr>
+      <tr><td>100%</td><td class="num">18,3</td><td class="num amarelo">0,383</td></tr>
+      <tr><td>50%</td><td class="num">9,5</td><td class="num amarelo">0,402</td></tr>
+      <tr><td>25%</td><td class="num">4,3</td><td class="num amarelo">0,373</td></tr>
+    </table>
+  </div>
+  <p class="frag">A abertura em pixels caiu para menos de um quarto. A razão ficou entre 0,37 e 0,40, sempre longe do limiar <b class="amarelo">0,20</b>.</p>
+  <p class="frag suave">Medido com o Human 3.3.6 rodando no Chrome, sobre uma foto de exemplo do MediaPipe.</p>
+</section>
+
+<!-- 18. PASSO 4 -->
+<section class="slide" id="passo4" data-titulo="Passo 4: emoções">
+  <h2><span class="passo">Passo 4</span> · Ligar uma função que já estava lá</h2>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <p>O modelo de emoção já vem no repositório (<code>models/emotion.bin</code>, ~800 KB). Desligamos no passo 2. Religar é <b class="amarelo">uma palavra</b>:</p>
+      <pre class="code" data-lang="diff">-  ... description: { enabled: false }, emotion: { enabled: false } },
++  ... description: { enabled: false }, emotion: { enabled: true } },</pre>
+      <p class="frag peq">O formato do resultado está em <code>src/result.ts</code>, linha 59:</p>
+      <pre class="code frag" data-lang="js">emotion?: { score: number, emotion: Emotion }[]</pre>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <p class="frag peq">Exemplo real (foto de pessoa sorrindo):</p>
+      <pre class="code frag" data-lang="js">[ { score: 0.65, emotion: 'happy' },
+  { score: 0.24, emotion: 'neutral' } ]</pre>
+      <p class="frag peq"><code>src/gear/emotion.ts</code>, linha 80: <code>obj.sort((a, b) =&gt; b.score - a.score)</code>. A lista já vem ordenada, então <b class="amarelo"><code>emotion[0]</code></b> é a dominante.</p>
+      <p class="frag peq">Rótulos possíveis (linha 29): angry, disgust, fear, happy, sad, surprise, neutral.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 19. PASSO 4 EDICOES -->
+<section class="slide" data-titulo="Passo 4: edições">
+  <h2><span class="passo">Passo 4</span> · Edições, de baixo para cima</h2>
+  <div class="cols c64">
+    <div class="edicao frag">
+      <p><span class="badge">2</span>Depois da <b>linha 75</b> (a <code>}</code> que fecha <code>contarPiscadas</code>) e da linha em branco:</p>
+      <pre class="code" data-lang="js" style="font-size:15px">// OFICINA: rotulos que o modelo de emocao devolve (src/gear/emotion.ts) traduzidos
+const EMOCOES = { angry: 'raiva', disgust: 'nojo', fear: 'medo', happy: 'feliz',
+                  sad: 'triste', surprise: 'surpresa', neutral: 'neutro' };
+let emocaoAtual = '';
+
+function lerEmocao() {
+  const rosto = human.result.face[0];
+  if (!rosto || !rosto.emotion || rosto.emotion.length === 0) return;
+  emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // maior score primeiro
+  escrever(`Emoção: ${emocaoAtual}`, 3);
+}</pre>
+      <p class="peq suave">Sem acento de propósito: no passo 6 essas palavras viajam pela serial.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="edicao frag"><p><span class="badge">1</span>Depois da <b>linha 81</b> (<code>contarPiscadas();</code>)</p>
+        <pre class="code" data-lang="js">lerEmocao(); // OFICINA</pre></div>
+      <div class="edicao frag"><p><span class="badge">3</span><b>Linha 25</b>: <code>emotion: { enabled: true }</code></p></div>
+      <div class="cartao frag">
+        <p class="peq">Na tela:</p>
+        <p class="medidas amarelo" style="margin-top:6px">Piscadas: 0<br>Razão: 0.41<br>Emoção: feliz</p>
+        <p class="peq suave" style="margin-top:8px">Caretas exageradas funcionam melhor. Nojo e medo são as mais difíceis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 20. PASSO 5 -->
+<section class="slide" id="passo5" data-titulo="Passo 5: micro:bit">
+  <h2><span class="passo">Passo 5</span> · Conhecendo o micro:bit</h2>
+  <div class="cols c46">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div class="placa" id="placaBotoes">
+        <div class="bt a" data-bt="A">A</div>
+        <div class="matriz"></div>
+        <div class="bt b" data-bt="B">B</div>
+        <div class="rot">segure A, B ou A+B</div>
+      </div>
+      <button class="acao" id="btAB">segurar A + B</button>
+      <pre class="code" data-lang="py" style="font-size:14px;width:100%">while True:
+    if button_a.is_pressed() and button_b.is_pressed():
+        display.show(Image.HEART)
+    elif button_a.is_pressed():
+        display.show(Image.HAPPY)
+    elif button_b.is_pressed():
+        display.show(Image.SAD)
+    else:
+        display.clear()
+    sleep(50)</pre>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <table class="peq">
+        <tr><th>recurso</th><th>V1</th><th>V2</th></tr>
+        <tr><td>matriz 5x5 (também mede luz)</td><td>✓</td><td>✓</td></tr>
+        <tr><td>botões A e B, acelerômetro, bússola, temperatura</td><td>✓</td><td>✓</td></tr>
+        <tr><td>rádio, Bluetooth, pinos, USB serial</td><td>✓</td><td>✓</td></tr>
+        <tr><td>alto-falante, microfone, logo de toque</td><td class="vermelho">✗</td><td>✓</td></tr>
+      </table>
+      <div class="cartao frag">
+        <p class="peq">Editor: <b>python.microbit.org</b> no Chrome/Edge. <b>Send to micro:bit</b> grava pela USB. Se não conectar: <b>Save</b> e arrastar o <code>.hex</code> para a unidade MICROBIT.</p>
+        <p class="peq" style="margin-top:8px">Todo programa é um laço infinito, igual ao <code>drawLoop</code> da página.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 21. PASSO 5 PROGRAMAS -->
+<section class="slide" data-titulo="Passo 5: programas">
+  <h2><span class="passo">Passo 5</span> · Programas da pasta <code>passo_5_microbit/</code></h2>
+  <div class="abas" id="abasProg"></div>
+  <div class="cols c64">
+    <pre class="code grande" data-lang="py" id="progCodigo"></pre>
+    <div class="cartao" id="progNota"></div>
+  </div>
+</section>
+
+<!-- 22. PASSO 6 PROTOCOLO -->
+<section class="slide" id="passo6" data-titulo="Passo 6: protocolo">
+  <h2><span class="passo">Passo 6</span> · Do PC para a matriz de LED</h2>
+  <p class="peq">Protocolo: <b class="amarelo">uma palavra por linha</b>, terminada em <code>\n</code>, a 115200 bauds. A página só envia quando a emoção <b>muda</b>.</p>
+  <div class="serial">
+    <div>
+      <p class="peq suave" style="margin-bottom:8px">navegador: emoção detectada</p>
+      <div class="emos" id="emos"></div>
+    </div>
+    <div>
+      <div class="cabo" id="cabo"></div>
+      <div class="log" id="logSerial"></div>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div class="placa" id="placaSerial"><div class="matriz"></div><div class="rot">micro:bit</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 23. PASSO 6 PROMPT -->
+<section class="slide" data-titulo="Passo 6: o prompt">
+  <h2><span class="passo">Passo 6</span> · A única parte com LLM</h2>
+  <pre class="code" data-lang="text" style="white-space:pre-wrap;font-size:17px">Tenho uma página web em JavaScript (módulo ES) com uma variável emocaoAtual que contém uma palavra em português sem acento (feliz, triste, raiva, surpresa, medo, nojo, neutro) e uma função lerEmocao() chamada umas 30 vezes por segundo.
+1. Escreva o código JavaScript que, ao clicar num botão com id conectar, usa a Web Serial API para abrir a porta de um BBC micro:bit (filtro usbVendorId: 0x0d28) a 115200 baud, e uma função enviarEmocao(emocao) que manda a palavra seguida de \n, só quando ela mudar. Trate erro de desconexão.
+2. Escreva um programa MicroPython para o micro:bit (compatível com V1 e V2) que lê essas linhas pela UART da USB a 115200 e mostra Image.HAPPY para feliz, Image.SAD para triste, Image.ANGRY para raiva, Image.SURPRISED para surpresa, Image.CONFUSED para medo, Image.SILLY para nojo, Image.MEH para neutro, e Image.ASLEEP enquanto não chega nada.</pre>
+  <p class="peq suave">A pasta <code>passo_6_emocao_no_microbit/</code> tem a versão de referência dos dois lados, para comparar com o que a LLM gerou.</p>
+</section>
+
+<!-- 24. PASSO 6 PAGINA -->
+<section class="slide" data-titulo="Passo 6: a página">
+  <h2><span class="passo">Passo 6</span> · Lado do navegador (Web Serial)</h2>
+  <div class="cols c73">
+    <pre class="code" data-lang="js" style="font-size:12.5px;line-height:1.3">const botao = document.getElementById('conectar');
+let escritor = null; // writer da porta serial aberta
+let ultimaEnviada = '';
+
+botao.onclick = async () => {
+  if (!('serial' in navigator)) {
+    botao.textContent = 'Use Chrome ou Edge (sem Web Serial)';
+    return;
+  }
+  try {
+    const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] });
+    await porta.open({ baudRate: 115200 });
+    escritor = porta.writable.getWriter();
+    ultimaEnviada = '';
+    botao.textContent = 'micro:bit conectado';
+  } catch (erro) {
+    botao.textContent = 'Falhou: ' + erro.message;
+  }
+};
+
+async function enviarEmocao(emocao) {
+  if (!escritor || emocao === ultimaEnviada) return; // so envia quando muda
+  ultimaEnviada = emocao;
+  try {
+    await escritor.write(new TextEncoder().encode(emocao + '\n'));
+  } catch (erro) {
+    escritor = null;
+    botao.textContent = 'Desconectou, clique para conectar';
+  }
+}</pre>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="edicao frag"><p><span class="badge">1</span>Colar depois da <b>linha 86</b> + linha em branco</p></div>
+      <div class="edicao frag"><p><span class="badge">2</span>Depois da <b>linha 85</b>:</p><pre class="code" data-lang="js">enviarEmocao(emocaoAtual);</pre></div>
+      <div class="edicao frag"><p><span class="badge">3</span>Depois da <b>linha 17</b>, o botão:</p><pre class="code" data-lang="html" style="font-size:13px;white-space:pre-wrap">&lt;button id="conectar" style="position: fixed; top: 12px; right: 12px; font-size: 20px; padding: 8px 16px"&gt;Conectar micro:bit&lt;/button&gt;</pre></div>
+      <ul class="peq frag">
+        <li><code>requestPort</code> só pode ser chamado num clique (regra do navegador)</li>
+        <li><code>0x0d28</code>: fabricante da interface USB do micro:bit</li>
+        <li><code>TextEncoder</code>: string vira bytes UTF-8</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 25. PASSO 6 MICROBIT -->
+<section class="slide" data-titulo="Passo 6: o micro:bit">
+  <h2><span class="passo">Passo 6</span> · Lado do micro:bit (MicroPython)</h2>
+  <div class="cols c64">
+    <pre class="code" data-lang="py" style="font-size:15.5px">from microbit import *
+
+IMAGENS = {
+    "feliz": Image.HAPPY,    "triste": Image.SAD,
+    "raiva": Image.ANGRY,    "surpresa": Image.SURPRISED,
+    "medo": Image.CONFUSED,  "nojo": Image.SILLY,
+    "neutro": Image.MEH,
+}
+
+uart.init(baudrate=115200)  # mesma velocidade do navegador
+display.show(Image.ASLEEP)  # esperando a primeira mensagem
+buffer = b""
+
+while True:
+    if uart.any():
+        dados = uart.read()
+        if dados:
+            buffer += dados
+        fim = buffer.find(b"\n")
+        while fim != -1:  # pode ter chegado mais de uma linha
+            linha = buffer[:fim]
+            buffer = buffer[fim + 1:]
+            texto = str(linha, "utf-8").strip()
+            if texto in IMAGENS:
+                display.show(IMAGENS[texto])
+            fim = buffer.find(b"\n")
+    sleep(10)</pre>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <p class="peq frag">A UART começa em <b>9600</b>; <code>uart.init(115200)</code> casa com o navegador.</p>
+      <p class="peq frag">Os bytes chegam aos pedaços: uma linha partida em dois <code>read()</code>, ou duas linhas juntas. Por isso o <b class="amarelo">buffer</b> e a busca pelo <code>\n</code>, como ler um stream de rede.</p>
+      <div class="cartao frag">
+        <h3>Antes de testar</h3>
+        <ul class="peq">
+          <li>Fechar a aba do python.microbit.org (ela segura a porta)</li>
+          <li>Linux: <code>sudo usermod -aG dialout $USER</code> e relogar</li>
+          <li>Só Chrome ou Edge têm Web Serial</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 26. FIM -->
+<section class="slide" data-titulo="Fechamento">
+  <h2>O que fizemos</h2>
+  <div class="cols">
+    <div class="cartao">
+      <table class="peq" style="width:100%">
+        <tr><th>passo</th><th>esforço</th></tr>
+        <tr><td>1 · malha facial</td><td>0 linhas</td></tr>
+        <tr><td>2 · piscadas em px</td><td>4 trocadas, ~40 coladas</td></tr>
+        <tr><td>3 · piscadas por razão</td><td>4 trechos trocados</td></tr>
+        <tr><td>4 · emoções</td><td>1 palavra + 12 linhas</td></tr>
+        <tr><td>5 · micro:bit</td><td>programas prontos</td></tr>
+        <tr><td>6 · emoção no LED</td><td>serial gerada por LLM</td></tr>
+      </table>
+    </div>
+    <div class="cartao">
+      <h3>Desafios</h3>
+      <ul class="peq">
+        <li>Só enviar a emoção depois de 10 leituras iguais seguidas</li>
+        <li>Mandar <code>piscou</code> e mostrar <code>Image.YES</code> por meio segundo</li>
+        <li>Caminho de volta: botão A do micro:bit zera o contador na página</li>
+      </ul>
+      <h3 style="margin-top:16px">Material</h3>
+      <p class="peq"><code>github.com/saviogodinho2002/oficina-visao-microbit</code></p>
+      <p class="peq"><code>github.com/vladmandic/human</code></p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div id="barra"></div>
+<div id="contador"></div>
+<div id="dica"></div>
+<div id="ajuda"><div class="cartao">
+  <h3>Atalhos</h3>
+  <p>→ · espaço · PageDown: avançar</p>
+  <p>← · PageUp: voltar</p>
+  <p>Home / End: primeiro / último slide</p>
+  <p>F: tela cheia · T: tema claro/escuro · ?: esta ajuda</p>
+  <p class="suave peq" style="margin-top:10px">Itens com borda amarela aparecem um por vez antes de trocar de slide.</p>
+</div></div>
+
+<script>
+// ---------- realce de sintaxe ----------
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const PALAVRAS = {
+  js: /^(const|let|function|async|await|return|if|else|new|import|from|true|false|null|try|catch)$/,
+  py: /^(from|import|while|if|elif|else|True|False|None|def|return|and|or|not|in)$/,
+  bash: /^(git|cd|npx|python|cp|copy)$/,
+  html: /^(button|id|style)$/,
+};
+function realcar(codigo, lang) {
+  if (lang === 'text') return esc(codigo);
+  const re = (lang === 'py' || lang === 'bash')
+    ? /(#.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/gm
+    : /(\/\/.*$)|(`(?:\\.|[^`\\])*`|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")|(\b0x[0-9a-fA-F]+\b|\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/gm;
+  let saida = '', ultimo = 0;
+  for (const m of codigo.matchAll(re)) {
+    saida += esc(codigo.slice(ultimo, m.index));
+    const t = esc(m[0]);
+    if (m[1]) saida += `<span class="c">${t}</span>`;
+    else if (m[2]) saida += `<span class="s">${t}</span>`;
+    else if (m[3]) saida += `<span class="n">${t}</span>`;
+    else if (PALAVRAS[lang] && PALAVRAS[lang].test(m[0])) saida += `<span class="k">${t}</span>`;
+    else saida += t;
+    ultimo = m.index + m[0].length;
+  }
+  return saida + esc(codigo.slice(ultimo));
+}
+function montarCodigo(pre) {
+  const lang = pre.dataset.lang || 'js';
+  const bruto = pre.dataset.bruto ?? pre.textContent.replace(/^\n/, '').replace(/\s+$/, '');
+  pre.dataset.bruto = bruto;
+  let html;
+  if (lang === 'diff') {
+    html = bruto.split('\n').map((l) => {
+      const cls = l.startsWith('+') ? 'add' : l.startsWith('-') ? 'del' : '';
+      const corpo = realcar(l, 'js');
+      return cls ? `<span class="${cls}">${corpo}</span>` : corpo;
+    }).join('\n');
+  } else {
+    html = realcar(bruto, lang);
+    if (pre.dataset.inicio) {
+      const ini = +pre.dataset.inicio;
+      html = html.split('\n').map((l, i) => `<span class="ln">${ini + i}</span>${l}`).join('\n');
+    }
+  }
+  pre.innerHTML = html;
+  const b = document.createElement('button');
+  b.className = 'copiar'; b.textContent = 'copiar';
+  b.onclick = (e) => {
+    e.stopPropagation();
+    const texto = lang === 'diff' ? bruto.split('\n').filter((l) => !l.startsWith('-')).map((l) => l.replace(/^\+/, '')).join('\n') : bruto;
+    navigator.clipboard?.writeText(texto).then(() => { b.textContent = 'copiado'; setTimeout(() => (b.textContent = 'copiar'), 1200); }).catch(() => {});
+  };
+  pre.appendChild(b);
+}
+
+// ---------- navegação ----------
+const slides = [...document.querySelectorAll('.slide')];
+let atual = 0, passoFrag = 0;
+const ganchos = {}; // funções chamadas ao entrar num slide
+function frags(s) { return [...s.querySelectorAll('.frag')]; }
+function mostrar(i, fragFinal = false) {
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  slides[atual].classList.remove('ativo');
+  if (ganchos.sair && ganchos.sair[atual]) ganchos.sair[atual]();
+  atual = i;
+  const s = slides[atual];
+  s.classList.add('ativo');
+  const fs = frags(s);
+  passoFrag = fragFinal ? fs.length : 0;
+  atualizarFrags();
+  history.replaceState(null, '', '#' + (atual + 1));
+  document.getElementById('barra').style.width = ((atual + 1) / slides.length * 100) + '%';
+  document.getElementById('contador').textContent = `${atual + 1} / ${slides.length}`;
+  document.getElementById('dica').textContent = s.dataset.titulo || '';
+  if (ganchos.entrar && ganchos.entrar[atual]) ganchos.entrar[atual]();
+}
+function atualizarFrags() {
+  frags(slides[atual]).forEach((f, k) => {
+    f.classList.toggle('visivel', k < passoFrag);
+    f.classList.toggle('atual', k === passoFrag - 1 && passoFrag > 0);
+  });
+}
+function avancar() {
+  const fs = frags(slides[atual]);
+  if (passoFrag < fs.length) { passoFrag++; atualizarFrags(); } else mostrar(atual + 1);
+}
+function voltar() {
+  if (passoFrag > 0) { passoFrag--; atualizarFrags(); } else if (atual > 0) mostrar(atual - 1, true);
+}
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (['ArrowRight', ' ', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); avancar(); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); voltar(); }
+  else if (e.key === 'Home') mostrar(0);
+  else if (e.key === 'End') mostrar(slides.length - 1, true);
+  else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+  else if (e.key === 't' || e.key === 'T') { const r = document.documentElement; r.dataset.tema = r.dataset.tema === 'claro' ? '' : 'claro'; }
+  else if (e.key === '?') document.getElementById('ajuda').classList.toggle('aberto');
+  else if (e.key === 'Escape') document.getElementById('ajuda').classList.remove('aberto');
+});
+document.getElementById('ajuda').onclick = () => document.getElementById('ajuda').classList.remove('aberto');
+// tira o foco dos botões depois do clique, para espaço/Enter seguirem avançando o slide
+document.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) b.blur(); });
+let toqueX = null;
+document.addEventListener('touchstart', (e) => { toqueX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', (e) => {
+  if (toqueX === null) return;
+  const dx = e.changedTouches[0].clientX - toqueX; toqueX = null;
+  if (Math.abs(dx) > 50) (dx < 0 ? avancar : voltar)();
+});
+function escalar() {
+  const k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  document.getElementById('palco').style.transform = `translate(-50%, -50%) scale(${k})`;
+}
+window.addEventListener('resize', escalar);
+document.querySelectorAll('[data-ir]').forEach((el) => {
+  el.onclick = () => mostrar(slides.indexOf(document.getElementById(el.dataset.ir)));
+});
+function noSlide(el, entrar, sair) {
+  const i = slides.indexOf(el.closest('.slide'));
+  ganchos.entrar = ganchos.entrar || {}; ganchos.sair = ganchos.sair || {};
+  if (entrar) ganchos.entrar[i] = entrar;
+  if (sair) ganchos.sair[i] = sair;
+}
+
+// ---------- passo 1: configuração ----------
+const flags = { description: true, emotion: true, body: true, hand: true, gesture: true };
+function desenharConfig() {
+  const b = (v) => (v ? 'true' : 'false');
+  const pre = document.getElementById('cfgCodigo');
+  pre.textContent = `const humanConfig = {
+  modelBasePath: '../../models',
+  filter: { enabled: true, equalization: true, flip: false },
+  face: { enabled: true, mesh: { enabled: true }, iris: { enabled: true },
+          description: { enabled: ${b(flags.description)} }, emotion: { enabled: ${b(flags.emotion)} } },
+  body: { enabled: ${b(flags.body)} },
+  hand: { enabled: ${b(flags.hand)} },
+  gesture: { enabled: ${b(flags.gesture)} },
+  object: { enabled: false },
+  segmentation: { enabled: false },
+};`;
+  delete pre.dataset.bruto;
+  montarCodigo(pre);
+  const ligados = [];
+  if (flags.description) ligados.push('idade e gênero');
+  if (flags.emotion) ligados.push('emoção');
+  if (flags.body) ligados.push('esqueleto do corpo');
+  if (flags.hand) ligados.push('dedos');
+  if (flags.gesture) ligados.push('gestos');
+  document.getElementById('cfgMuda').innerHTML = 'Na tela: malha + íris' + (ligados.length ? ' + ' + ligados.join(' + ') : '') +
+    '. <span class="suave">(linha <code>face</code> resumida; no arquivo ela tem também <code>detector</code> e <code>attention</code>)</span>';
+  document.querySelectorAll('#chaves input').forEach((i) => (i.checked = flags[i.dataset.flag]));
+}
+document.querySelectorAll('#chaves input').forEach((i) => (i.onchange = () => { flags[i.dataset.flag] = i.checked; desenharConfig(); }));
+document.getElementById('cfgOriginal').onclick = () => { Object.keys(flags).forEach((k) => (flags[k] = true)); desenharConfig(); };
+document.getElementById('cfgPasso2').onclick = () => { Object.keys(flags).forEach((k) => (flags[k] = false)); desenharConfig(); };
+
+// ---------- passo 1: laço animado ----------
+(() => {
+  const etapas = document.querySelectorAll('#loopEtapas .etapa');
+  const ordem = [0, 1, 3, 2]; // 1, 2, 3, 4 na grade 2x2
+  let t = null, k = 0;
+  noSlide(etapas[0], () => {
+    clearInterval(t); k = 0;
+    t = setInterval(() => { etapas.forEach((e) => e.classList.remove('ligada')); etapas[ordem[k % 4]].classList.add('ligada'); k++; }, 650);
+  }, () => clearInterval(t));
+})();
+
+// ---------- passo 2: diagrama de índices ----------
+(() => {
+  const svg = document.getElementById('olhoIndices');
+  const cx = 210, cy = 105, w = 300, h = 110;
+  const p = { 33: [cx - w / 2, cy], 133: [cx + w / 2, cy], 159: [cx, cy - h / 2], 145: [cx, cy + h / 2] };
+  svg.innerHTML = `
+    <path d="M${p[33]} Q${cx},${cy - h} ${p[133]} Q${cx},${cy + h} ${p[33]}Z" fill="none" stroke="var(--suave)" stroke-width="3"/>
+    <circle cx="${cx}" cy="${cy}" r="34" fill="none" stroke="var(--ciano)" stroke-width="3"/>
+    <circle cx="${cx}" cy="${cy}" r="13" fill="var(--ciano)"/>
+    <line x1="${p[159][0]}" y1="${p[159][1]}" x2="${p[145][0]}" y2="${p[145][1]}" stroke="var(--amarelo)" stroke-width="3" stroke-dasharray="6 5"/>
+    <line x1="${p[33][0]}" y1="${p[33][1] + 70}" x2="${p[133][0]}" y2="${p[133][1] + 70}" stroke="var(--verde)" stroke-width="3" stroke-dasharray="6 5"/>
+    <text x="${cx + 44}" y="${cy + 5}" fill="var(--amarelo)" font-size="15" font-weight="700">abertura</text>
+    <text x="${cx}" y="${cy + 92}" fill="var(--verde)" font-size="15" font-weight="700" text-anchor="middle">largura (usada no passo 3)</text>
+    ${Object.entries(p).map(([n, [x, y]]) => `<circle cx="${x}" cy="${y}" r="7" fill="var(--amarelo)"/><text x="${x + (n === '33' ? -12 : n === '133' ? 12 : 12)}" y="${y + (n === '159' ? -10 : n === '145' ? 22 : -12)}" fill="var(--texto)" font-size="18" font-weight="700" text-anchor="${n === '33' ? 'end' : 'start'}">${n}</text>`).join('')}`;
+})();
+
+// ---------- simulador do olho (passos 2 e 3) ----------
+const LARGURA_BASE = 47.8; // px com o rosto em 100% (18,3 px / 0,383, medido)
+function criarSimulador(raiz) {
+  const modo = raiz.dataset.sim; // 'px' ou 'razao'
+  raiz.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
+      <svg viewBox="0 0 420 250"></svg>
+      <div class="controles">
+        <label>Abertura do olho <span class="suave peq">(fechado ↔ aberto)</span><input type="range" min="0" max="1" step="0.01" value="1" data-c="ab"></label>
+        <label>Distância da câmera <span class="suave peq">(longe ↔ perto)</span><input type="range" min="0.25" max="1.8" step="0.01" value="1" data-c="esc"></label>
+      </div>
+      <div style="display:flex;gap:10px"><button class="acao principal" data-c="piscar">piscar</button><button class="acao" data-c="zerar">zerar contador</button></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="contagem" data-c="cont">Piscadas: 0</div>
+      <div class="medidas" data-c="med"></div>
+      <div class="estados"><span class="estado" data-c="eA">ABERTO</span><span class="estado" data-c="eF">FECHADO</span></div>
+      <div class="veredito" data-c="ver"></div>
+      <p class="peq suave" style="margin-top:6px">${modo === 'px'
+        ? 'Regra do passo 2: <code>abertura &lt; LIMIAR_PX</code> (6 px) = fechado.'
+        : 'Regra do passo 3: <code>razão &lt; LIMIAR_RAZAO</code> (0,20) = fechado.'}</p>
+      <p class="peq suave">Simulação ilustrativa. A largura de ${LARGURA_BASE} px em 100% vem da medição real com foto.</p>
+    </div>`;
+  const $ = (c) => raiz.querySelector(`[data-c="${c}"]`);
+  const svg = raiz.querySelector('svg');
+  let ab = 1, esc = 1, piscadas = 0, fechado = false, anim = null;
+  function razaoReal() { return 0.08 + 0.32 * ab; } // 0,08 fechado ... 0,40 aberto
+  function atualizar() {
+    const larguraPx = LARGURA_BASE * esc;
+    const razao = razaoReal();
+    const aberturaPx = larguraPx * razao;
+    const fechouPelaRegra = modo === 'px' ? aberturaPx < 6 : razao < 0.20;
+    const fechadoDeVerdade = razao < 0.20;
+    if (fechouPelaRegra) fechado = true;
+    else if (fechado) { piscadas++; fechado = false; }
+    // desenho: o olho encolhe/cresce com a distância
+    const cx = 210, cy = 115, w = 300 * esc / 1.8 * 1.6, h = w * razao;
+    const ext = [cx - w / 2, cy], int = [cx + w / 2, cy], cima = [cx, cy - h / 2], baixo = [cx, cy + h / 2];
+    const ri = Math.min(h / 2, w * 0.13);
+    svg.innerHTML = `
+      <defs><clipPath id="clip-${modo}"><path d="M${ext} Q${cx},${cy - h} ${int} Q${cx},${cy + h} ${ext}Z"/></clipPath></defs>
+      <path d="M${ext} Q${cx},${cy - h} ${int} Q${cx},${cy + h} ${ext}Z" fill="var(--painel2)" stroke="var(--suave)" stroke-width="2.5"/>
+      <g clip-path="url(#clip-${modo})"><circle cx="${cx}" cy="${cy}" r="${w * 0.13}" fill="var(--ciano)" opacity=".8"/><circle cx="${cx}" cy="${cy}" r="${w * 0.05}" fill="#001018"/></g>
+      <line x1="${cima[0]}" y1="${cima[1]}" x2="${baixo[0]}" y2="${baixo[1]}" stroke="var(--amarelo)" stroke-width="2.5" stroke-dasharray="5 4"/>
+      ${modo === 'razao' ? `<line x1="${ext[0]}" y1="${cy + 4}" x2="${int[0]}" y2="${cy + 4}" stroke="var(--verde)" stroke-width="2" stroke-dasharray="5 4" opacity=".8"/>` : ''}
+      ${[ext, int, cima, baixo].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="var(--amarelo)"/>`).join('')}
+      <text x="12" y="238" fill="var(--suave)" font-size="14">rosto em ${(esc * 100).toFixed(0)}% do tamanho de referência</text>`;
+    void ri;
+    const med = modo === 'px'
+      ? `Abertura: <b class="amarelo">${aberturaPx.toFixed(1)} px</b><br><span class="suave">limiar: 6 px</span>`
+      : `Abertura: ${aberturaPx.toFixed(1)} px<br>Largura: ${larguraPx.toFixed(1)} px<br>Razão: <b class="amarelo">${razao.toFixed(2)}</b> <span class="suave">(limiar 0,20)</span>`;
+    $('med').innerHTML = med;
+    $('cont').textContent = `Piscadas: ${piscadas}`;
+    $('eA').classList.toggle('ativo', !fechado);
+    $('eF').classList.toggle('ativo', fechado);
+    const v = $('ver');
+    if (fechouPelaRegra === fechadoDeVerdade) {
+      v.className = 'veredito ok'; v.textContent = `✓ O programa acerta: olho ${fechadoDeVerdade ? 'fechado' : 'aberto'}`;
+    } else {
+      v.className = 'veredito erro';
+      v.textContent = fechadoDeVerdade ? '✗ Olho fechado, mas o programa acha que está aberto: a piscada não conta'
+                                       : '✗ Olho aberto, mas o programa acha que está fechado: travou em FECHADO';
+    }
+  }
+  $('ab').oninput = (e) => { ab = +e.target.value; atualizar(); };
+  $('esc').oninput = (e) => { esc = +e.target.value; atualizar(); };
+  $('zerar').onclick = () => { piscadas = 0; fechado = false; atualizar(); };
+  $('piscar').onclick = () => {
+    cancelAnimationFrame(anim);
+    const inicio = performance.now(), dur = 420, base = ab;
+    const passo = (t) => {
+      const f = Math.min(1, (t - inicio) / dur);
+      ab = base * Math.abs(Math.cos(f * Math.PI)); // fecha e abre
+      $('ab').value = ab; atualizar();
+      if (f < 1) anim = requestAnimationFrame(passo); else { ab = base; $('ab').value = ab; atualizar(); }
+    };
+    anim = requestAnimationFrame(passo);
+  };
+  atualizar();
+}
+document.querySelectorAll('[data-sim]').forEach(criarSimulador);
+
+// ---------- micro:bit ----------
+const IMG = {
+  HAPPY: '00000:01010:00000:10001:01110', SAD: '00000:01010:00000:01110:10001',
+  ANGRY: '10001:01010:00000:11111:10101', SURPRISED: '01010:00000:00100:01010:00100',
+  CONFUSED: '00000:01010:00000:01010:10101', SILLY: '10001:00000:11111:00101:00111',
+  MEH: '01010:00000:00010:00100:01000', ASLEEP: '00000:11011:00000:01110:00000',
+  HEART: '01010:11111:11111:01110:00100', VAZIO: '00000:00000:00000:00000:00000',
+};
+function criarMatriz(placa) {
+  const m = placa.querySelector('.matriz');
+  m.innerHTML = '<div class="led"></div>'.repeat(25);
+  return (nome) => { const bits = IMG[nome].replace(/:/g, ''); [...m.children].forEach((led, i) => led.classList.toggle('on', bits[i] === '1')); };
+}
+(() => {
+  const placa = document.getElementById('placaBotoes');
+  const mostrarImg = criarMatriz(placa);
+  const press = { A: false, B: false };
+  const render = () => mostrarImg(press.A && press.B ? 'HEART' : press.A ? 'HAPPY' : press.B ? 'SAD' : 'VAZIO');
+  placa.querySelectorAll('.bt').forEach((bt) => {
+    const on = (v) => (e) => { e.preventDefault(); press[bt.dataset.bt] = v; bt.classList.toggle('press', v); render(); };
+    bt.addEventListener('pointerdown', on(true)); bt.addEventListener('pointerup', on(false)); bt.addEventListener('pointerleave', on(false));
+  });
+  const ab = document.getElementById('btAB');
+  const set = (v) => () => { press.A = press.B = v; placa.querySelectorAll('.bt').forEach((b) => b.classList.toggle('press', v)); render(); };
+  ab.addEventListener('pointerdown', set(true)); ab.addEventListener('pointerup', set(false)); ab.addEventListener('pointerleave', set(false));
+  render();
+})();
+
+// ---------- passo 5: abas de programas ----------
+const PROGRAMAS = [
+  { nome: '01_ola.py', v: 'V1 e V2', codigo: `# 01: matriz de LED (funciona no V1 e no V2)
+from microbit import *
+
+display.scroll("Ola, oficina!")  # texto rolando na matriz 5x5
+display.show(Image.HEART)        # imagem pronta da biblioteca
+sleep(1000)                      # espera 1 segundo (em milissegundos)
+display.show(Image.HAPPY)`, nota: '<code>Image.HAPPY</code>, <code>Image.SAD</code> e outras são imagens 5x5 que já vêm na biblioteca. No passo 6 usamos elas para desenhar a emoção.' },
+  { nome: '02_botoes.py', v: 'V1 e V2', codigo: `# 02: botoes A e B (funciona no V1 e no V2)
+from microbit import *
+
+while True:  # o programa roda para sempre, igual a um game loop
+    if button_a.is_pressed() and button_b.is_pressed():
+        display.show(Image.HEART)
+    elif button_a.is_pressed():
+        display.show(Image.HAPPY)
+    elif button_b.is_pressed():
+        display.show(Image.SAD)
+    else:
+        display.clear()
+    sleep(50)`, nota: 'É o que a placa do slide anterior simula. O <code>sleep(50)</code> evita que o laço rode mais rápido que o necessário.' },
+  { nome: '03_sensores.py', v: 'V1 e V2', codigo: `# 03: sensores embutidos (funciona no V1 e no V2)
+from microbit import *
+import random
+
+while True:
+    if accelerometer.was_gesture("shake"):
+        display.show(str(random.randint(1, 6)))
+        sleep(1000)
+        display.clear()
+    if button_a.was_pressed():
+        display.scroll(str(temperature()) + "C")
+    if button_b.was_pressed():
+        display.scroll(str(display.read_light_level()))
+    sleep(50)`, nota: 'Sacudir vira dado. <code>was_pressed()</code> lembra o clique desde a última consulta (não perde o clique enquanto o texto rola), diferente de <code>is_pressed()</code>, que só olha o estado atual.' },
+  { nome: '04_print_serial.py', v: 'V1 e V2', codigo: `# 04: serial no sentido micro:bit -> PC (funciona no V1 e no V2)
+from microbit import *
+
+while True:
+    x = accelerometer.get_x()  # inclinacao para os lados
+    print("inclinacao:", x, "temperatura:", temperature())
+    display.show(Image.ARROW_E if x > 300 else Image.ARROW_W if x < -300 else Image.SQUARE_SMALL)
+    sleep(500)`, nota: 'Introduz a <b>serial</b>: cada <code>print()</code> vira uma linha que sai pelo cabo USB e aparece em <b>Show serial</b> no editor. No passo 6 fazemos o caminho contrário.' },
+  { nome: '05_som_v2.py', v: 'só V2', codigo: `# 05: som, microfone e logo de toque (SO micro:bit V2)
+from microbit import *
+import audio
+
+while True:
+    if button_a.was_pressed():
+        audio.play(Sound.HAPPY)
+    if button_b.was_pressed():
+        audio.play(Sound.SAD)
+    if pin_logo.is_touched():
+        display.show(Image.HEART)
+    elif microphone.sound_level() > 150:
+        display.show(Image.SURPRISED)
+        sleep(500)
+    else:
+        display.clear()
+    sleep(50)`, nota: '<b class="vermelho">Só V2.</b> No V1 dá erro: ele não tem alto-falante, microfone nem logo de toque. Bater palma perto mostra a carinha surpresa.' },
+];
+(() => {
+  const abas = document.getElementById('abasProg');
+  const pre = document.getElementById('progCodigo');
+  const nota = document.getElementById('progNota');
+  function sel(i) {
+    [...abas.children].forEach((b, k) => b.classList.toggle('sel', k === i));
+    pre.textContent = PROGRAMAS[i].codigo; delete pre.dataset.bruto; montarCodigo(pre);
+    nota.innerHTML = `<h3>${PROGRAMAS[i].nome}</h3><p class="peq suave">${PROGRAMAS[i].v}</p><p class="peq" style="margin-top:10px">${PROGRAMAS[i].nota}</p>`;
+  }
+  PROGRAMAS.forEach((p, i) => { const b = document.createElement('button'); b.textContent = p.nome; b.onclick = () => sel(i); abas.appendChild(b); });
+  sel(0);
+})();
+
+// ---------- passo 6: animação da serial ----------
+(() => {
+  const EMO = [['feliz', 'HAPPY', '😄'], ['triste', 'SAD', '😢'], ['raiva', 'ANGRY', '😠'], ['surpresa', 'SURPRISED', '😮'],
+               ['medo', 'CONFUSED', '😨'], ['nojo', 'SILLY', '🤢'], ['neutro', 'MEH', '😐']];
+  const mapa = Object.fromEntries(EMO.map(([p, img]) => [p, img]));
+  const mostrarImg = criarMatriz(document.getElementById('placaSerial'));
+  const cabo = document.getElementById('cabo');
+  const log = document.getElementById('logSerial');
+  const box = document.getElementById('emos');
+  let ultimaEnviada = '';
+  const escrever = (t) => { log.textContent += t + '\n'; log.scrollTop = log.scrollHeight; };
+  function reiniciar() { ultimaEnviada = ''; log.textContent = ''; mostrarImg('ASLEEP'); escrever('micro:bit: esperando (Image.ASLEEP)'); }
+  EMO.forEach(([palavra, , emoji]) => {
+    const b = document.createElement('button');
+    b.textContent = `${emoji} ${palavra}`;
+    b.onclick = () => {
+      if (palavra === ultimaEnviada) { escrever(`(${palavra} de novo: igual à última, não envia)`); return; }
+      ultimaEnviada = palavra;
+      const bytes = [...new TextEncoder().encode(palavra + '\n')];
+      escrever(`→ "${palavra}\\n"  ${bytes.map((x) => x.toString(16).padStart(2, '0')).join(' ')}`);
+      const largura = cabo.clientWidth;
+      bytes.forEach((x, k) => {
+        const chip = document.createElement('div');
+        chip.className = 'byte';
+        chip.textContent = x === 10 ? '\\n' : String.fromCharCode(x);
+        chip.style.left = '-10px';
+        cabo.appendChild(chip);
+        chip.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: `translateX(${largura - 10}px)`, opacity: 1 }, { transform: `translateX(${largura}px)`, opacity: 0 }],
+          { duration: 900, delay: k * 110, easing: 'ease-in', fill: 'forwards' }).onfinish = () => chip.remove();
+      });
+      setTimeout(() => { mostrarImg(mapa[palavra]); escrever(`micro:bit: display.show(Image.${mapa[palavra]})`); }, 900 + bytes.length * 110);
+    };
+    box.appendChild(b);
+  });
+  const r = document.createElement('button');
+  r.textContent = '↺ reiniciar'; r.style.gridColumn = 'span 2'; r.onclick = reiniciar; box.appendChild(r);
+  reiniciar();
+})();
+
+// ---------- início ----------
+document.querySelectorAll('pre.code').forEach((pre) => { if (pre.id !== 'cfgCodigo' && pre.id !== 'progCodigo') montarCodigo(pre); });
+desenharConfig();
+escalar();
+const inicial = parseInt(location.hash.slice(1), 10);
+slides[0].classList.add('ativo');
+mostrar(Number.isFinite(inicial) ? inicial - 1 : 0);
+</script>
+</body>
+</html>
