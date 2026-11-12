@@ -675,7 +675,7 @@ lerEmocao();</pre>
         <tr><td>alto-falante, microfone, logo de toque</td><td class="vermelho">✗</td><td>✓</td></tr>
       </table>
       <div class="cartao frag">
-        <p class="peq">Editor: <b>python.microbit.org</b> no Chrome/Edge. <b>Send to micro:bit</b> grava pela USB. Se não conectar: <b>Save</b> e arrastar o <code>.hex</code> para a unidade MICROBIT.</p>
+        <p class="peq">Editor: <b>python.microbit.org</b> no Chrome/Edge. <b>Send to micro:bit</b> grava direto pela USB. No Mac, não arraste o <code>.hex</code> para a unidade MICROBIT: falha.</p>
         <p class="peq" style="margin-top:8px">Todo programa é um laço infinito, igual ao <code>drawLoop</code> da página.</p>
       </div>
     </div>
@@ -691,7 +691,7 @@ lerEmocao();</pre>
       <li>Abra <b>python.microbit.org</b> no Chrome ou Edge</li>
       <li>Apague o código de exemplo e cole o programa</li>
       <li>Clique em <b>Send to micro:bit</b> e escolha a placa na janela</li>
-      <li>Não conectou? Clique em <b>Save</b> e arraste o arquivo <code>.hex</code> para a unidade <b>MICROBIT</b></li>
+      <li>No <b>Mac</b>, use sempre o Send: arrastar o <code>.hex</code> para a unidade MICROBIT falha (aparece um <code>FAIL.TXT</code>). No Windows/Linux, <b>Save</b> e arrastar também funciona</li>
       <li>Para ver o que o programa imprime: <b>Show serial</b></li>
     </ol>
   </div>
@@ -901,7 +901,7 @@ display.show(IMAGENS[texto])         # Image.HAPPY</pre>
     <ol class="passos">
       <li>Abra <b>python.microbit.org</b></li>
       <li>Cole o programa do micro:bit (o que a LLM gerou ou <code>microbit_receptor.py</code>)</li>
-      <li><b>Send to micro:bit</b> (ou <b>Save</b> e arrastar o <code>.hex</code>)</li>
+      <li><b>Send to micro:bit</b>: grava direto pela USB (no Mac, não arraste o <code>.hex</code>)</li>
       <li>A matriz mostra a carinha dormindo: está esperando mensagem</li>
       <li><b>Feche a aba do python.microbit.org</b>: ela segura a porta USB e a página não conseguiria abrir</li>
     </ol>
@@ -988,7 +988,7 @@ serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         <li><b>makecode.microbit.org</b> → Novo projeto</li>
         <li>Aba <b>JavaScript</b>: apague tudo e cole</li>
         <li>Volte para <b>Blocos</b>: vira blocos sozinho</li>
-        <li><b>Download</b> e grave na placa</li>
+        <li><b>"..."</b> ao lado de Download → <b>Conectar dispositivo</b> → <b>BBC micro:bit CMSIS-DAP</b>, depois <b>Download</b></li>
         <li>Feche a aba do MakeCode: ela segura a porta USB</li>
       </ol>
     </div>
@@ -1019,6 +1019,7 @@ serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         <li><b>Linux</b>: <code>sudo usermod -aG dialout $USER</code> e entre de novo na sessão</li>
         <li><b>"Use Chrome ou Edge"</b>: Firefox e Safari não têm Web Serial</li>
         <li><b>Matriz continua dormindo</b>: confira 115200 nos dois lados e as palavras sem acento</li>
+        <li><b><code>FAIL.TXT</code> na unidade MICROBIT</b>: a gravação por cópia falhou; recoloque o cabo e grave pela USB (Send / Conectar dispositivo)</li>
       </ul>
     </div>
   </div>

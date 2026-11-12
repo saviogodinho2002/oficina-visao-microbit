@@ -53,7 +53,7 @@ Qualquer LLM gratuita serve. Algo como:
 
 ### Parte A: micro:bit
 
-1. Abra <https://python.microbit.org>, cole o programa do micro:bit (o gerado pela LLM ou [microbit_receptor.py](microbit_receptor.py)) e grave na placa (**Send to micro:bit**, ou **Save** e arrastar o `.hex` para a unidade MICROBIT).
+1. Abra <https://python.microbit.org>, cole o programa do micro:bit (o gerado pela LLM ou [microbit_receptor.py](microbit_receptor.py)) e grave na placa com **Send to micro:bit** (pela USB). Não arraste o `.hex` no macOS: ver o passo 5.
 2. A matriz deve mostrar a carinha dormindo (`Image.ASLEEP`).
 3. **Feche a aba do python.microbit.org** (ou desconecte pelo menu do editor). Enquanto o editor estiver conectado ele segura a porta USB, e a nossa página não consegue abrir.
 
@@ -71,7 +71,7 @@ O `uart` acima é da API do MicroPython e não existe no MakeCode. No MakeCode a
 1. Abra <https://makecode.microbit.org> e crie um **Novo projeto**.
 2. Vá na aba **JavaScript**, apague o que tiver e cole [microbit_receptor_makecode.js](microbit_receptor_makecode.js).
 3. Volte para **Blocos**: o MakeCode converte sozinho (`serial on data received`, `serial read line`, `show icon`).
-4. Grave na placa (**Download**, ou conectar e baixar direto).
+4. Grave na placa pela USB: **"..." ao lado de Download → Conectar dispositivo → BBC micro:bit CMSIS-DAP**, depois **Download**. No macOS não baixe e arraste o `.hex` (ver o passo 5).
 5. Feche a aba do MakeCode (ou desconecte a placa no menu dele): ele também segura a porta USB.
 
 Mesmo protocolo da versão MicroPython: uma palavra por linha, 115200. `serial.readLine()` já devolve a palavra sem o `\n`. As carinhas (`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep`) são as mesmas imagens do MicroPython.
@@ -204,6 +204,7 @@ O que o código da página faz:
 
 ## Problemas comuns
 
+- **A unidade MICROBIT mostra `FAIL.TXT`** (`The transfer timed out` ou `Checksum calculation failure`): a gravação por cópia do `.hex` falhou, comum no macOS. Tire e recoloque o cabo e grave pela USB (**Send to micro:bit** ou **Conectar dispositivo** no MakeCode).
 - **A janela de escolha vem vazia**: cabo só de carga (troque por um de dados) ou micro:bit não reconhecido. Conferir se a unidade MICROBIT aparece no sistema.
 - **"Falhou: Failed to open serial port"**: outra coisa está usando a porta. Feche a aba do python.microbit.org, monitores serial (Arduino IDE, PuTTY, `screen`) e outras abas com a página.
 - **Linux, falha ao abrir mesmo com tudo fechado**: o usuário precisa de permissão na porta serial. `sudo usermod -aG dialout $USER`, depois sair e entrar de novo na sessão.

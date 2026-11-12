@@ -33,7 +33,11 @@ Como diferenciar: o V2 tem um microfone (furinho com LED ao lado do logo) na fre
 3. Cole o programa no editor.
 4. Clique em **Send to micro:bit** e escolha o dispositivo na lista do navegador (conexão WebUSB).
 
-Se o botão não conectar (navegador sem WebUSB ou firmware antigo da placa), use o caminho que funciona em qualquer sistema: clique em **Save** para baixar o arquivo `.hex` e arraste ele para a unidade **MICROBIT** que aparece como um pendrive. A placa grava e reinicia sozinha.
+Esse é o caminho principal: grava pela USB direto, sem passar pela unidade **MICROBIT**.
+
+**Arrastar o `.hex` (Save + arrastar para a unidade MICROBIT) só no Windows e no Linux.** No macOS esse caminho falha de forma aleatória: a placa cria um `FAIL.TXT` na unidade com `The transfer timed out` ou `Checksum calculation failure`. É um problema conhecido do macOS com a unidade do micro:bit desde o macOS 13 ([DAPLink #982](https://github.com/ARMmbed/DAPLink/issues/982)), não do programa nem da placa. Com duas placas V2 num Mac, o mesmo `.hex` (íntegro, checksums conferidos) falhou por cópia nas duas; numa delas uma nova tentativa funcionou, na outra nenhuma.
+
+No MakeCode o equivalente é **"..." ao lado de Download → Conectar dispositivo → BBC micro:bit CMSIS-DAP**, e depois **Download**.
 
 Para ver o que o programa imprime com `print()`, use **Show serial** no editor.
 
