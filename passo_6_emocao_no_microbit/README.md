@@ -64,6 +64,18 @@ O que o receptor faz:
 - `buffer.find(b"\n")`: procura o fim de linha; recorta a linha, converte para texto com `str(linha, "utf-8")` e procura no dicionário `IMAGENS`.
 - Palavra desconhecida é ignorada.
 
+#### Usando o MakeCode em vez do python.microbit.org
+
+O `uart` acima é da API do MicroPython e não existe no MakeCode. No MakeCode a mesma coisa se chama `serial`, e não precisa de extensão: os blocos ficam em **Avançado → Serial**.
+
+1. Abra <https://makecode.microbit.org> e crie um **Novo projeto**.
+2. Vá na aba **JavaScript**, apague o que tiver e cole [microbit_receptor_makecode.js](microbit_receptor_makecode.js).
+3. Volte para **Blocos**: o MakeCode converte sozinho (`serial on data received`, `serial read line`, `show icon`).
+4. Grave na placa (**Download**, ou conectar e baixar direto).
+5. Feche a aba do MakeCode (ou desconecte a placa no menu dele): ele também segura a porta USB.
+
+Mesmo protocolo da versão MicroPython: uma palavra por linha, 115200. `serial.readLine()` já devolve a palavra sem o `\n`. As carinhas (`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep`) são as mesmas imagens do MicroPython.
+
 ### Parte B: página
 
 Continuamos editando `human/demo/video/piscadas.html` do jeito que ficou no fim do passo 4 (113 linhas). Se perdeu, copie `../passo_4_emocoes/gabarito/piscadas.html` para lá. Edições de baixo para cima:

@@ -956,6 +956,45 @@ while True:
   </div>
 </section>
 
+<!-- PASSO 6 MAKECODE -->
+<section class="slide" data-titulo="Passo 6: usando o MakeCode">
+  <h2><span class="passo">Passo 6</span> · Usando o MakeCode?</h2>
+  <p class="peq">O <code>uart</code> é do MicroPython e não existe no MakeCode. Lá se chama <code>serial</code> e não precisa de extensão (<b>Avançado → Serial</b>). Arquivo: <code>passo_6_emocao_no_microbit/microbit_receptor_makecode.js</code>.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" style="font-size:14.5px;line-height:1.35">serial.redirectToUSB()
+serial.setBaudRate(BaudRate.BaudRate115200)
+basic.showIcon(IconNames.Asleep) // esperando a primeira mensagem
+
+serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+    let texto = serial.readLine() // le ate o \n e devolve a palavra sem ele
+    if (texto == "feliz") {
+        basic.showIcon(IconNames.Happy)
+    } else if (texto == "triste") {
+        basic.showIcon(IconNames.Sad)
+    } else if (texto == "raiva") {
+        basic.showIcon(IconNames.Angry)
+    } else if (texto == "surpresa") {
+        basic.showIcon(IconNames.Surprised)
+    } else if (texto == "medo") {
+        basic.showIcon(IconNames.Confused)
+    } else if (texto == "nojo") {
+        basic.showIcon(IconNames.Silly)
+    } else if (texto == "neutro") {
+        basic.showIcon(IconNames.Meh)
+    }
+})</pre>
+    <div class="cartao">
+      <ol class="passos peq">
+        <li><b>makecode.microbit.org</b> → Novo projeto</li>
+        <li>Aba <b>JavaScript</b>: apague tudo e cole</li>
+        <li>Volte para <b>Blocos</b>: vira blocos sozinho</li>
+        <li><b>Download</b> e grave na placa</li>
+        <li>Feche a aba do MakeCode: ela segura a porta USB</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
 <!-- edicoes do passo 6: geradas a partir de EDICOES -->
 <section class="edicoes" data-passo="6"></section>
 

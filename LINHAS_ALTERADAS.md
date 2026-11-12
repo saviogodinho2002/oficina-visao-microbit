@@ -57,4 +57,4 @@ Números de linha do arquivo como ficou no fim do passo 4.
 | 2 | depois da 85 | inserir `enviarEmocao(emocaoAtual);` | Manda a emoção lida para o micro:bit. |
 | 3 | depois da 17 | inserir `<button id="conectar" ...>Conectar micro:bit</button>` | O navegador só deixa abrir a porta serial a partir de um clique do usuário. |
 
-No micro:bit: gravar `passo_6_emocao_no_microbit/microbit_receptor.py` (arquivo novo, não é edição).
+No micro:bit: gravar `passo_6_emocao_no_microbit/microbit_receptor.py` pelo python.microbit.org (arquivo novo, não é edição). No MakeCode: colar `microbit_receptor_makecode.js` na aba JavaScript.
