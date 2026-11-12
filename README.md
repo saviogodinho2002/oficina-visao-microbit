@@ -13,6 +13,8 @@ O que vamos construir, em 6 passos:
 | 5 | [passo_5_microbit](passo_5_microbit/) | Conhecer o micro:bit com programas curtos em Python | programas prontos |
 | 6 | [passo_6_emocao_no_microbit](passo_6_emocao_no_microbit/) | Mandar a emoção do PC para a matriz de LED do micro:bit pela USB | trecho gerado por LLM |
 
+**Resumo das edições:** [LINHAS_ALTERADAS.md](LINHAS_ALTERADAS.md) lista, para todos os passos, só as linhas que mudam e por quê, numa página.
+
 **Apresentação:** [apresentacao.html](apresentacao.html) tem o passo a passo em slides, com simulador do contador de piscadas (pixel contra razão), micro:bit clicável e animação da serial. É um arquivo único sem dependências: abre com duplo clique, funciona sem internet. Setas ou espaço para navegar, `F` tela cheia, `T` tema claro (melhor em projetor fraco), `?` atalhos.
 
 A única parte em que usamos LLM é o código de comunicação serial do passo 6. A pasta do passo traz uma versão de referência caso a LLM gere algo que não funcione.
