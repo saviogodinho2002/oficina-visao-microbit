@@ -29,6 +29,8 @@ Objetivo: baixar um repositório, rodar a demo dele e entender as poucas linhas 
 
 O primeiro carregamento demora alguns segundos (o navegador baixa os modelos da pasta `models/` e prepara a GPU).
 
+Abra sempre pelo endereço `http://localhost:...`, nunca dando duplo clique no `index.html`. Pelo duplo clique o endereço vira `file:///...`, o Chrome bloqueia o carregamento da biblioteca e o console (F12) mostra `blocked by CORS policy`. A tela fica preta e a câmera nem é pedida.
+
 ## O que deve aparecer
 
 - A imagem da webcam com uma **malha triangulada sobre o rosto** (468 pontos) e os pontos da íris.

@@ -233,6 +233,7 @@ Linhas com `-` saem, linhas com `+` entram. `@@ -22,20 +22,61 @@` quer dizer: no
 
 ## Problemas comuns
 
+- **`blocked by CORS policy` com `file:///` no console**: o arquivo foi aberto com duplo clique, ou foi aberto o gabarito direto da pasta da oficina. O `piscadas.html` precisa estar em `human/demo/video/` e ser aberto pelo servidor: <http://localhost:3000/demo/video/piscadas.html> (ver "Se alguém se perder" no [README principal](../README.md)).
 - **Nada aparece em amarelo**: o rosto não foi detectado ainda, ou `contarPiscadas();` foi colado antes do `draw.all` (o texto é apagado pela imagem da webcam).
 - **Tela preta / erro no console** (F12): conferir se o bloco foi colado **dentro** do `<script type="module">`, antes de `async function drawLoop()`.
 - **Contador sobe sozinho**: limiar alto demais, ou você está longe da câmera (é o problema que este passo mostra).

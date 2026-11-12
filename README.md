@@ -39,7 +39,13 @@ Por que não Python: a forma mais conhecida de fazer isso em Python (MediaPipe c
   - Extensão "Live Server" do VS Code
 - Para os passos 5 e 6: um **micro:bit** (V1 ou V2) e cabo **micro USB de dados** (cabo só de carga não funciona).
 
-Por que precisa de servidor: abrir o HTML com duplo clique (`file://`) bloqueia a câmera e o carregamento dos modelos. O navegador só libera câmera e serial em página segura, e `http://localhost` conta como segura.
+Por que precisa de servidor: abrindo o HTML com duplo clique, o endereço fica `file:///...` e o Chrome bloqueia o `import` da biblioteca (`human.esm.js`) e o carregamento dos modelos. A página para aí, antes mesmo de pedir a câmera. No console (F12) aparece:
+
+```
+Access to script at 'file:///.../dist/human.esm.js' from origin 'null' has been blocked by CORS policy
+```
+
+Servindo a pasta por `http://localhost` isso some. Além disso, câmera e serial só são liberadas em página segura: `https://` ou `http://localhost` (que o navegador trata como segura mesmo sem o "s").
 
 ## Preparação (antes da aula)
 
@@ -64,7 +70,21 @@ Daqui pra frente os endereços usam a porta 3000. Se usar Python, troque por 800
 
 ## Se alguém se perder
 
-Cada pasta de passo (a partir do 2) tem uma subpasta `gabarito/` com o arquivo `piscadas.html` completo do fim daquele passo. Basta copiar esse arquivo para `human/demo/video/piscadas.html`, recarregar a página e seguir junto com a turma.
+Cada pasta de passo (a partir do 2) tem uma subpasta `gabarito/` com o arquivo `piscadas.html` completo do fim daquele passo.
+
+**O gabarito não roda de dentro da pasta da oficina.** Ele busca a biblioteca em `../../dist/human.esm.js` e os modelos em `../../models`, caminhos que só existem quando o arquivo está em `human/demo/video/`. Para usar:
+
+```bash
+# copiar o gabarito para dentro da demo (exemplo: passo 2), rodando na pasta que contém human/ e oficina-visao-microbit/
+cp oficina-visao-microbit/passo_2_piscadas_distancia/gabarito/piscadas.html human/demo/video/
+# no Windows: copy oficina-visao-microbit\passo_2_piscadas_distancia\gabarito\piscadas.html human\demo\video\
+
+# servir a pasta human (se o servidor ainda não estiver rodando)
+cd human
+npx serve
+```
+
+E abrir <http://localhost:3000/demo/video/piscadas.html>. Se o servidor já estava rodando, basta recarregar a página.
 
 ## Conceitos que aparecem
 
