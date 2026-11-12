@@ -31,6 +31,8 @@ O primeiro carregamento demora alguns segundos (o navegador baixa os modelos da 
 
 Abra sempre pelo endereço `http://localhost:...`, nunca dando duplo clique no `index.html`. Pelo duplo clique o endereço vira `file:///...`, o Chrome bloqueia o carregamento da biblioteca e o console (F12) mostra `blocked by CORS policy`. A tela fica preta e a câmera nem é pedida.
 
+Se o console mostra `GET http://localhost:XXXX/dist/human.esm.js 404 (Not Found)`, o servidor foi iniciado dentro de `human/demo` (ou de uma subpasta). Pare com Ctrl+C, volte para `human/` e rode `npx serve` de novo. Se a porta 3000 estiver ocupada, o `serve` usa outra e mostra no terminal; `npx serve -l 5000` fixa a porta.
+
 ## O que deve aparecer
 
 - A imagem da webcam com uma **malha triangulada sobre o rosto** (468 pontos) e os pontos da íris.

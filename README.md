@@ -72,6 +72,11 @@ python -m http.server 8000   # abre em http://localhost:8000
 
 Daqui pra frente os endereços usam a porta 3000. Se usar Python, troque por 8000.
 
+Dois cuidados:
+
+- **Porta ocupada**: se outro programa já usa a 3000, o `serve` escolhe outra porta e mostra no terminal (`Local: http://localhost:XXXXX`). Para fixar uma porta: `npx serve -l 5000`.
+- **Servir da pasta certa**: o servidor precisa rodar em `human/`, não em `human/demo/` nem em `human/demo/video/`. Rodando de dentro de `demo`, o console mostra `GET http://localhost:XXXX/dist/human.esm.js 404 (Not Found)`, porque `dist/` e `models/` ficam fora da pasta servida.
+
 ## Se alguém se perder
 
 Cada pasta de passo (a partir do 2) tem uma subpasta `gabarito/` com o arquivo `piscadas.html` completo do fim daquele passo.
