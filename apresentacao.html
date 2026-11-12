@@ -240,7 +240,8 @@ npx serve                      # http://localhost:3000
         <li>Sem etapa de build, sem TypeScript</li>
         <li>Editar, salvar, recarregar a página</li>
       </ul>
-      <p class="peq" style="margin-top:12px">Três partes importam: o <b>import</b> (linha 20), a <b>configuração</b> (22 a 31) e o <b>laço de desenho</b> (35 a 40).</p>
+      <p class="peq" style="margin-top:12px">Três partes importam: o <b>import</b> (linha 20), a <b>configuração</b> (22 a 31) e o <b>laço de desenho</b> (35 a 40). O import traz a biblioteca já compilada, que vem dentro do repositório:</p>
+      <pre class="code" data-lang="js" data-inicio="20" style="font-size:14px;white-space:pre-wrap;margin-top:8px">import * as H from '../../dist/human.esm.js';</pre>
     </div>
   </div>
 </section>
@@ -286,7 +287,9 @@ npx serve                      # http://localhost:3000
   await human.draw.all(canvas, interpolated);
   setTimeout(drawLoop, 30);
 }</pre>
-      <p class="peq frag">A detecção roda em paralelo (linha 45, <code>human.video(...)</code>). O resultado bruto mais recente fica sempre em <b class="amarelo"><code>human.result</code></b>. É de lá que vamos ler os pontos.</p>
+      <div class="frag"><p class="peq">A detecção roda em paralelo, iniciada no <code>main()</code>. O resultado mais recente fica sempre em <b class="amarelo"><code>human.result</code></b>: é de lá que vamos ler os pontos.</p>
+      <pre class="code" data-lang="js" data-inicio="44" style="font-size:15px;white-space:pre-wrap;margin-top:6px">await human.webcam.start({ crop: true }); // liga a webcam
+human.video(human.webcam.element);       // detecta sem parar, em paralelo</pre></div>
       <p class="peq frag">Qualquer coisa que a gente queira <b>desenhar</b> precisa entrar <b>depois</b> do <code>draw.all</code>, senão a imagem da webcam apaga.</p>
     </div>
   </div>
@@ -306,10 +309,47 @@ npx serve                      # http://localhost:3000
         <tr><td>olho direito</td><td class="num">33</td><td class="num">133</td><td class="num">159</td><td class="num">145</td></tr>
         <tr><td>olho esquerdo</td><td class="num">263</td><td class="num">362</td><td class="num">386</td><td class="num">374</td></tr>
       </table>
-      <p class="peq frag">De onde saem esses números? Do próprio repositório: <code>human/src/face/facemeshcoords.ts</code>, linhas 24, 25, 34 e 35 (<code>rightEyeUpper0</code>, <code>rightEyeLower0</code>...).</p>
+      <div class="frag"><p class="peq">De onde saem esses números? Do próprio repositório, <code>human/src/face/facemeshcoords.ts</code>:</p>
+      <pre class="code" data-lang="js" style="font-size:14px;white-space:pre-wrap;margin-top:6px">rightEyeUpper0: [246, 161, 160, 159, 158, 157, 173],          // linha 24
+rightEyeLower0: [33, 7, 163, 144, 145, 153, 154, 155, 133],   // linha 25
+leftEyeUpper0: [466, 388, 387, 386, 385, 384, 398],           // linha 34
+leftEyeLower0: [263, 249, 390, 373, 374, 380, 381, 382, 362], // linha 35</pre>
+      <p class="peq" style="margin-top:6px">Cantos: primeiro e último de <code>Lower0</code>. Pálpebras: o ponto do meio de <code>Upper0</code> e de <code>Lower0</code>.</p></div>
       <p class="peq frag">Cada ponto de <code>rosto.mesh</code> é <code>[x, y, z]</code> em pixels da imagem.</p>
       <p class="peq frag"><b class="amarelo">Abertura</b> = distância entre 159 e 145 (e entre 386 e 374), média dos dois olhos.</p>
     </div>
+  </div>
+</section>
+
+<!-- PASSO 2 ABERTURA EM CODIGO -->
+<section class="slide" data-titulo="Passo 2: a abertura em código">
+  <h2><span class="passo">Passo 2</span> · A abertura em código</h2>
+  <div class="cols c46">
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag"><code>OLHO_DIR</code> guarda os 4 índices do olho, na ordem da tabela: posição <b>2</b> é a pálpebra de cima, <b>3</b> a de baixo</li>
+        <li class="frag"><code>rosto.mesh[159]</code> é um ponto <code>[x, y, z]</code> em pixels</li>
+        <li class="frag"><code>distancia(a, b)</code>: Pitágoras entre dois pontos, usando só <code>x</code> e <code>y</code></li>
+        <li class="frag"><code>aberturaOlho</code>: distância entre a pálpebra de cima e a de baixo de um olho</li>
+        <li class="frag"><code>abertura</code>: média dos dois olhos, em pixels. É esse número que aparece na tela</li>
+      </ul>
+      <p class="peq suave" style="margin-top:12px">Prévia: você cola esse código nas edições do passo 2, a seguir.</p>
+    </div>
+    <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">// [canto externo, canto interno, palpebra de cima, palpebra de baixo]
+const OLHO_DIR = [33, 133, 159, 145];
+const OLHO_ESQ = [263, 362, 386, 374];
+
+function distancia(a, b) { // distancia entre dois pontos [x, y]
+  return Math.hypot(a[0] - b[0], a[1] - b[1]);
+}
+
+function aberturaOlho(mesh, olho) { // distancia entre as palpebras, em pixels
+  return distancia(mesh[olho[2]], mesh[olho[3]]);
+}
+
+// a cada quadro, com o primeiro rosto detectado:
+const rosto = human.result.face[0];
+const abertura = (aberturaOlho(rosto.mesh, OLHO_DIR) + aberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;</pre>
   </div>
 </section>
 
@@ -332,7 +372,12 @@ npx serve                      # http://localhost:3000
         <span class="estado ativo">ABERTO</span>
       </div>
     </div>
-    <pre class="code frag" data-lang="js">if (abertura &lt; LIMIAR_PX) {
+    <pre class="code frag" data-lang="js" style="font-size:16px;white-space:pre-wrap">const LIMIAR_PX = 6; // abertura abaixo disso = olho fechado
+let piscadas = 0;        // fora da funcao: lembra entre quadros
+let olhoFechado = false;
+
+// a cada quadro (abertura calculada no slide anterior):
+if (abertura &lt; LIMIAR_PX) {
   olhoFechado = true;
 } else if (olhoFechado) { // estava fechado e abriu
   piscadas++;
@@ -413,6 +458,38 @@ longe:  10 px / 25 px = 0,40</pre>
       </ul>
       <p class="peq" style="margin-top:12px">Os cantos (33, 133, 263, 362) já estavam em <code>OLHO_DIR</code> e <code>OLHO_ESQ</code> desde o passo 2.</p>
     </div>
+  </div>
+</section>
+
+<!-- PASSO 3 PREVIA -->
+<section class="slide" data-titulo="Passo 3: a razão em código">
+  <h2><span class="passo">Passo 3</span> · A razão em código</h2>
+  <div class="cols c46">
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag"><code>abertura</code>: a mesma distância entre as pálpebras do passo 2 (posições 2 e 3)</li>
+        <li class="frag"><code>largura</code>: distância entre os cantos do olho (posições 0 e 1)</li>
+        <li class="frag">A função devolve a divisão: um número sem unidade, perto de 0,4 com o olho aberto</li>
+        <li class="frag">A máquina de estados continua igual; só troca a medida e o limiar</li>
+      </ul>
+      <p class="peq suave" style="margin-top:12px">Prévia do código completo. As edições a seguir colam isso no arquivo, de baixo para cima.</p>
+    </div>
+    <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">const LIMIAR_RAZAO = 0.20; // razao abaixo disso = olho fechado
+
+function razaoAberturaOlho(mesh, olho) {
+  const abertura = distancia(mesh[olho[2]], mesh[olho[3]]);
+  const largura = distancia(mesh[olho[0]], mesh[olho[1]]);
+  return abertura / largura;
+}
+
+// a cada quadro:
+const razao = (razaoAberturaOlho(rosto.mesh, OLHO_DIR) + razaoAberturaOlho(rosto.mesh, OLHO_ESQ)) / 2;
+if (razao &lt; LIMIAR_RAZAO) {
+  olhoFechado = true;
+} else if (olhoFechado) {
+  piscadas++;
+  olhoFechado = false;
+}</pre>
   </div>
 </section>
 
@@ -497,8 +574,38 @@ if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&
       <pre class="code frag" data-lang="js">[ { score: 0.65, emotion: 'happy' },
   { score: 0.24, emotion: 'neutral' } ]</pre>
       <p class="frag peq"><code>src/gear/emotion.ts</code>, linha 80: <code>obj.sort((a, b) =&gt; b.score - a.score)</code>. A lista já vem ordenada, então <b class="amarelo"><code>emotion[0]</code></b> é a dominante.</p>
-      <p class="frag peq">Rótulos possíveis (linha 29): angry, disgust, fear, happy, sad, surprise, neutral.</p>
+      <div class="frag"><p class="peq">Rótulos possíveis, <code>emotion.ts</code> linha 29:</p>
+      <pre class="code" data-lang="js" data-inicio="29" style="font-size:14px;white-space:pre-wrap;margin-top:6px">annotations = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral'];</pre></div>
     </div>
+  </div>
+</section>
+
+<!-- PASSO 4 PREVIA -->
+<section class="slide" data-titulo="Passo 4: a emoção em código">
+  <h2><span class="passo">Passo 4</span> · A emoção em código</h2>
+  <div class="cols c46">
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag"><code>EMOCOES</code>: um objeto usado como dicionário, do rótulo em inglês para a palavra em português</li>
+        <li class="frag"><code>rosto.emotion</code>: lista de <code>{ score, emotion }</code>, já ordenada do maior score para o menor</li>
+        <li class="frag"><code>rosto.emotion[0].emotion</code>: a emoção dominante, ex.: <code>'happy'</code></li>
+        <li class="frag"><code>EMOCOES['happy']</code> vira <code>'feliz'</code>, que vai para a tela (e no passo 6 para o micro:bit)</li>
+      </ul>
+      <p class="peq suave" style="margin-top:12px">Prévia do código completo. As edições a seguir colam isso no arquivo, de baixo para cima.</p>
+    </div>
+    <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">const EMOCOES = { angry: 'raiva', disgust: 'nojo', fear: 'medo', happy: 'feliz',
+                  sad: 'triste', surprise: 'surpresa', neutral: 'neutro' };
+let emocaoAtual = '';
+
+function lerEmocao() {
+  const rosto = human.result.face[0];
+  if (!rosto || !rosto.emotion || rosto.emotion.length === 0) return;
+  emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // maior score primeiro
+  escrever(`Emoção: ${emocaoAtual}`, 3);
+}
+
+// no drawLoop, a cada quadro:
+lerEmocao();</pre>
   </div>
 </section>
 
@@ -732,6 +839,31 @@ while True:
     </div>
     <div style="display:flex;justify-content:center">
       <div class="placa" id="placaSerial"><div class="matriz"></div><div class="rot">micro:bit</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PASSO 6 PROTOCOLO EM CODIGO -->
+<section class="slide" data-titulo="Passo 6: o protocolo em código">
+  <h2><span class="passo">Passo 6</span> · O protocolo em código</h2>
+  <p class="peq suave">Trechos dos dois lados. O código completo vem nos próximos slides.</p>
+  <div class="cols">
+    <div class="edicao">
+      <p class="peq"><b>Navegador</b>: manda a palavra com <code>\n</code>, só quando muda</p>
+      <pre class="code" data-lang="js" style="font-size:16px;white-space:pre-wrap">if (emocao === ultimaEnviada) return; // igual: nao envia
+ultimaEnviada = emocao;
+// 'feliz' + '\n' vira os bytes 66 65 6c 69 7a 0a
+await escritor.write(new TextEncoder().encode(emocao + '\n'));</pre>
+    </div>
+    <div class="edicao frag">
+      <p class="peq"><b>micro:bit</b>: junta os bytes até achar o <code>\n</code></p>
+      <pre class="code" data-lang="py" style="font-size:16px;white-space:pre-wrap">uart.init(baudrate=115200)  # mesma velocidade
+
+buffer += uart.read()       # chega aos pedacos
+fim = buffer.find(b"\n")    # achou o fim da linha?
+linha = buffer[:fim]
+texto = str(linha, "utf-8").strip()  # 'feliz'
+display.show(IMAGENS[texto])         # Image.HAPPY</pre>
     </div>
   </div>
 </section>
