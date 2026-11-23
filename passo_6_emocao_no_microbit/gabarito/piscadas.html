@@ -89,21 +89,35 @@
 
       // OFICINA: envio pela serial (trecho gerado com LLM na oficina)
       const botao = document.getElementById('conectar');
-      let escritor = null; // writer da porta serial aberta
+      let porta = null; // porta serial aberta
+      let escritor = null; // writer da porta, por onde mandamos bytes
       let ultimaEnviada = '';
+
+      async function desconectar() { // solta o writer e fecha a porta, se estiverem abertos
+        try {
+          if (escritor) escritor.releaseLock();
+          if (porta) await porta.close();
+        } catch (erro) {
+          // a porta ja estava fechada (ex.: cabo tirado): nada a fazer
+        }
+        porta = null;
+        escritor = null;
+      }
 
       botao.onclick = async () => {
         if (!('serial' in navigator)) {
           botao.textContent = 'Use Chrome ou Edge (sem Web Serial)';
           return;
         }
+        await desconectar(); // clicar de novo reconecta do zero
         try {
-          const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit
+          porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit
           await porta.open({ baudRate: 115200 });
           escritor = porta.writable.getWriter();
           ultimaEnviada = '';
           botao.textContent = 'micro:bit conectado';
         } catch (erro) {
+          await desconectar();
           botao.textContent = 'Falhou: ' + erro.message;
         }
       };
@@ -114,7 +128,7 @@
         try {
           await escritor.write(new TextEncoder().encode(emocao + '\n'));
         } catch (erro) {
-          escritor = null;
+          await desconectar();
           botao.textContent = 'Desconectou, clique para conectar';
         }
       }

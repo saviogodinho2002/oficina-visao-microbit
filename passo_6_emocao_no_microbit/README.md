@@ -9,12 +9,14 @@ Este é o único passo em que usamos LLM: o código de comunicação serial dos 
 | Lado | Arquivo | Tecnologia |
 |---|---|---|
 | PC (navegador) | `human/demo/video/piscadas.html` (gabarito: [gabarito/piscadas.html](gabarito/piscadas.html)) | **Web Serial API** do Chrome/Edge |
-| micro:bit | [microbit_receptor.py](microbit_receptor.py) | MicroPython, módulo `uart` |
+| micro:bit (python.microbit.org) | [microbit_receptor.py](microbit_receptor.py) | MicroPython, módulo `uart` |
+| micro:bit (MakeCode) | [microbit_receptor_makecode.js](microbit_receptor_makecode.js) | JavaScript do MakeCode, `serial` (vira blocos) |
 
 Documentação:
 
 - Web Serial: <https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API>
-- UART do micro:bit: <https://microbit-micropython.readthedocs.io/en/v2-docs/uart.html>
+- UART do micro:bit (MicroPython): <https://microbit-micropython.readthedocs.io/en/v2-docs/uart.html>
+- Serial no MakeCode: <https://makecode.microbit.org/reference/serial>
 
 ## O protocolo
 
@@ -49,6 +51,10 @@ Qualquer LLM gratuita serve. Algo como:
 > 1. Escreva o código JavaScript que, ao clicar num botão com id `conectar`, usa a Web Serial API para abrir a porta de um BBC micro:bit (filtro `usbVendorId: 0x0d28`) a 115200 baud, e uma função `enviarEmocao(emocao)` que manda a palavra seguida de `\n`, só quando ela mudar. Trate erro de desconexão.
 > 2. Escreva um programa MicroPython para o micro:bit (compatível com V1 e V2) que lê essas linhas pela UART da USB a 115200 e mostra `Image.HAPPY` para feliz, `Image.SAD` para triste, `Image.ANGRY` para raiva, `Image.SURPRISED` para surpresa, `Image.CONFUSED` para medo, `Image.SILLY` para nojo, `Image.MEH` para neutro, e `Image.ASLEEP` enquanto não chega nada.
 
+Se a turma usa o **MakeCode** em vez do python.microbit.org, troque o item 2 por:
+
+> 2. Escreva o programa em JavaScript do MakeCode (makecode.microbit.org) para o micro:bit que, com `serial.onDataReceived` e `serial.readLine()` a 115200, mostra `IconNames.Happy` para feliz, `IconNames.Sad` para triste, `IconNames.Angry` para raiva, `IconNames.Surprised` para surpresa, `IconNames.Confused` para medo, `IconNames.Silly` para nojo, `IconNames.Meh` para neutro, e `IconNames.Asleep` enquanto não chega nada. Use `.trim()` na linha lida.
+
 ## Fazer
 
 ### Parte A: micro:bit
@@ -57,12 +63,26 @@ Qualquer LLM gratuita serve. Algo como:
 2. A matriz deve mostrar a carinha dormindo (`Image.ASLEEP`).
 3. **Feche a aba do python.microbit.org** (ou desconecte pelo menu do editor). Enquanto o editor estiver conectado ele segura a porta USB, e a nossa página não consegue abrir.
 
-O que o receptor faz:
+O receptor tem três trechos (é a mesma ordem dos slides):
 
-- `uart.init(baudrate=115200)`: a UART do micro:bit começa em 9600 por padrão; mudamos para casar com o navegador. Sem `tx`/`rx`, ela usa os pinos ligados à USB.
-- `uart.any()` / `uart.read()`: verifica se chegou algo e lê tudo que estiver disponível, em bytes.
-- `buffer.find(b"\n")`: procura o fim de linha; recorta a linha, converte para texto com `str(linha, "utf-8")` e procura no dicionário `IMAGENS`.
-- Palavra desconhecida é ignorada.
+1. **As carinhas**: o dicionário `IMAGENS` liga cada palavra que a página manda a uma imagem pronta do micro:bit. Palavra que não está nele é ignorada.
+   ```python
+   IMAGENS = {"feliz": Image.HAPPY, "triste": Image.SAD, ...}
+   ```
+2. **Ligar a serial**: `uart.init(baudrate=115200)` casa a velocidade com a da página (`uart.init()` sem argumento usaria 9600). Sem `tx`/`rx`, ela usa os pinos ligados à USB. A carinha dormindo indica que está esperando, e `buffer` guarda os bytes que chegaram e ainda não formam uma linha.
+   ```python
+   uart.init(baudrate=115200)
+   display.show(Image.ASLEEP)
+   buffer = b""
+   ```
+3. **Ler linha por linha**: os bytes chegam aos pedaços. O laço junta tudo no `buffer`, procura o `\n`, recorta a linha, converte para texto com `str(linha, "utf-8").strip()` (o `strip` tira um `\r` se vier) e mostra a carinha. O `while` de dentro existe porque podem ter chegado duas linhas de uma vez.
+   ```python
+   while True:
+       if uart.any():
+           dados = uart.read()
+           ...
+           fim = buffer.find(b"\n")
+   ```
 
 #### Usando o MakeCode em vez do python.microbit.org
 
@@ -74,7 +94,7 @@ O `uart` acima é da API do MicroPython e não existe no MakeCode. No MakeCode a
 4. Grave na placa pela USB: **"..." ao lado de Download → Conectar dispositivo → BBC micro:bit CMSIS-DAP**, depois **Download**. No macOS não baixe e arraste o `.hex` (ver o passo 5).
 5. Feche a aba do MakeCode (ou desconecte a placa no menu dele): ele também segura a porta USB.
 
-Mesmo protocolo da versão MicroPython: uma palavra por linha, 115200. `serial.readLine()` já devolve a palavra sem o `\n`. As carinhas (`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep`) são as mesmas imagens do MicroPython.
+Mesmo protocolo da versão MicroPython: uma palavra por linha, 115200. São dois trechos: o primeiro liga a serial na USB a 115200 e mostra a carinha dormindo; o segundo, `serial.onDataReceived`, roda a cada `\n` que chega, lê a linha com `serial.readLine()` (já sem o `\n`), tira um `\r` com `.trim()` e compara com as 7 palavras. As carinhas (`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep`) são as mesmas imagens do MicroPython.
 
 ### Parte B: página
 
@@ -85,21 +105,35 @@ Continuamos editando `human/demo/video/piscadas.html` do jeito que ficou no fim 
 ```js
       // OFICINA: envio pela serial (trecho gerado com LLM na oficina)
       const botao = document.getElementById('conectar');
-      let escritor = null; // writer da porta serial aberta
+      let porta = null; // porta serial aberta
+      let escritor = null; // writer da porta, por onde mandamos bytes
       let ultimaEnviada = '';
+
+      async function desconectar() { // solta o writer e fecha a porta, se estiverem abertos
+        try {
+          if (escritor) escritor.releaseLock();
+          if (porta) await porta.close();
+        } catch (erro) {
+          // a porta ja estava fechada (ex.: cabo tirado): nada a fazer
+        }
+        porta = null;
+        escritor = null;
+      }
 
       botao.onclick = async () => {
         if (!('serial' in navigator)) {
           botao.textContent = 'Use Chrome ou Edge (sem Web Serial)';
           return;
         }
+        await desconectar(); // clicar de novo reconecta do zero
         try {
-          const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit
+          porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit
           await porta.open({ baudRate: 115200 });
           escritor = porta.writable.getWriter();
           ultimaEnviada = '';
           botao.textContent = 'micro:bit conectado';
         } catch (erro) {
+          await desconectar();
           botao.textContent = 'Falhou: ' + erro.message;
         }
       };
@@ -110,7 +144,7 @@ Continuamos editando `human/demo/video/piscadas.html` do jeito que ficou no fim 
         try {
           await escritor.write(new TextEncoder().encode(emocao + '\n'));
         } catch (erro) {
-          escritor = null;
+          await desconectar();
           botao.textContent = 'Desconectou, clique para conectar';
         }
       }
@@ -129,15 +163,23 @@ Continuamos editando `human/demo/video/piscadas.html` do jeito que ficou no fim 
     <button id="conectar" style="position: fixed; top: 12px; right: 12px; font-size: 20px; padding: 8px 16px">Conectar micro:bit</button>
 ```
 
-**4. Salvar e recarregar** <http://localhost:3000/demo/video/piscadas.html>.
+**4. Salvar e recarregar** <http://localhost:3000/demo/video/piscadas.html> (ou a porta que o terminal do servidor mostrar).
+
+Entre a edição 1 e a 3, a página fica quebrada: o código procura o botão `conectar`, que só entra na edição 3. É o mesmo efeito das edições de baixo para cima dos passos 2 e 3.
 
 O que o código da página faz:
 
 - `navigator.serial.requestPort(...)`: abre a janela do navegador para o usuário escolher a porta. Só pode ser chamado a partir de um clique (regra de segurança do navegador), por isso existe o botão. O filtro `usbVendorId: 0x0d28` mostra só o micro:bit na lista (0x0d28 é o identificador do fabricante da interface USB da placa).
 - `porta.open({ baudRate: 115200 })`: mesma velocidade do `uart.init` do micro:bit.
 - `porta.writable.getWriter()`: a porta é um stream; o writer é por onde mandamos bytes.
+- `desconectar()`: solta o writer e fecha a porta. É chamada antes de cada conexão e quando o envio falha, para que clicar em Conectar de novo (ou reconectar depois de tirar o cabo) não dê `The port is already open`.
 - `new TextEncoder().encode(...)`: converte a string JavaScript em bytes UTF-8.
 - `ultimaEnviada`: guarda a última palavra para só enviar quando mudar.
+
+## O que deve aparecer
+
+- Antes de conectar: a matriz mostra a carinha dormindo e a página mostra Piscadas, Razão e Emoção como no passo 4, com o botão **Conectar micro:bit** no canto de cima.
+- Depois de conectar: o botão diz **micro:bit conectado** e a matriz troca de carinha cada vez que a emoção na tela muda.
 
 ## Testar
 
@@ -158,7 +200,7 @@ O que o código da página faz:
      <pre id="log" style="padding: 8px; position: fixed; bottom: 0"></pre>
      <script type="module">
        import * as H from '../../dist/human.esm.js'; // equivalent of import @vladmandic/Human
-@@ -83,8 +84,41 @@
+@@ -83,8 +84,55 @@
          if (!rosto || !rosto.emotion || rosto.emotion.length === 0) return;
          emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // a lista vem ordenada, maior score primeiro
          escrever(`Emoção: ${emocaoAtual}`, 3);
@@ -167,21 +209,35 @@ O que o código da página faz:
  
 +      // OFICINA: envio pela serial (trecho gerado com LLM na oficina)
 +      const botao = document.getElementById('conectar');
-+      let escritor = null; // writer da porta serial aberta
++      let porta = null; // porta serial aberta
++      let escritor = null; // writer da porta, por onde mandamos bytes
 +      let ultimaEnviada = '';
++
++      async function desconectar() { // solta o writer e fecha a porta, se estiverem abertos
++        try {
++          if (escritor) escritor.releaseLock();
++          if (porta) await porta.close();
++        } catch (erro) {
++          // a porta ja estava fechada (ex.: cabo tirado): nada a fazer
++        }
++        porta = null;
++        escritor = null;
++      }
 +
 +      botao.onclick = async () => {
 +        if (!('serial' in navigator)) {
 +          botao.textContent = 'Use Chrome ou Edge (sem Web Serial)';
 +          return;
 +        }
++        await desconectar(); // clicar de novo reconecta do zero
 +        try {
-+          const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit
++          porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: 0x0d28 }] }); // 0x0d28 = interface USB do micro:bit
 +          await porta.open({ baudRate: 115200 });
 +          escritor = porta.writable.getWriter();
 +          ultimaEnviada = '';
 +          botao.textContent = 'micro:bit conectado';
 +        } catch (erro) {
++          await desconectar();
 +          botao.textContent = 'Falhou: ' + erro.message;
 +        }
 +      };
@@ -192,7 +248,7 @@ O que o código da página faz:
 +        try {
 +          await escritor.write(new TextEncoder().encode(emocao + '\n'));
 +        } catch (erro) {
-+          escritor = null;
++          await desconectar();
 +          botao.textContent = 'Desconectou, clique para conectar';
 +        }
 +      }
@@ -206,7 +262,7 @@ O que o código da página faz:
 
 - **A unidade MICROBIT mostra `FAIL.TXT`** (`The transfer timed out` ou `Checksum calculation failure`): a gravação por cópia do `.hex` falhou, comum no macOS. Tire e recoloque o cabo e grave pela USB (**Send to micro:bit** ou **Conectar dispositivo** no MakeCode).
 - **A janela de escolha vem vazia**: cabo só de carga (troque por um de dados) ou micro:bit não reconhecido. Conferir se a unidade MICROBIT aparece no sistema.
-- **"Falhou: Failed to open serial port"**: outra coisa está usando a porta. Feche a aba do python.microbit.org, monitores serial (Arduino IDE, PuTTY, `screen`) e outras abas com a página.
+- **"Falhou: Failed to open serial port"**: outra coisa está usando a porta. Feche a aba do python.microbit.org ou do MakeCode (o "Conectar dispositivo" dele segura a placa), monitores serial (Arduino IDE, PuTTY, `screen`) e outras abas com a página.
 - **Linux, falha ao abrir mesmo com tudo fechado**: o usuário precisa de permissão na porta serial. `sudo usermod -aG dialout $USER`, depois sair e entrar de novo na sessão.
 - **Botão diz "Use Chrome ou Edge"**: Firefox e Safari não têm Web Serial.
 - **Matriz continua dormindo**: conferir se os dois lados estão em 115200, se a página manda `\n` no fim e se as palavras são as mesmas dos dois lados (sem acento).

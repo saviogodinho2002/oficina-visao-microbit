@@ -53,7 +53,7 @@ Números de linha do arquivo como ficou no fim do passo 4.
 
 | Ordem | Linha | O que fazer | Por quê |
 |---|---|---|---|
-| 1 | depois da 86 e da linha em branco | colar o bloco serial: `botao`, `escritor`, `ultimaEnviada`, `botao.onclick`, `enviarEmocao()` | Abre a porta do micro:bit pela Web Serial (115200) e envia a palavra com `\n` só quando muda. Trecho gerado com LLM na oficina. |
+| 1 | depois da 86 e da linha em branco | colar o bloco serial: `botao`, `porta`, `escritor`, `ultimaEnviada`, `desconectar()`, `botao.onclick`, `enviarEmocao()` | Abre a porta do micro:bit pela Web Serial (115200) e envia a palavra com `\n` só quando muda. `desconectar()` fecha a porta antes de reconectar, para clicar de novo não falhar. Trecho gerado com LLM na oficina. |
 | 2 | depois da 85 | inserir `enviarEmocao(emocaoAtual);` | Manda a emoção lida para o micro:bit. |
 | 3 | depois da 17 | inserir `<button id="conectar" ...>Conectar micro:bit</button>` | O navegador só deixa abrir a porta serial a partir de um clique do usuário. |
 

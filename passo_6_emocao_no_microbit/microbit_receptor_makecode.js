@@ -8,7 +8,7 @@ serial.setBaudRate(BaudRate.BaudRate115200)
 basic.showIcon(IconNames.Asleep) // esperando a primeira mensagem
 
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-    let texto = serial.readLine() // le ate o \n e devolve a palavra sem ele
+    let texto = serial.readLine().trim() // le ate o \n; trim tira o \r se a pagina mandar \r\n
     if (texto == "feliz") {
         basic.showIcon(IconNames.Happy)
     } else if (texto == "triste") {
