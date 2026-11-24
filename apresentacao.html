@@ -347,23 +347,24 @@
 
 <!-- FUNDAMENTO APRENDER -->
 <section class="slide" data-titulo="Fundamento: aprender">
-  <h2>Aprender é ajustar um número</h2>
+  <h2>Aprender é achar uma função a partir de exemplos</h2>
   <div class="cols c64">
     <div style="display:flex;flex-direction:column;gap:8px">
       <svg viewBox="0 0 640 150" id="aprSvg" style="width:100%"></svg>
       <label class="peq">limiar: <b id="aprValor"></b> <input type="range" id="aprLimiar" min="0" max="255" step="1" value="230" style="width:60%;accent-color:var(--amarelo)"></label>
       <div style="display:flex;gap:10px;align-items:center"><button class="acao principal" id="aprTreinar">treinar</button><button class="acao" id="aprReset">recomeçar</button><span class="peq" id="aprErros"></span></div>
+      <pre class="code" data-lang="js" id="aprFuncao" style="margin:0;font-size:20px"></pre>
       <svg viewBox="0 0 640 80" id="aprCurva" style="width:100%"></svg>
     </div>
     <div class="cartao">
-      <p class="peq">Na regra <code>pixel &lt; 50</code> do slide 5, o 50 foi um chute. E se a máquina achasse esse número sozinha, a partir de exemplos?</p>
+      <p class="peq">A regra do slide 5 é uma função: <code>olho(pixel) = pixel &lt; 50</code>. A forma foi escolha nossa; o 50, um chute. E se a máquina ajustasse essa função com exemplos?</p>
       <ul class="peq" style="margin-top:8px">
         <li><b>exemplo rotulado</b>: o valor de um pixel e a resposta certa (<span class="vermelho">olho</span> ou <span class="ciano">pele</span>)</li>
-        <li><b>parâmetro</b>: o número que pode mudar; aqui, o limiar da regra</li>
+        <li><b>parâmetro</b>: o número dentro da função que o treino pode mudar; aqui, o limiar</li>
         <li><b>erro</b>: quantos exemplos ficam do lado errado</li>
         <li><b>treino</b>: a cada passo, ver para que lado o erro diminui e mover o parâmetro um pouco para lá (a "descida do gradiente")</li>
       </ul>
-      <p class="peq frag" style="margin-top:6px">O limiar aprendido erra menos que o chute, mas ainda olha um pixel sozinho: escurecendo a sala, quebra igual. Para isso servem os filtros, e eles também podem ser aprendidos.</p>
+      <p class="peq frag" style="margin-top:6px">A forma dela ainda olha um pixel sozinho: escurecendo a sala, quebra igual. Nenhum limiar resolve; é preciso outra forma de função, como o filtro.</p>
       <p class="peq suave" style="margin-top:6px">Valores inventados para mostrar a ideia.</p>
     </div>
   </div>
@@ -382,7 +383,7 @@
         <li class="frag">Entradas: 3 pixels (de 0 a 1). <b>Pesos</b>: quanto cada um importa, podem ser negativos</li>
         <li class="frag">Saída: soma dos produtos mais o <b>viés</b>; se der negativo, vira 0 (a função ReLU)</li>
         <li class="frag">O filtro 3 × 3 dos slides 7 e 8 é um neurônio com 9 entradas: os pesos são os 9 números do filtro</li>
-        <li class="frag">Uma <b>rede neural</b> são camadas de neurônios, a saída de uma entrando na próxima. Treinar é a descida do gradiente do slide anterior, mexendo em todos os pesos ao mesmo tempo</li>
+        <li class="frag">Uma <b>rede neural</b> é uma função grande feita de camadas de neurônios, a saída de uma entrando na próxima. Treinar é a descida do gradiente do slide anterior, ajustando todos os pesos ao mesmo tempo</li>
       </ul>
     </div>
   </div>
@@ -407,7 +408,7 @@
         <li class="frag">Até aqui, quem escolheu os números fomos nós: o 50 da regra e os 9 do filtro.</li>
         <li class="frag" style="margin-top:8px">Embaixo, um dos 32 filtros da primeira camada do detector de emoção que você liga no passo 4. Ninguém digitou esses números: o treino achou.</li>
         <li class="frag" style="margin-top:8px">Compare com o nosso: negativo à esquerda, positivo à direita, e os 9 números somam −0,01. É um detector de borda vertical que também não liga para a luz, e a saída acende nos mesmos lugares.</li>
-        <li class="frag" style="margin-top:8px"><b>Machine learning</b> é isso em escala: dar exemplos com a resposta certa e ajustar os números pela descida do gradiente até errar pouco. O detector de emoção aprendeu com o FER2013, um conjunto de 35.887 fotos de rosto com a emoção marcada, e tem 205.129 números ajustados assim.</li>
+        <li class="frag" style="margin-top:8px"><b>Machine learning</b> é escolher a forma da função e dar exemplos com a resposta certa; o treino ajusta os números dela pela descida do gradiente até errar pouco. O detector de emoção é uma função de 13 camadas de filtros com 205.129 números, ajustados com o FER2013 (35.887 fotos de rosto com a emoção marcada).</li>
       </ol>
     </div>
   </div>
@@ -773,7 +774,7 @@ if (razao &lt; LIMIAR_RAZAO) {
       <li>Não precisa mais calibrar: o 0,20 vale para todo mundo</li>
     </ol>
   </div>
-  <p class="frag peq">O 0,20 foi escolhido na mão, como o 50 do slide 5. Com exemplos de olho aberto e fechado, o treino do slide 9 acharia esse número.</p>
+  <p class="frag peq">O 0,20 foi escolhido na mão, como o 50 do slide 5. Com exemplos de olho aberto e fechado, o treino do slide 9 ajustaria a função <code>razao &lt; limiar</code> sozinho.</p>
 </section>
 
 <!-- 16. PASSO 3 SIMULADOR -->
@@ -2211,7 +2212,7 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
   const pele = [82, 95, 108, 120, 135, 150, 165, 178, 190, 205, 220, 240]; // acima do limiar
   const olho = [18, 24, 30, 35, 41, 47, 55, 62, 68, 74]; // abaixo do limiar
   const X = (r) => 30 + r / 255 * 580;
-  const slider = document.getElementById('aprLimiar'), valor = document.getElementById('aprValor'), erros = document.getElementById('aprErros'), curva = document.getElementById('aprCurva');
+  const funcao = document.getElementById('aprFuncao'), slider = document.getElementById('aprLimiar'), valor = document.getElementById('aprValor'), erros = document.getElementById('aprErros'), curva = document.getElementById('aprCurva');
   let t = 230, hist = [], timer = null;
   const nErros = (t) => pele.filter((x) => x < t).length + olho.filter((x) => x >= t).length;
   function desenhar() {
@@ -2221,9 +2222,10 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
     pele.forEach((x) => { const err = x < t; s += `<circle cx="${X(x)}" cy="70" r="8" fill="var(--ciano)" stroke="${err ? 'var(--vermelho)' : 'none'}" stroke-width="3"/>`; });
     olho.forEach((x) => { const err = x >= t; s += `<rect x="${X(x) - 7}" y="38" width="14" height="14" fill="var(--vermelho)" stroke="${err ? 'var(--amarelo)' : 'none'}" stroke-width="3"/>`; });
     s += `<line x1="${X(t)}" y1="15" x2="${X(t)}" y2="100" stroke="var(--amarelo)" stroke-width="3"/><text x="${X(t)}" y="12" font-size="13" text-anchor="middle" fill="var(--amarelo)">limiar</text>`;
-    s += `<text x="440" y="20" font-size="13" fill="var(--vermelho)">■ olho</text><text x="520" y="20" font-size="13" fill="var(--ciano)">● pele</text>`;
+    s += `<text x="30" y="20" font-size="13" fill="var(--vermelho)">■ olho</text><text x="100" y="20" font-size="13" fill="var(--ciano)">● pele</text>`;
     svg.innerHTML = s;
     slider.value = t; valor.textContent = Math.round(t);
+    funcao.textContent = `olho(pixel) = pixel < ${Math.round(t)}`;
     erros.textContent = `erros: ${nErros(t)} de ${pele.length + olho.length}` + (hist.length ? ` · passo ${hist.length}` : '');
     const mx = pele.length + olho.length; let p = '';
     hist.forEach((e, i) => { p += `${i ? 'L' : 'M'}${30 + i * 580 / Math.max(hist.length - 1, 1)},${70 - e / mx * 60}`; });
