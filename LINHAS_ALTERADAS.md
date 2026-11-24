@@ -45,7 +45,7 @@ Números de linha do arquivo como ficou no fim do passo 3.
 
 ## Passo 5: micro:bit
 
-Nenhuma linha alterada no `piscadas.html`. Só gravar os programas de `passo_5_microbit/` no micro:bit.
+Nenhuma linha alterada no `piscadas.html`. Só gravar no micro:bit os testes de componentes de `passo_5_microbit/makecode/` (MakeCode; os `.py` da pasta são a alternativa em MicroPython).
 
 ## Passo 6: emoção no micro:bit
 

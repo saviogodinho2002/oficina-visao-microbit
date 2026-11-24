@@ -2,6 +2,12 @@
 
 A ideia da oficina é mostrar que dá para montar um projeto de visão computacional bem legal sem escrever nada do zero e sem pedir código para IA. O caminho é achar um repositório pronto, entender onde mexer e ajustar poucas linhas.
 
+A oficina tem **dois dias**, com a mesma apresentação dividida em duas partes.
+
+**Dia 1: visão computacional** (passos 1 a 4). Abre com fundamentos curtos (uma imagem é uma tabela de números; regra escrita × modelo aprendido) e tem slides "Por dentro" depois dos passos 1, 3 e 4: os quatro modelos em sequência, regra e modelo no nosso código, com que dados o detector de emoção aprendeu (FER2013) e limites e cuidados.
+
+**Dia 2: micro:bit** (passos 5 e 6). O que é um microcontrolador, a placa por fora, um teste em MakeCode para cada componente (13 programas) e, no fim, a emoção da webcam na matriz de LED.
+
 O que vamos construir, em 6 passos:
 
 | Passo | Pasta | O que acontece | Esforço |
@@ -10,12 +16,12 @@ O que vamos construir, em 6 passos:
 | 2 | [passo_2_piscadas_distancia](passo_2_piscadas_distancia/) | Contar piscadas medindo a abertura do olho em pixels (e ver isso falhar) | 4 linhas trocadas, ~40 coladas |
 | 3 | [passo_3_piscadas_razao](passo_3_piscadas_razao/) | Consertar: usar a razão abertura / largura do olho | 4 trechos trocados |
 | 4 | [passo_4_emocoes](passo_4_emocoes/) | Ligar o detector de emoções que já vem no repositório | 1 palavra + 12 linhas |
-| 5 | [passo_5_microbit](passo_5_microbit/) | Conhecer o micro:bit com programas curtos em Python | programas prontos |
+| 5 | [passo_5_microbit](passo_5_microbit/) | Dia 2: o micro:bit por dentro, um teste em MakeCode para cada componente | 13 programas prontos |
 | 6 | [passo_6_emocao_no_microbit](passo_6_emocao_no_microbit/) | Mandar a emoção do PC para a matriz de LED do micro:bit pela USB | trecho gerado por LLM |
 
 **Resumo das edições:** [LINHAS_ALTERADAS.md](LINHAS_ALTERADAS.md) lista, para todos os passos, só as linhas que mudam e por quê, numa página.
 
-**Apresentação:** [apresentacao.html](apresentacao.html) tem o passo a passo em slides, com simulador do contador de piscadas (pixel contra razão), micro:bit clicável e animação da serial. É um arquivo único sem dependências: abre com duplo clique, funciona sem internet. Setas ou espaço para navegar, `F` tela cheia, `T` alterna para o tema escuro (o padrão é claro), `?` atalhos. Os slides falam com os alunos; a justificativa da proposta fica neste README.
+**Apresentação:** [apresentacao.html](apresentacao.html) tem o passo a passo em slides, com simulador do contador de piscadas (pixel contra razão), micro:bit clicável e animação da serial. É um arquivo único sem dependências: abre com duplo clique, funciona sem internet. Setas ou espaço para navegar, `F` tela cheia, `T` alterna para o tema escuro (o padrão é claro), `?` atalhos. Para abrir direto no começo do Dia 2, acrescente `#dia2` ao endereço (ex.: `apresentacao.html#dia2`). Os slides falam com os alunos; a justificativa da proposta fica neste README.
 
 A única parte em que usamos LLM é o código de comunicação serial do passo 6. A pasta do passo traz uma versão de referência caso a LLM gere algo que não funcione.
 

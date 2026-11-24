@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oficina: visão computacional + micro:bit</title>
+<title>Oficina visão e micro:bit</title>
 <style>
   :root {
     --bg: #f6f7f9; --painel: #ffffff; --painel2: #eef1f5; --borda: #d9dee5;
@@ -81,6 +81,7 @@
   .roteiro .cartao { cursor: pointer; transition: border-color .2s, transform .2s; }
   .roteiro .cartao:hover { border-color: var(--amarelo); transform: translateY(-3px); }
   .roteiro .num { font-size: 44px; font-weight: 800; color: var(--amarelo); line-height: 1; }
+  .dia-rot { font-size: 22px; margin: 0; }
   .roteiro .esf { font-size: 16px; color: var(--suave); margin-top: 6px; }
 
   /* config toggles */
@@ -157,6 +158,18 @@
   ol.passos li { margin: 12px 0; }
   ol.passos code { overflow-wrap: anywhere; }
   ol.passos li::marker { color: var(--amarelo); font-weight: 800; }
+
+  /* divisorias e fundamentos */
+  .divisoria { justify-content: center; }
+  .divisoria .dia { font-size: 26px; font-weight: 800; color: var(--amarelo); letter-spacing: .04em; text-transform: uppercase; }
+  .pixels { display: grid; grid-template-columns: repeat(14, 26px); gap: 1px; background: var(--borda); padding: 1px; width: max-content; border-radius: 6px; }
+  .pixels div { width: 26px; height: 26px; font: 9px ui-monospace, Menlo, Consolas, monospace; display: flex; align-items: center; justify-content: center; cursor: crosshair; }
+  .barras .linha { display: grid; grid-template-columns: 90px 1fr 70px; align-items: center; gap: 10px; margin: 6px 0; font-size: 18px; }
+  .barras .barra { height: 18px; background: var(--ciano); border-radius: 4px; }
+  .barras .barra.destaque { background: var(--vermelho); }
+  .modelos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .modelos .cartao { padding: 14px 16px; }
+  .modelos .seta { text-align: center; color: var(--suave); }
 </style>
 </head>
 <body>
@@ -180,13 +193,71 @@
 <!-- 3. ROTEIRO -->
 <section class="slide" data-titulo="Roteiro">
   <h2>Roteiro</h2>
-  <div class="roteiro">
+  <p class="dia-rot"><b class="amarelo">Dia 1</b> · visão computacional</p>
+  <div class="roteiro" style="grid-template-columns:repeat(4, 1fr)">
     <div class="cartao" data-ir="passo1"><div class="num">1</div><b>Malha facial</b><div class="esf">ver a malha 3D do seu rosto</div></div>
     <div class="cartao" data-ir="passo2"><div class="num">2</div><b>Piscadas em pixels</b><div class="esf">contar piscadas, versão 1</div></div>
     <div class="cartao" data-ir="passo3"><div class="num">3</div><b>Piscadas por razão</b><div class="esf">contar piscadas, versão 2</div></div>
     <div class="cartao" data-ir="passo4"><div class="num">4</div><b>Emoções</b><div class="esf">detectar a sua emoção</div></div>
-    <div class="cartao" data-ir="passo5"><div class="num">5</div><b>Conhecendo o micro:bit</b><div class="esf">programar a placa</div></div>
+  </div>
+  <p class="dia-rot" style="margin-top:6px"><b class="amarelo">Dia 2</b> · micro:bit</p>
+  <div class="roteiro">
+    <div class="cartao" data-ir="passo5"><div class="num">5</div><b>O micro:bit por dentro</b><div class="esf">testar cada componente da placa</div></div>
     <div class="cartao" data-ir="passo6"><div class="num">6</div><b>Emoção no micro:bit</b><div class="esf">a emoção aparece na placa</div></div>
+  </div>
+</section>
+
+<!-- DIA 1 DIVISORIA -->
+<section class="slide divisoria" id="dia1" data-titulo="Dia 1">
+  <div class="dia">Dia 1</div>
+  <h1>Visão computacional</h1>
+  <p class="suave" style="font-size:26px">O que é uma imagem para o computador, o que é um modelo, e quatro passos com a webcam: malha, piscadas (duas versões) e emoção.</p>
+</section>
+
+<!-- FUNDAMENTO IMAGEM -->
+<section class="slide" data-titulo="Fundamento: imagem">
+  <h2>Uma imagem é uma tabela de números</h2>
+  <div class="cols c46">
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+      <div class="pixels" id="pixels"></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="acao" id="pixelsNumeros">mostrar números</button>
+        <span class="peq" id="pixelsInfo">passe o mouse num pixel</span>
+      </div>
+    </div>
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag">Cada quadradinho é um <b>pixel</b>. Em tons de cinza, é um número de <b>0</b> (preto) a <b>255</b> (branco)</li>
+        <li class="frag">Colorido, cada pixel tem <b>3 números</b>: vermelho, verde e azul (RGB)</li>
+        <li class="frag">A webcam em 1280 × 720 manda 921.600 pixels × 3 = <b>2,7 milhões de números</b> por quadro, umas 30 vezes por segundo</li>
+        <li class="frag">"Ver" um rosto, para o computador, é achar um padrão nessa tabela</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO MODELO -->
+<section class="slide" data-titulo="Fundamento: modelo">
+  <h2>Regra escrita × modelo aprendido</h2>
+  <div class="cols">
+    <div class="cartao">
+      <h3>Regra escrita</h3>
+      <p class="peq">Alguém pensa na lógica e escreve o código. Dá para explicar cada passo.</p>
+      <pre class="code" data-lang="js" style="margin-top:10px">if (razao &lt; 0.20) {
+  olhoFechado = true;
+}</pre>
+      <p class="peq suave" style="margin-top:8px">É o que vamos escrever nos passos 2 e 3.</p>
+    </div>
+    <div class="cartao frag">
+      <h3>Modelo aprendido (machine learning)</h3>
+      <p class="peq">Ninguém escreve o <code>if</code> que diz o que é "feliz". Em vez disso:</p>
+      <ol class="peq" style="margin:8px 0 0;padding-left:24px">
+        <li>junta milhares de fotos com a resposta certa (feliz, triste...)</li>
+        <li>o treino ajusta números internos (os <b>pesos</b>) até o modelo acertar a maioria</li>
+        <li>o modelo pronto é esse monte de números</li>
+      </ol>
+      <p class="peq" style="margin-top:10px">O detector de emoção que vamos usar tem <b>205 mil</b> números aprendidos, guardados em <code>models/emotion.bin</code>.</p>
+    </div>
   </div>
 </section>
 
@@ -294,6 +365,22 @@ human.video(human.webcam.element);       // detecta sem parar, em paralelo</pre>
       <p class="peq frag">Qualquer coisa que a gente queira <b>desenhar</b> precisa entrar <b>depois</b> do <code>draw.all</code>, senão a imagem da webcam apaga.</p>
     </div>
   </div>
+</section>
+
+<!-- FUNDAMENTO MODELOS EM SEQUENCIA -->
+<section class="slide" data-titulo="Por dentro: os modelos">
+  <h2><span class="passo">Por dentro</span> · Quatro modelos em sequência</h2>
+  <div class="modelos">
+    <div class="cartao"><h3>1. Acha o rosto</h3><p class="peq">Desenha uma caixa em volta de cada rosto.</p><p class="peq suave" style="margin-top:6px"><code>blazeface</code> (MediaPipe) · 135 mil números</p></div>
+    <div class="cartao"><h3>2. Malha</h3><p class="peq">Dentro da caixa, acha os 468 pontos do rosto.</p><p class="peq suave" style="margin-top:6px"><code>facemesh</code> (MediaPipe) · 739 mil números</p></div>
+    <div class="cartao"><h3>3. Íris</h3><p class="peq">Mais 10 pontos nos olhos: total 478.</p><p class="peq suave" style="margin-top:6px"><code>iris</code> (MediaPipe) · 650 mil números</p></div>
+    <div class="cartao"><h3>4. Emoção</h3><p class="peq">Recebe o rosto reduzido a 64 × 64 em cinza e dá uma nota para cada uma das 7 emoções.</p><p class="peq suave" style="margin-top:6px"><code>emotion</code> · 205 mil números</p></div>
+  </div>
+  <ul class="peq">
+    <li class="frag">Cada modelo é um par de arquivos em <code>human/models/</code>: o <code>.json</code> descreve as camadas, o <code>.bin</code> guarda os números aprendidos</li>
+    <li class="frag">Rodam <b>no seu navegador</b>, na placa de vídeo, com a biblioteca TensorFlow.js. A imagem da câmera não sai do computador</li>
+    <li class="frag">A saída de um vira a entrada do próximo: o Human só junta as peças. Nós vamos usar a saída do 2 (os pontos) e do 4 (a emoção)</li>
+  </ul>
 </section>
 
 <!-- 9. PASSO 2 IDEIA -->
@@ -569,6 +656,22 @@ if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&
   </div>
 </section>
 
+<!-- FUNDAMENTO REGRA X APRENDIDO NO CODIGO -->
+<section class="slide" data-titulo="Por dentro: regra e modelo">
+  <h2><span class="passo">Por dentro</span> · Regra escrita e modelo aprendido, juntos</h2>
+  <div class="cartao" style="align-self:flex-start">
+    <table style="font-size:21px">
+      <tr><th>parte do programa</th><th>tipo</th><th>quem fez</th></tr>
+      <tr><td>achar o rosto e os 478 pontos</td><td><b class="ciano">aprendido</b></td><td>MediaPipe (Google), treinado com fotos</td></tr>
+      <tr><td>razão abertura / largura e limiar 0,20</td><td><b class="amarelo">regra escrita</b></td><td>nós, nos passos 2 e 3</td></tr>
+      <tr><td>gesto <code>blink</code> do Human</td><td><b class="amarelo">regra escrita</b></td><td>autor do Human</td></tr>
+      <tr><td>emoção (passo 4)</td><td><b class="ciano">aprendido</b></td><td>treinado com 35 mil fotos rotuladas</td></tr>
+    </table>
+  </div>
+  <p class="frag">O padrão é comum: um modelo aprendido transforma a imagem em algo fácil de usar (pontos), e em cima disso a gente escreve regras simples.</p>
+  <p class="frag suave peq">Escrever regra direto nos 2,7 milhões de números da imagem seria inviável. Sobre 478 pontos, cabe num <code>if</code>.</p>
+</section>
+
 <!-- 18. PASSO 4 -->
 <section class="slide" id="passo4" data-titulo="Passo 4: emoções">
   <h2><span class="passo">Passo 4</span> · Ligar uma função que já estava lá</h2>
@@ -643,9 +746,98 @@ lerEmocao();</pre>
   </div>
 </section>
 
+<!-- FUNDAMENTO EMOCAO POR DENTRO -->
+<section class="slide" data-titulo="Por dentro: o detector de emoção">
+  <h2><span class="passo">Por dentro</span> · Com que o detector de emoção aprendeu</h2>
+  <div class="cols">
+    <div class="cartao barras">
+      <h3>FER2013: fotos por emoção</h3>
+      <div class="linha"><span>raiva</span><div class="barra" style="width:55.1%"></div><span class="num">4.953</span></div>
+      <div class="linha"><span>nojo</span><div class="barra destaque" style="width:6.1%"></div><span class="num">547</span></div>
+      <div class="linha"><span>medo</span><div class="barra" style="width:57.0%"></div><span class="num">5.121</span></div>
+      <div class="linha"><span>feliz</span><div class="barra" style="width:100.0%"></div><span class="num">8.989</span></div>
+      <div class="linha"><span>triste</span><div class="barra" style="width:67.6%"></div><span class="num">6.077</span></div>
+      <div class="linha"><span>surpresa</span><div class="barra" style="width:44.5%"></div><span class="num">4.002</span></div>
+      <div class="linha"><span>neutro</span><div class="barra" style="width:69.0%"></div><span class="num">6.198</span></div>
+      <p class="peq suave" style="margin-top:8px">35.887 fotos de 48 × 48 pixels em cinza</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <ul class="peq">
+        <li class="frag">As fotos foram achadas em buscas de imagens na internet e conferidas por pessoas</li>
+        <li class="frag">O modelo recebe o rosto reduzido a 64 × 64 em cinza: detalhe fino e cor não entram</li>
+        <li class="frag">Acerta <b>66%</b> das fotos de teste, segundo o autor. Pessoas acertam por volta de 65 a 68% nesse mesmo conjunto</li>
+        <li class="frag"><b class="vermelho">Nojo</b> tem só 547 fotos, 16 vezes menos que feliz: por isso é a emoção que o modelo mais erra</li>
+      </ul>
+      <p class="peq suave">Fontes: <code>oarriaga/face_classification</code> (o modelo) e Goodfellow et al., <i>Challenges in Representation Learning</i> (2013), o artigo do FER2013.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO LIMITES E ETICA -->
+<section class="slide" data-titulo="Por dentro: limites e ética">
+  <h2><span class="passo">Por dentro</span> · Limites e cuidados</h2>
+  <div class="cols">
+    <div class="cartao">
+      <h3>O que o modelo não sabe</h3>
+      <ul class="peq">
+        <li class="frag">Ele lê <b>expressão</b>, não sentimento: dá para sorrir triste</li>
+        <li class="frag">Aprendeu com fotos de internet, muitas posadas: careta exagerada funciona melhor que expressão sutil</li>
+        <li class="frag">Luz, ângulo, óculos e barba mudam o resultado</li>
+        <li class="frag">Se um tipo de rosto aparece pouco nas fotos de treino, o modelo erra mais com ele (viés do dado)</li>
+      </ul>
+    </div>
+    <div class="cartao">
+      <h3>Câmera e privacidade</h3>
+      <ul class="peq">
+        <li class="frag">Na nossa página, os modelos vêm da pasta <code>models/</code> e tudo roda no navegador: a imagem não é enviada para lugar nenhum</li>
+        <li class="frag">Muitos serviços de reconhecimento facial funcionam ao contrário: mandam a imagem para um servidor</li>
+        <li class="frag">Filmar e analisar o rosto de alguém pede consentimento. Usar detector de emoção para avaliar pessoas (na escola, no trabalho) é um uso polêmico</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- DIA 2 DIVISORIA -->
+<section class="slide divisoria" id="dia2" data-titulo="Dia 2">
+  <div class="dia">Dia 2</div>
+  <h1>micro:bit</h1>
+  <p class="suave" style="font-size:24px">No dia 1:</p>
+  <div class="pipeline">
+    <span class="no" style="animation-delay:.1s">📷 webcam</span><span class="seta" style="animation-delay:.2s">→</span>
+    <span class="no" style="animation-delay:.3s">malha 478 pontos</span><span class="seta" style="animation-delay:.4s">→</span>
+    <span class="no" style="animation-delay:.5s">piscadas</span><span class="seta" style="animation-delay:.6s">→</span>
+    <span class="no" style="animation-delay:.7s">emoção</span>
+  </div>
+  <p class="suave" style="font-size:24px;margin-top:10px">Hoje: a placa por dentro, um teste para cada componente, e a emoção saindo do computador para a matriz de LED.</p>
+</section>
+
+<!-- DIA 2 MICROCONTROLADOR -->
+<section class="slide" id="passo5" data-titulo="Passo 5: microcontrolador">
+  <h2><span class="passo">Passo 5</span> · O que é um microcontrolador</h2>
+  <div class="cols">
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag">Um computador inteiro num chip: processador, memória e entradas/saídas</li>
+        <li class="frag">Sem sistema operacional: roda <b>um programa só, para sempre, em laço</b>, como o <code>drawLoop</code> da página</li>
+        <li class="frag"><b>Entradas</b> (sensores): botões, acelerômetro, bússola, luz, temperatura, toque, microfone</li>
+        <li class="frag"><b>Saídas</b> (atuadores): LEDs, alto-falante, pinos, rádio</li>
+      </ul>
+    </div>
+    <div class="cartao frag">
+      <table class="peq" style="width:100%">
+        <tr><th></th><th>micro:bit V1</th><th>micro:bit V2</th></tr>
+        <tr><td>processador</td><td>16 MHz</td><td>64 MHz</td></tr>
+        <tr><td>memória do programa</td><td>256 KB</td><td>512 KB</td></tr>
+        <tr><td>memória de trabalho</td><td>16 KB</td><td>128 KB</td></tr>
+      </table>
+      <p class="peq" style="margin-top:12px">Um notebook tem milhares de vezes mais memória. A placa compensa fazendo uma coisa só.</p>
+    </div>
+  </div>
+</section>
+
 <!-- 20. PASSO 5 -->
-<section class="slide" id="passo5" data-titulo="Passo 5: micro:bit">
-  <h2><span class="passo">Passo 5</span> · Conhecendo o micro:bit</h2>
+<section class="slide" data-titulo="Passo 5: a placa por fora">
+  <h2><span class="passo">Passo 5</span> · A placa por fora</h2>
   <div class="cols c46">
     <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
       <div class="placa" id="placaBotoes">
@@ -655,189 +847,352 @@ lerEmocao();</pre>
         <div class="rot">segure A, B ou A+B</div>
       </div>
       <button class="acao" id="btAB">segurar A + B</button>
-      <pre class="code" data-lang="py" style="font-size:14px;width:100%">while True:
-    if button_a.is_pressed() and button_b.is_pressed():
-        display.show(Image.HEART)
-    elif button_a.is_pressed():
-        display.show(Image.HAPPY)
-    elif button_b.is_pressed():
-        display.show(Image.SAD)
-    else:
-        display.clear()
-    sleep(50)</pre>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <table class="peq">
-        <tr><th>recurso</th><th>V1</th><th>V2</th></tr>
-        <tr><td>matriz 5x5 (também mede luz)</td><td>✓</td><td>✓</td></tr>
-        <tr><td>botões A e B, acelerômetro, bússola, temperatura</td><td>✓</td><td>✓</td></tr>
-        <tr><td>rádio, Bluetooth, pinos, USB serial</td><td>✓</td><td>✓</td></tr>
-        <tr><td>alto-falante, microfone, logo de toque</td><td class="vermelho">✗</td><td>✓</td></tr>
+        <tr><th>componente</th><th>onde</th><th>V1</th><th>V2</th></tr>
+        <tr><td>25 LEDs (também medem luz), botões A e B</td><td>frente</td><td>✓</td><td>✓</td></tr>
+        <tr><td>logo de toque, microfone</td><td>frente</td><td class="vermelho">✗</td><td>✓</td></tr>
+        <tr><td>acelerômetro, bússola, temperatura</td><td>atrás</td><td>✓</td><td>✓</td></tr>
+        <tr><td>alto-falante</td><td>atrás</td><td class="vermelho">✗</td><td>✓</td></tr>
+        <tr><td>rádio e Bluetooth</td><td>atrás</td><td>✓</td><td>✓</td></tr>
+        <tr><td>pinos P0, P1, P2, 3V, GND</td><td>embaixo</td><td>✓</td><td>✓</td></tr>
+        <tr><td>USB e conector de bateria</td><td>em cima</td><td>✓</td><td>✓</td></tr>
       </table>
       <div class="cartao frag">
-        <p class="peq">Editor: <b>python.microbit.org</b> no Chrome/Edge. <b>Send to micro:bit</b> grava direto pela USB. No Mac, não arraste o <code>.hex</code> para a unidade MICROBIT: falha.</p>
-        <p class="peq" style="margin-top:8px">Todo programa é um laço infinito, igual ao <code>drawLoop</code> da página.</p>
+        <p class="peq">Como saber se é V2: tem um furinho de microfone com um LED ao lado do logo, na frente, e um alto-falante redondo atrás.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PASSO 5 COMO GRAVAR -->
-<section class="slide" data-titulo="Passo 5: como gravar">
-  <h2><span class="passo">Passo 5</span> · Como gravar um programa</h2>
-  <div class="cartao" style="align-self:flex-start;min-width:900px">
+<!-- PASSO 5 GRAVAR NO MAKECODE -->
+<section class="slide" data-titulo="Passo 5: gravar no MakeCode">
+  <h2><span class="passo">Passo 5</span> · Gravar no MakeCode</h2>
+  <div class="cartao" style="align-self:flex-start;min-width:940px">
     <ol class="passos">
-      <li>Ligue o micro:bit no computador com um cabo micro USB <b>de dados</b></li>
-      <li>Abra <b>python.microbit.org</b> no Chrome ou Edge</li>
-      <li>Apague o código de exemplo e cole o programa</li>
-      <li>Clique em <b>Send to micro:bit</b> e escolha a placa na janela</li>
-      <li>No <b>Mac</b>, use sempre o Send: arrastar o <code>.hex</code> para a unidade MICROBIT falha (aparece um <code>FAIL.TXT</code>). No Windows/Linux, <b>Save</b> e arrastar também funciona</li>
-      <li>Para ver o que o programa imprime: <b>Show serial</b></li>
+      <li>Ligue o micro:bit com um cabo micro USB <b>de dados</b></li>
+      <li><b>makecode.microbit.org</b> no Chrome ou Edge → <b>Novo projeto</b></li>
+      <li>Aba <b>JavaScript</b>: apague tudo e cole o programa (volte para <b>Blocos</b> para ver em blocos)</li>
+      <li><b>"..."</b> ao lado de Download → <b>Conectar dispositivo</b> → <b>BBC micro:bit CMSIS-DAP</b> (só na primeira vez)</li>
+      <li><b>Download</b>: grava direto pela USB</li>
+      <li>No <b>Mac</b>, não baixe e arraste o <code>.hex</code> para a unidade MICROBIT: falha (aparece um <code>FAIL.TXT</code>)</li>
     </ol>
   </div>
+  <p class="peq suave">Nenhum teste precisa de extensão: rádio, música e serial já vêm no MakeCode. Os programas estão em <code>passo_5_microbit/makecode/</code>.</p>
 </section>
 
-<!-- PASSO 5 PROGRAMA 1 -->
-<section class="slide" data-titulo="Passo 5: 01_ola.py">
-  <h2><span class="passo">Passo 5</span> · <code>01_ola.py</code></h2>
-  <div class="ed-prog"><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>programa 1 de 5 · V1 e V2</b></div>
-  <p class="peq">Arquivo: <code>passo_5_microbit/01_ola.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
+<!-- PASSO 5 COMPONENTES -->
+<section class="slide" data-titulo="Passo 5: Matriz de LED">
+  <h2><span class="passo">Passo 5</span> · Matriz de LED</h2>
+  <div class="ed-prog"><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 1 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/01_matriz_led.js</code>, colado na aba JavaScript do MakeCode.</p>
   <div class="cols c64">
-    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 01: matriz de LED (funciona no V1 e no V2)
-from microbit import *
-
-display.scroll(&quot;Ola, oficina!&quot;)  # texto rolando na matriz 5x5
-display.show(Image.HEART)        # imagem pronta da biblioteca
-sleep(1000)                      # espera 1 segundo (em milissegundos)
-display.show(Image.HAPPY)</pre>
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 01: matriz de LED, 25 LEDs em 5 colunas x 5 linhas (V1 e V2)
+basic.showString("Oi!")          // texto rolando
+basic.showIcon(IconNames.Heart)  // desenho pronto
+basic.pause(1000)                // espera 1 segundo (em milissegundos)
+basic.clearScreen()
+// acende um LED por vez: x e a coluna (0 a 4), y e a linha (0 a 4)
+for (let y = 0; y &lt; 5; y++) {
+    for (let x = 0; x &lt; 5; x++) {
+        led.plot(x, y)
+        basic.pause(100)
+    }
+}</pre>
     <div class="cartao">
-      <h3>Na placa</h3>
-      <p class="peq">O texto rola, aparece um coração e depois uma carinha feliz.</p>
-      <h3 style="margin-top:16px">Por quê</h3>
-      <p class="peq"><code>Image.HAPPY</code>, <code>Image.SAD</code> e as outras são desenhos 5x5 que já vêm na biblioteca. No passo 6 cada emoção vira uma delas.</p>
+      <h3>O que é</h3>
+      <p class="peq">25 LEDs numa grade de 5 colunas × 5 linhas. Cada um acende ou apaga: é uma tela de 25 pixels, como a imagem do dia 1.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Aparece "Oi!", um coração e depois os 25 LEDs acendendo um a um. <code>led.plot(x, y)</code>: <code>x</code> é a coluna e <code>y</code> a linha, de 0 a 4.</p>
     </div>
   </div>
 </section>
 
-<!-- PASSO 5 PROGRAMA 2 -->
-<section class="slide" data-titulo="Passo 5: 02_botoes.py">
-  <h2><span class="passo">Passo 5</span> · <code>02_botoes.py</code></h2>
-  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><b>programa 2 de 5 · V1 e V2</b></div>
-  <p class="peq">Arquivo: <code>passo_5_microbit/02_botoes.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
+<section class="slide" data-titulo="Passo 5: Botões A e B">
+  <h2><span class="passo">Passo 5</span> · Botões A e B</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 2 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/02_botoes.js</code>, colado na aba JavaScript do MakeCode.</p>
   <div class="cols c64">
-    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 02: botoes A e B (funciona no V1 e no V2)
-from microbit import *
-
-while True:  # o programa do micro:bit roda para sempre, igual a um game loop
-    if button_a.is_pressed() and button_b.is_pressed():
-        display.show(Image.HEART)
-    elif button_a.is_pressed():
-        display.show(Image.HAPPY)
-    elif button_b.is_pressed():
-        display.show(Image.SAD)
-    else:
-        display.clear()
-    sleep(50)</pre>
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 02: botoes A e B (V1 e V2)
+// A soma 1 e mostra o total, B zera, A e B juntos mostram um coracao
+let cliques = 0
+input.onButtonPressed(Button.A, function () {
+    cliques += 1
+    basic.showNumber(cliques)
+})
+input.onButtonPressed(Button.B, function () {
+    cliques = 0
+    basic.showNumber(cliques)
+})
+input.onButtonPressed(Button.AB, function () {
+    basic.showIcon(IconNames.Heart)
+})</pre>
     <div class="cartao">
-      <h3>Na placa</h3>
-      <p class="peq">Segure A: feliz. Segure B: triste. Os dois juntos: coração. Solte: apaga.</p>
-      <h3 style="margin-top:16px">Por quê</h3>
-      <p class="peq">Todo programa de micro:bit é um laço infinito, igual ao <code>drawLoop</code> da página. O <code>sleep(50)</code> evita rodar mais rápido que o necessário.</p>
+      <h3>O que é</h3>
+      <p class="peq">Dois botões na frente. O programa não fica perguntando se foram apertados: registra um <b>evento</b>, como um <code>onclick</code> na página.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">A soma 1 e mostra o total, B zera, A e B juntos mostram um coração.</p>
     </div>
   </div>
 </section>
 
-<!-- PASSO 5 PROGRAMA 3 -->
-<section class="slide" data-titulo="Passo 5: 03_sensores.py">
-  <h2><span class="passo">Passo 5</span> · <code>03_sensores.py</code></h2>
-  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><b>programa 3 de 5 · V1 e V2</b></div>
-  <p class="peq">Arquivo: <code>passo_5_microbit/03_sensores.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
+<section class="slide" data-titulo="Passo 5: Acelerômetro: dado">
+  <h2><span class="passo">Passo 5</span> · Acelerômetro: dado</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 3 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/03_acelerometro_dado.js</code>, colado na aba JavaScript do MakeCode.</p>
   <div class="cols c64">
-    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 03: sensores embutidos (funciona no V1 e no V2)
-#   sacudir -&gt; dado de 1 a 6 (acelerometro)
-#   botao A -&gt; temperatura em graus C
-#   botao B -&gt; nivel de luz (0 a 255), medido pela propria matriz de LED
-from microbit import *
-import random
-
-while True:
-    if accelerometer.was_gesture(&quot;shake&quot;):
-        display.show(str(random.randint(1, 6)))
-        sleep(1000)
-        display.clear()
-    if button_a.was_pressed():
-        display.scroll(str(temperature()) + &quot;C&quot;)
-    if button_b.was_pressed():
-        display.scroll(str(display.read_light_level()))
-    sleep(50)</pre>
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 03: acelerometro, sacudir vira um dado (V1 e V2)
+input.onGesture(Gesture.Shake, function () {
+    basic.showNumber(randint(1, 6)) // sorteia de 1 a 6
+})</pre>
     <div class="cartao">
-      <h3>Na placa</h3>
-      <p class="peq">Sacuda: um número de 1 a 6. Botão A: temperatura. Botão B: luz ambiente (0 a 255).</p>
-      <h3 style="margin-top:16px">Por quê</h3>
-      <p class="peq"><code>was_pressed()</code> lembra o clique enquanto o texto rola; <code>is_pressed()</code> só vê o estado atual. A luz é medida pela própria matriz de LED.</p>
+      <h3>O que é</h3>
+      <p class="peq">Mede a aceleração em 3 eixos (inclusive a gravidade). Já reconhece gestos prontos, como sacudir, virar e cair.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Sacuda a placa: aparece um número de 1 a 6.</p>
     </div>
   </div>
 </section>
 
-<!-- PASSO 5 PROGRAMA 4 -->
-<section class="slide" data-titulo="Passo 5: 04_print_serial.py">
-  <h2><span class="passo">Passo 5</span> · <code>04_print_serial.py</code></h2>
-  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><b>programa 4 de 5 · V1 e V2</b></div>
-  <p class="peq">Arquivo: <code>passo_5_microbit/04_print_serial.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
+<section class="slide" data-titulo="Passo 5: Acelerômetro: nível de bolha">
+  <h2><span class="passo">Passo 5</span> · Acelerômetro: nível de bolha</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 4 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/04_acelerometro_nivel.js</code>, colado na aba JavaScript do MakeCode.</p>
   <div class="cols c64">
-    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 04: serial no sentido micro:bit -&gt; PC (funciona no V1 e no V2)
-# Tudo que vai no print() sai pelo cabo USB. No python.microbit.org,
-# abra &quot;Show serial&quot; para ver as linhas chegando.
-# No passo 6 fazemos o caminho contrario: PC -&gt; micro:bit.
-from microbit import *
-
-while True:
-    x = accelerometer.get_x()  # inclinacao para os lados, de -2048 a 2047 aprox.
-    print(&quot;inclinacao:&quot;, x, &quot;temperatura:&quot;, temperature())
-    display.show(Image.ARROW_E if x &gt; 300 else Image.ARROW_W if x &lt; -300 else Image.SQUARE_SMALL)
-    sleep(500)</pre>
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 04: acelerometro, nivel de bolha (V1 e V2)
+// a aceleracao vai de -1023 a 1023 em cada eixo; Math.map converte para a coluna/linha 0 a 4
+basic.forever(function () {
+    let x = Math.round(Math.constrain(Math.map(input.acceleration(Dimension.X), -1023, 1023, 0, 4), 0, 4))
+    let y = Math.round(Math.constrain(Math.map(input.acceleration(Dimension.Y), -1023, 1023, 0, 4), 0, 4))
+    basic.clearScreen()
+    led.plot(x, y) // o ponto escorrega para o lado mais baixo
+    basic.pause(50)
+})</pre>
     <div class="cartao">
-      <h3>Na placa</h3>
-      <p class="peq">Incline a placa: a seta acompanha. Clique em <b>Show serial</b> no editor e veja as linhas chegando.</p>
-      <h3 style="margin-top:16px">Por quê</h3>
-      <p class="peq">Cada <code>print()</code> sai pelo cabo USB: é a serial no sentido micro:bit para PC. No passo 6 fazemos o contrário.</p>
+      <h3>O que é</h3>
+      <p class="peq">Cada eixo dá um número de -1023 a 1023. <code>Math.map</code> converte essa faixa para a da tela (0 a 4): a mesma ideia de normalizar uma medida, como a razão do olho no dia 1.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Incline a placa: o ponto escorrega para o lado mais baixo.</p>
     </div>
   </div>
 </section>
 
-<!-- PASSO 5 PROGRAMA 5 -->
-<section class="slide" data-titulo="Passo 5: 05_som_v2.py">
-  <h2><span class="passo">Passo 5</span> · <code>05_som_v2.py</code></h2>
-  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><b>programa 5 de 5 · só V2</b></div>
-  <p class="peq">Arquivo: <code>passo_5_microbit/05_som_v2.py</code>, colado no <b>python.microbit.org</b> e gravado na placa.</p>
+<section class="slide" data-titulo="Passo 5: Bússola">
+  <h2><span class="passo">Passo 5</span> · Bússola</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 5 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/05_bussola.js</code>, colado na aba JavaScript do MakeCode.</p>
   <div class="cols c64">
-    <pre class="code" data-lang="py" data-inicio="1" style="font-size:15px;line-height:1.35"># 05: som, microfone e logo de toque (SO micro:bit V2)
-#   botao A -&gt; som feliz | botao B -&gt; som triste
-#   tocar no logo dourado -&gt; coracao
-#   bater palma perto -&gt; carinha surpresa
-from microbit import *
-import audio
-
-while True:
-    if button_a.was_pressed():
-        audio.play(Sound.HAPPY)
-    if button_b.was_pressed():
-        audio.play(Sound.SAD)
-    if pin_logo.is_touched():
-        display.show(Image.HEART)
-    elif microphone.sound_level() &gt; 150:
-        display.show(Image.SURPRISED)
-        sleep(500)
-    else:
-        display.clear()
-    sleep(50)</pre>
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 05: bussola (V1 e V2)
+// na primeira vez a placa pede calibracao: incline ate acender todos os LEDs
+basic.forever(function () {
+    let direcao = input.compassHeading() // 0 a 359 graus, 0 = norte
+    if (direcao &lt; 45 || direcao &gt;= 315) {
+        basic.showString("N")
+    } else if (direcao &lt; 135) {
+        basic.showString("L")
+    } else if (direcao &lt; 225) {
+        basic.showString("S")
+    } else {
+        basic.showString("O")
+    }
+})</pre>
     <div class="cartao">
-      <h3>Na placa</h3>
-      <p class="peq">A: som feliz. B: som triste. Toque no logo dourado: coração. Bata palma perto: carinha surpresa.</p>
-      <h3 style="margin-top:16px">Por quê</h3>
-      <p class="peq">No V1 dá erro: ele não tem alto-falante, microfone nem logo de toque.</p>
+      <h3>O que é</h3>
+      <p class="peq">Um magnetômetro mede o campo magnético da Terra e dá a direção em graus (0 = norte). Ímãs e metais por perto atrapalham.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Na primeira vez, a placa pede calibração: incline até acender todos os LEDs. Depois mostra N, L, S ou O.</p>
     </div>
   </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Temperatura">
+  <h2><span class="passo">Passo 5</span> · Temperatura</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 6 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/06_temperatura.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 06: temperatura, medida pelo sensor do processador (V1 e V2)
+input.onButtonPressed(Button.A, function () {
+    basic.showNumber(input.temperature())
+    basic.showString("C")
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">O sensor fica dentro do processador: mede a temperatura do chip, que fica perto da do ambiente.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Aperte A: mostra a temperatura em graus. Segure a placa na mão um tempo e meça de novo.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Luz">
+  <h2><span class="passo">Passo 5</span> · Luz</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 7 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/07_luz.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 07: luz ambiente, medida pela propria matriz de LED (V1 e V2)
+// tampe a placa com a mao e veja a barra baixar
+basic.forever(function () {
+    led.plotBarGraph(input.lightLevel(), 255) // 0 = escuro, 255 = muita luz
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">Não há sensor de luz separado: os próprios LEDs da matriz funcionam ao contrário e medem a luz.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Uma barra mostra a luz. Tampe a placa com a mão e veja baixar.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Pinos de toque">
+  <h2><span class="passo">Passo 5</span> · Pinos de toque</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 8 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/08_pinos.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 08: pinos de toque P0, P1 e P2 (V1 e V2)
+// segure o GND com uma mao e toque no pino com a outra: o corpo fecha o circuito
+input.onPinPressed(TouchPin.P0, function () {
+    basic.showIcon(IconNames.Yes)
+})
+input.onPinPressed(TouchPin.P1, function () {
+    basic.showIcon(IconNames.No)
+})
+input.onPinPressed(TouchPin.P2, function () {
+    basic.showIcon(IconNames.Heart)
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">Os pinos grandes da borda (P0, P1, P2) detectam quando o circuito com o GND fecha. O corpo humano conduz eletricidade.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Segure o GND com uma mão e toque em P0, P1 ou P2 com a outra.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Logo de toque">
+  <h2><span class="passo">Passo 5</span> · Logo de toque</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span><b>componente 9 de 13 · só V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/09_logo_toque.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 09: logo de toque, so no V2
+input.onLogoEvent(TouchButtonEvent.Pressed, function () {
+    basic.showIcon(IconNames.Heart)
+})
+input.onLogoEvent(TouchButtonEvent.Released, function () {
+    basic.clearScreen()
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">O logo dourado é um sensor de toque capacitivo, como a tela de um celular: não precisa segurar o GND.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Encoste no logo: coração. Solte: apaga.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Microfone">
+  <h2><span class="passo">Passo 5</span> · Microfone</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><span class=""></span><b>componente 10 de 13 · só V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/10_microfone.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 10: microfone, so no V2
+// bata palma: aparece a carinha surpresa; fale e veja a barra subir
+input.onSound(DetectedSound.Loud, function () {
+    basic.showIcon(IconNames.Surprised)
+    basic.pause(500)
+})
+basic.forever(function () {
+    led.plotBarGraph(input.soundLevel(), 255)
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">Mede o nível do som de 0 a 255 e reconhece som alto. O LED ao lado do furinho acende quando o microfone está ligado.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Fale perto e veja a barra subir. Bata palma: carinha surpresa.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Som">
+  <h2><span class="passo">Passo 5</span> · Som</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><span class=""></span><b>componente 11 de 13 · V2 (V1 só a escala, pelo pino 0)</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/11_som.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 11: som. No V2 sai pelo alto-falante da placa; no V1 a melodia sai pelo pino 0
+// (precisa de fone ou buzzer entre P0 e GND) e o efeito do botao B nao toca.
+input.onButtonPressed(Button.A, function () {
+    music.play(music.stringPlayable("C D E F G A B C5 ", 120), music.PlaybackMode.UntilDone)
+})
+input.onButtonPressed(Button.B, function () {
+    music.play(music.builtinPlayableSoundEffect(soundExpression.giggle), music.PlaybackMode.UntilDone)
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">O V2 tem alto-falante atrás. O V1 não tem: a melodia sai pelo pino 0 e precisa de fone ou buzzer entre P0 e GND.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">A toca uma escala, B toca um efeito de risada (só no V2).</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Rádio">
+  <h2><span class="passo">Passo 5</span> · Rádio</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class=""></span><b>componente 12 de 13 · V1 e V2, em dupla</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/12_radio.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 12: radio, em dupla (V1 e V2)
+// as duas placas precisam do MESMO grupo; cada dupla escolhe um numero diferente (0 a 255)
+radio.setGroup(7)
+input.onButtonPressed(Button.A, function () {
+    radio.sendString("oi")
+})
+input.onButtonPressed(Button.B, function () {
+    radio.sendString("tchau")
+})
+radio.onReceivedString(function (recebido) {
+    basic.showString(recebido)
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">Rádio de 2,4 GHz entre placas, sem internet e sem cabo. O número do grupo é o canal: só placas no mesmo grupo se ouvem.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Combine um número com a dupla e troque o <code>7</code> nas duas placas. A manda "oi", B manda "tchau", a outra placa mostra.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-titulo="Passo 5: Serial">
+  <h2><span class="passo">Passo 5</span> · Serial</h2>
+  <div class="ed-prog"><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><span class="feito"></span><b>componente 13 de 13 · V1 e V2</b></div>
+  <p class="peq">Arquivo: <code>passo_5_microbit/makecode/13_serial_grafico.js</code>, colado na aba JavaScript do MakeCode.</p>
+  <div class="cols c64">
+    <pre class="code" data-lang="js" data-inicio="1" style="font-size:16.5px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere">// 13: serial, do micro:bit para o PC (V1 e V2)
+// com a placa conectada no MakeCode, clique em "Mostrar console do dispositivo": aparece um grafico ao vivo
+basic.forever(function () {
+    serial.writeValue("x", input.acceleration(Dimension.X))
+    basic.pause(100)
+})</pre>
+    <div class="cartao">
+      <h3>O que é</h3>
+      <p class="peq">O cabo USB também funciona como um fio de texto entre a placa e o PC. É o caminho micro:bit para PC; no passo 6 fazemos o contrário.</p>
+      <h3 style="margin-top:14px">Na placa</h3>
+      <p class="peq">Com a placa conectada no MakeCode, clique em <b>Mostrar console do dispositivo</b>: aparece um gráfico ao vivo da inclinação.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PASSO 5 DESAFIO -->
+<section class="slide" data-titulo="Passo 5: desafio">
+  <h2><span class="passo">Passo 5</span> · Desafio: juntar dois componentes</h2>
+  <div class="cartao" style="align-self:flex-start;min-width:900px">
+    <ul>
+      <li>Sacudir sorteia uma carinha (<code>randint</code>) e toca um som</li>
+      <li>O botão A manda pelo rádio a temperatura da sua placa para a da dupla</li>
+      <li>Nível de bolha que apita quando a placa está reta</li>
+      <li>Contador de palmas com o microfone, que zera no botão B</li>
+    </ul>
+  </div>
+  <p class="peq suave">Depois disso, o passo 6: a placa recebe a emoção detectada na webcam.</p>
 </section>
 
 <!-- 22. PASSO 6 PROTOCOLO -->
@@ -1079,6 +1434,7 @@ enviarEmocao(emocaoAtual);</pre>
         <li>A malha 3D do rosto rodando no navegador</li>
         <li>Um contador de piscadas que funciona perto e longe da câmera</li>
         <li>Um detector de emoção ligado ao contador</li>
+        <li>Os componentes do micro:bit testados um por um</li>
         <li>A emoção saindo do computador e aparecendo na matriz de LED</li>
       </ul>
       <p class="peq suave" style="margin-top:14px">Tudo a partir de um repositório pronto e poucas linhas alteradas.</p>
@@ -1107,7 +1463,7 @@ enviarEmocao(emocaoAtual);</pre>
   <h3>Atalhos</h3>
   <p>→ · espaço · PageDown: avançar</p>
   <p>← · PageUp: voltar</p>
-  <p>Home / End: primeiro / último slide</p>
+  <p>Home / End: primeiro / último slide · <code>#dia2</code> no endereço abre o Dia 2</p>
   <p>F: tela cheia · T: tema escuro/claro · ?: esta ajuda</p>
   <p class="suave peq" style="margin-top:10px">Itens com borda amarela aparecem um por vez antes de trocar de slide.</p>
 </div></div>
@@ -1484,13 +1840,43 @@ function criarMatriz(placa) {
   reiniciar();
 })();
 
+// ---------- fundamento: grade de pixels ----------
+(() => {
+  const N = 14, grade = document.getElementById('pixels');
+  if (!grade) return;
+  const v = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const dx = x - 6.5, dy = y - 6.5, r = Math.hypot(dx, dy * 0.85);
+    let c = r < 6.2 ? 205 - Math.round(r * 6) : 245;               // rosto claro, fundo mais claro
+    if (r >= 5.6 && r < 6.4) c = 120;                                // contorno
+    if ((x === 4 || x === 9) && (y === 5 || y === 6)) c = 30;       // olhos
+    if (y === 10 && x >= 4 && x <= 9) c = 70;                        // boca
+    if (y === 9 && (x === 3 || x === 10)) c = 90;                    // cantos da boca
+    v.push(c);
+  }
+  let mostrar = false;
+  const info = document.getElementById('pixelsInfo');
+  v.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.style.background = `rgb(${c},${c},${c})`;
+    d.style.color = c < 128 ? '#fff' : '#000';
+    d.onmouseenter = () => { info.textContent = `linha ${Math.floor(i / N)}, coluna ${i % N}: ${c}`; };
+    grade.appendChild(d);
+  });
+  document.getElementById('pixelsNumeros').onclick = () => {
+    mostrar = !mostrar;
+    [...grade.children].forEach((d, i) => { d.textContent = mostrar ? v[i] : ''; });
+  };
+})();
+
 // ---------- início ----------
 document.querySelectorAll('pre.code:not(.ed-code), pre.code.cresce').forEach((pre) => { if (pre.id !== 'cfgCodigo' && pre.id !== 'progCodigo') montarCodigo(pre); });
 desenharConfig();
 escalar();
 const inicial = parseInt(location.hash.slice(1), 10);
+const porId = document.getElementById(location.hash.slice(1)); // ex.: #dia2
 slides[0].classList.add('ativo');
-mostrar(Number.isFinite(inicial) ? inicial - 1 : 0);
+mostrar(Number.isFinite(inicial) ? inicial - 1 : (porId && porId.classList.contains('slide') ? slides.indexOf(porId) : 0));
 </script>
 </body>
 </html>
