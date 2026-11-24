@@ -240,7 +240,7 @@
 <section class="slide divisoria" id="dia1" data-titulo="Dia 1">
   <div class="dia">Dia 1</div>
   <h1>Visão computacional</h1>
-  <p class="suave" style="font-size:26px">Como o computador acha padrões numa imagem (bordas e filtros), depois quatro passos com a webcam: malha, piscadas (duas versões) e emoção. No meio, como uma máquina aprende.</p>
+  <p class="suave" style="font-size:26px">Como o computador acha padrões numa imagem (bordas e filtros) e como ele aprende esses padrões a partir de exemplos. Depois, quatro passos com a webcam: malha, piscadas (duas versões) e emoção.</p>
 </section>
 
 <!-- FUNDAMENTO IMAGEM -->
@@ -343,6 +343,89 @@
       </ol>
     </div>
   </div>
+</section>
+
+<!-- FUNDAMENTO APRENDER -->
+<section class="slide" data-titulo="Fundamento: aprender">
+  <h2>Aprender é ajustar um número</h2>
+  <div class="cols c64">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <svg viewBox="0 0 640 150" id="aprSvg" style="width:100%"></svg>
+      <label class="peq">limiar: <b id="aprValor"></b> <input type="range" id="aprLimiar" min="0" max="255" step="1" value="230" style="width:60%;accent-color:var(--amarelo)"></label>
+      <div style="display:flex;gap:10px;align-items:center"><button class="acao principal" id="aprTreinar">treinar</button><button class="acao" id="aprReset">recomeçar</button><span class="peq" id="aprErros"></span></div>
+      <svg viewBox="0 0 640 80" id="aprCurva" style="width:100%"></svg>
+    </div>
+    <div class="cartao">
+      <p class="peq">Na regra <code>pixel &lt; 50</code> do slide 5, o 50 foi um chute. E se a máquina achasse esse número sozinha, a partir de exemplos?</p>
+      <ul class="peq" style="margin-top:8px">
+        <li><b>exemplo rotulado</b>: o valor de um pixel e a resposta certa (<span class="vermelho">olho</span> ou <span class="ciano">pele</span>)</li>
+        <li><b>parâmetro</b>: o número que pode mudar; aqui, o limiar da regra</li>
+        <li><b>erro</b>: quantos exemplos ficam do lado errado</li>
+        <li><b>treino</b>: a cada passo, ver para que lado o erro diminui e mover o parâmetro um pouco para lá (a "descida do gradiente")</li>
+      </ul>
+      <p class="peq frag" style="margin-top:6px">O limiar aprendido erra menos que o chute, mas ainda olha um pixel sozinho: escurecendo a sala, quebra igual. Para isso servem os filtros, e eles também podem ser aprendidos.</p>
+      <p class="peq suave" style="margin-top:6px">Valores inventados para mostrar a ideia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO NEURONIO -->
+<section class="slide" data-titulo="Fundamento: neurônio">
+  <h2>Um neurônio: multiplicar, somar, cortar o negativo</h2>
+  <div class="cols c64">
+    <div class="cartao">
+      <table class="neuronio" id="neuronio"></table>
+      <p class="medidas" id="neuronioConta" style="margin-top:10px;font-size:18px"></p>
+    </div>
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag">Entradas: 3 pixels (de 0 a 1). <b>Pesos</b>: quanto cada um importa, podem ser negativos</li>
+        <li class="frag">Saída: soma dos produtos mais o <b>viés</b>; se der negativo, vira 0 (a função ReLU)</li>
+        <li class="frag">O filtro 3 × 3 dos slides 7 e 8 é um neurônio com 9 entradas: os pesos são os 9 números do filtro</li>
+        <li class="frag">Uma <b>rede neural</b> são camadas de neurônios, a saída de uma entrando na próxima. Treinar é a descida do gradiente do slide anterior, mexendo em todos os pesos ao mesmo tempo</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO FILTRO APRENDIDO -->
+<section class="slide" data-titulo="Fundamento: filtro aprendido">
+  <h2>O treino também acha filtros</h2>
+  <div class="cols c46">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <p class="peq suave">escrito por nós: borda vertical</p>
+        <div style="display:flex;gap:18px;align-items:center"><div class="kernel" id="apdNossoK"></div><div class="grade" id="apdNossoS"></div></div>
+      </div>
+      <div>
+        <p class="peq suave">aprendido: filtro 4 do detector de emoção</p>
+        <div style="display:flex;gap:18px;align-items:center"><div class="kernel" id="apdRealK"></div><div class="grade" id="apdRealS"></div></div>
+      </div>
+    </div>
+    <div class="cartao">
+      <ol class="peq" style="margin:0;padding-left:22px">
+        <li class="frag">Até aqui, quem escolheu os números fomos nós: o 50 da regra e os 9 do filtro.</li>
+        <li class="frag" style="margin-top:8px">Embaixo, um dos 32 filtros da primeira camada do detector de emoção que você liga no passo 4. Ninguém digitou esses números: o treino achou.</li>
+        <li class="frag" style="margin-top:8px">Compare com o nosso: negativo à esquerda, positivo à direita, e os 9 números somam −0,01. É um detector de borda vertical que também não liga para a luz, e a saída acende nos mesmos lugares.</li>
+        <li class="frag" style="margin-top:8px"><b>Machine learning</b> é isso em escala: dar exemplos com a resposta certa e ajustar os números pela descida do gradiente até errar pouco. O detector de emoção aprendeu com o FER2013, um conjunto de 35.887 fotos de rosto com a emoção marcada, e tem 205.129 números ajustados assim.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO REGRA E MODELO: O QUE VEM HOJE -->
+<section class="slide" data-titulo="Fundamento: regra e modelo">
+  <h2>Hoje: regra escrita e modelo aprendido, juntos</h2>
+  <div class="cartao" style="align-self:flex-start">
+    <table style="font-size:21px">
+      <tr><th>passo</th><th>parte do programa</th><th>tipo</th><th>quem fez</th></tr>
+      <tr><td>1</td><td>achar o rosto e os 478 pontos</td><td><b class="ciano">aprendido</b></td><td>MediaPipe (Google), treinado com fotos</td></tr>
+      <tr><td>2 e 3</td><td>medir o olho e comparar com um limiar</td><td><b class="amarelo">regra escrita</b></td><td>você</td></tr>
+      <tr><td>4</td><td>dizer a emoção</td><td><b class="ciano">aprendido</b></td><td>treinado com o FER2013 (35.887 fotos rotuladas)</td></tr>
+    </table>
+  </div>
+  <p class="frag">O padrão é comum: um modelo aprendido transforma a imagem em algo fácil de usar (pontos), e em cima disso a gente escreve regras simples.</p>
+  <p class="frag suave peq">Cada quadro tem 2.764.800 números; a malha resume isso em 478 pontos, cerca de 5.800 vezes menos. Sobre 478 pontos, a regra cabe num <code>if</code>.</p>
 </section>
 
 <!-- 5. SETUP -->
@@ -690,6 +773,7 @@ if (razao &lt; LIMIAR_RAZAO) {
       <li>Não precisa mais calibrar: o 0,20 vale para todo mundo</li>
     </ol>
   </div>
+  <p class="frag peq">O 0,20 foi escolhido na mão, como o 50 do slide 5. Com exemplos de olho aberto e fechado, o treino do slide 9 acharia esse número.</p>
 </section>
 
 <!-- 16. PASSO 3 SIMULADOR -->
@@ -736,64 +820,6 @@ if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&
       <h3 style="margin-top:14px">O que o gesto não faz</h3>
       <p class="peq">Com o olho fechado por 4 quadros, o gesto aparece 4 vezes. Contar é o trabalho da nossa máquina de estados.</p>
       <p class="peq suave" style="margin-top:10px">Desafio: refazer o contador lendo <code>human.result.gesture</code> (precisa de <code>gesture: { enabled: true }</code>).</p>
-    </div>
-  </div>
-</section>
-
-<!-- FUNDAMENTO REGRA X APRENDIDO NO CODIGO -->
-<section class="slide" data-titulo="Por dentro: regra e modelo">
-  <h2><span class="passo">Por dentro</span> · Regra escrita e modelo aprendido, juntos</h2>
-  <div class="cartao" style="align-self:flex-start">
-    <table style="font-size:21px">
-      <tr><th>parte do programa</th><th>tipo</th><th>quem fez</th></tr>
-      <tr><td>achar o rosto e os 478 pontos</td><td><b class="ciano">aprendido</b></td><td>MediaPipe (Google), treinado com fotos</td></tr>
-      <tr><td>razão abertura / largura e limiar 0,20</td><td><b class="amarelo">regra escrita</b></td><td>nós, nos passos 2 e 3</td></tr>
-      <tr><td>gesto <code>blink</code> do Human</td><td><b class="amarelo">regra escrita</b></td><td>autor do Human</td></tr>
-      <tr><td>emoção (passo 4)</td><td><b class="ciano">aprendido</b></td><td>treinado com 35 mil fotos rotuladas</td></tr>
-    </table>
-  </div>
-  <p class="frag">O padrão é comum: um modelo aprendido transforma a imagem em algo fácil de usar (pontos), e em cima disso a gente escreve regras simples.</p>
-  <p class="frag suave peq">Cada quadro tem 2.764.800 números; a malha resume isso em 478 pontos, cerca de 5.800 vezes menos. Sobre 478 pontos, a regra cabe num <code>if</code>.</p>
-</section>
-
-<!-- POR DENTRO APRENDER -->
-<section class="slide" data-titulo="Por dentro: aprender">
-  <h2><span class="passo">Por dentro</span> · Aprender é ajustar um número</h2>
-  <div class="cols c64">
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <svg viewBox="0 0 640 150" id="aprSvg" style="width:100%"></svg>
-      <label class="peq">limiar: <b id="aprValor"></b> <input type="range" id="aprLimiar" min="0" max="0.5" step="0.005" value="0.45" style="width:60%;accent-color:var(--amarelo)"></label>
-      <div style="display:flex;gap:10px;align-items:center"><button class="acao principal" id="aprTreinar">treinar</button><button class="acao" id="aprReset">recomeçar</button><span class="peq" id="aprErros"></span></div>
-      <svg viewBox="0 0 640 80" id="aprCurva" style="width:100%"></svg>
-    </div>
-    <div class="cartao">
-      <p class="peq">No passo 3 você escolheu o limiar <b>0,20</b> na mão. E se a máquina achasse esse número sozinha, a partir de exemplos?</p>
-      <ul class="peq" style="margin-top:8px">
-        <li><b>exemplo rotulado</b>: uma razão do olho medida e a resposta certa (<span class="ciano">aberto</span> ou <span class="vermelho">fechado</span>)</li>
-        <li><b>parâmetro</b>: o número que pode mudar; aqui, o limiar</li>
-        <li><b>erro</b>: quantos exemplos ficam do lado errado</li>
-        <li><b>treino</b>: a cada passo, ver para que lado o erro diminui e mover o parâmetro um pouco para lá (a "descida do gradiente")</li>
-      </ul>
-      <p class="peq suave" style="margin-top:6px">Pontos inventados para mostrar a ideia.</p>
-    </div>
-  </div>
-</section>
-
-<!-- POR DENTRO NEURONIO -->
-<section class="slide" data-titulo="Por dentro: neurônio">
-  <h2><span class="passo">Por dentro</span> · Um neurônio: multiplicar, somar, cortar o negativo</h2>
-  <div class="cols c64">
-    <div class="cartao">
-      <table class="neuronio" id="neuronio"></table>
-      <p class="medidas" id="neuronioConta" style="margin-top:10px;font-size:18px"></p>
-    </div>
-    <div class="cartao">
-      <ul class="peq">
-        <li class="frag">Entradas: 3 pixels (de 0 a 1). <b>Pesos</b>: quanto cada um importa, podem ser negativos</li>
-        <li class="frag">Saída: soma dos produtos mais o <b>viés</b>; se der negativo, vira 0 (a função ReLU)</li>
-        <li class="frag">O filtro 3 × 3 do começo do dia é um neurônio com 9 entradas: os pesos são os 9 números do filtro</li>
-        <li class="frag">Uma <b>rede neural</b> são camadas de neurônios, a saída de uma entrando na próxima. Treinar é a descida do gradiente do slide anterior, mexendo em todos os pesos ao mesmo tempo: no detector de emoção do passo 4, 205 mil</li>
-      </ul>
     </div>
   </div>
 </section>
@@ -892,7 +918,7 @@ lerEmocao();</pre>
       <div style="display:flex;gap:14px;align-items:flex-start;margin-top:6px">
         <div class="grade" id="reaisEntrada"></div><div class="grade" id="reaisSaida"></div>
       </div>
-      <p class="peq suave" style="margin-top:8px">Ninguém desenhou esses números: o treino achou. Pesos de <code>conv2d_1</code>, extraídos do <code>emotion.bin</code>.</p>
+      <p class="peq suave" style="margin-top:8px">Ninguém desenhou esses números: o treino achou. O filtro 4 (selecionado) é o detector de borda vertical do slide 11. Pesos de <code>conv2d_1</code>, extraídos do <code>emotion.bin</code>.</p>
     </div>
   </div>
 </section>
@@ -2169,37 +2195,48 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
   sl.oninput = atualizar; atualizar();
 })();
 
+(() => { // slide filtro aprendido: nosso filtro ao lado do filtro 4 do emotion.bin
+  const nk = document.getElementById('apdNossoK'); if (!nk) return;
+  const nosso = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]], real = FILTROS_REAIS[3];
+  [[nosso, nk, 'apdNossoS'], [real, document.getElementById('apdRealK'), 'apdRealS']].forEach(([k, el, idSaida]) => {
+    const mk = Math.max(...k.flat().map(Math.abs));
+    el.innerHTML = k.flat().map((w) => `<div style="background:${corDiv(w, mk)}">${fmt(w)}</div>`).join('');
+    const out = convoluir(ROSTO, 14, k), mx = Math.max(...out.map(Math.abs));
+    desenharGrade(document.getElementById(idSaida), out, 12, 13, (v) => corDiv(v, mx));
+  });
+})();
+
 (() => { // slide aprender: descida do gradiente num limiar
   const svg = document.getElementById('aprSvg'); if (!svg) return;
-  const aberto = [0.24, 0.26, 0.28, 0.29, 0.31, 0.32, 0.34, 0.35, 0.37, 0.38, 0.40, 0.42];
-  const fechado = [0.05, 0.08, 0.10, 0.12, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23];
-  const X = (r) => 30 + r / 0.5 * 580;
+  const pele = [82, 95, 108, 120, 135, 150, 165, 178, 190, 205, 220, 240]; // acima do limiar
+  const olho = [18, 24, 30, 35, 41, 47, 55, 62, 68, 74]; // abaixo do limiar
+  const X = (r) => 30 + r / 255 * 580;
   const slider = document.getElementById('aprLimiar'), valor = document.getElementById('aprValor'), erros = document.getElementById('aprErros'), curva = document.getElementById('aprCurva');
-  let t = 0.45, hist = [], timer = null;
-  const nErros = (t) => aberto.filter((x) => x < t).length + fechado.filter((x) => x >= t).length;
+  let t = 230, hist = [], timer = null;
+  const nErros = (t) => pele.filter((x) => x < t).length + olho.filter((x) => x >= t).length;
   function desenhar() {
     let s = `<line x1="30" y1="95" x2="610" y2="95" stroke="var(--suave)"/>`;
-    for (let r = 0; r <= 0.5001; r += 0.1) s += `<text x="${X(r)}" y="118" font-size="13" text-anchor="middle" fill="var(--suave)">${r.toFixed(1).replace('.', ',')}</text>`;
-    s += `<text x="320" y="140" font-size="13" text-anchor="middle" fill="var(--suave)">razão abertura / largura do olho</text>`;
-    aberto.forEach((x) => { const err = x < t; s += `<circle cx="${X(x)}" cy="70" r="8" fill="var(--ciano)" stroke="${err ? 'var(--vermelho)' : 'none'}" stroke-width="3"/>`; });
-    fechado.forEach((x) => { const err = x >= t; s += `<rect x="${X(x) - 7}" y="38" width="14" height="14" fill="var(--vermelho)" stroke="${err ? 'var(--amarelo)' : 'none'}" stroke-width="3"/>`; });
+    for (let r = 0; r <= 250; r += 50) s += `<text x="${X(r)}" y="118" font-size="13" text-anchor="middle" fill="var(--suave)">${r}</text>`;
+    s += `<text x="320" y="140" font-size="13" text-anchor="middle" fill="var(--suave)">valor do pixel (0 = preto, 255 = branco)</text>`;
+    pele.forEach((x) => { const err = x < t; s += `<circle cx="${X(x)}" cy="70" r="8" fill="var(--ciano)" stroke="${err ? 'var(--vermelho)' : 'none'}" stroke-width="3"/>`; });
+    olho.forEach((x) => { const err = x >= t; s += `<rect x="${X(x) - 7}" y="38" width="14" height="14" fill="var(--vermelho)" stroke="${err ? 'var(--amarelo)' : 'none'}" stroke-width="3"/>`; });
     s += `<line x1="${X(t)}" y1="15" x2="${X(t)}" y2="100" stroke="var(--amarelo)" stroke-width="3"/><text x="${X(t)}" y="12" font-size="13" text-anchor="middle" fill="var(--amarelo)">limiar</text>`;
-    s += `<text x="30" y="20" font-size="13" fill="var(--vermelho)">■ fechado</text><text x="120" y="20" font-size="13" fill="var(--ciano)">● aberto</text>`;
+    s += `<text x="440" y="20" font-size="13" fill="var(--vermelho)">■ olho</text><text x="520" y="20" font-size="13" fill="var(--ciano)">● pele</text>`;
     svg.innerHTML = s;
-    slider.value = t; valor.textContent = t.toFixed(3).replace('.', ',');
-    erros.textContent = `erros: ${nErros(t)} de ${aberto.length + fechado.length}` + (hist.length ? ` · passo ${hist.length}` : '');
-    const mx = aberto.length + fechado.length; let p = '';
+    slider.value = t; valor.textContent = Math.round(t);
+    erros.textContent = `erros: ${nErros(t)} de ${pele.length + olho.length}` + (hist.length ? ` · passo ${hist.length}` : '');
+    const mx = pele.length + olho.length; let p = '';
     hist.forEach((e, i) => { p += `${i ? 'L' : 'M'}${30 + i * 580 / Math.max(hist.length - 1, 1)},${70 - e / mx * 60}`; });
     curva.innerHTML = `<text x="30" y="12" font-size="12" fill="var(--suave)">erros a cada passo do treino</text><line x1="30" y1="70" x2="610" y2="70" stroke="var(--borda)"/>` + (p ? `<path d="${p}" fill="none" stroke="var(--amarelo)" stroke-width="2.5"/>` : '');
   }
   function passo() { // gradiente do erro total (soma das distancias dos pontos do lado errado)
-    const grad = aberto.filter((x) => x < t).length - fechado.filter((x) => x >= t).length;
+    const grad = pele.filter((x) => x < t).length - olho.filter((x) => x >= t).length;
     hist.push(nErros(t));
     if (grad === 0 || hist.length > 150) { clearInterval(timer); timer = null; desenhar(); return; }
-    t = Math.max(0, Math.min(0.5, t - 0.0025 * grad)); desenhar();
+    t = Math.max(0, Math.min(255, t - 1.3 * grad)); desenhar();
   }
   document.getElementById('aprTreinar').onclick = () => { if (!timer) { hist = []; timer = setInterval(passo, 70); } };
-  document.getElementById('aprReset').onclick = () => { clearInterval(timer); timer = null; t = 0.45; hist = []; desenhar(); };
+  document.getElementById('aprReset').onclick = () => { clearInterval(timer); timer = null; t = 230; hist = []; desenhar(); };
   slider.oninput = () => { t = +slider.value; hist = []; desenhar(); };
   desenhar();
 })();
@@ -2237,7 +2274,7 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
     };
     caixa.appendChild(m);
   });
-  caixa.children[2].onclick();
+  caixa.children[3].onclick();
 })();
 
 (() => { // slide softmax
