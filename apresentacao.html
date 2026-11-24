@@ -274,6 +274,29 @@
   <p class="peq">Cada pixel da saída é a janela 3 × 3 da entrada multiplicada pelos 9 números do filtro e somada. <span class="ciano">Azul</span> é negativo, <span class="amarelo">laranja</span> é positivo: o filtro de borda acende onde o claro encontra o escuro. É assim que a primeira camada de uma rede olha a imagem.</p>
 </section>
 
+<!-- FUNDAMENTO POR QUE FILTROS -->
+<section class="slide" data-titulo="Fundamento: por que filtros">
+  <h2>Por que filtros?</h2>
+  <div class="cols c46">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div><p class="peq suave">entrada</p><div class="grade" id="pqEntrada"></div></div>
+        <div><p class="peq suave">borda vertical</p><div class="grade" id="pqSaida"></div></div>
+      </div>
+      <label class="peq">escurecer a foto inteira: <b id="pqValor">0</b> <input type="range" id="pqBrilho" min="0" max="25" step="1" value="0" style="width:45%;accent-color:var(--amarelo)"></label>
+      <p class="medidas" id="pqConta" style="font-size:16px"></p>
+    </div>
+    <div class="cartao">
+      <ol class="peq" style="margin:0;padding-left:22px">
+        <li class="frag"><b>Acha o padrão em qualquer lugar.</b> Os mesmos 9 números passam pela imagem toda: o filtro que acende num olho acende no outro, sem ninguém dizer onde ficam os olhos.</li>
+        <li class="frag" style="margin-top:8px"><b>Usa poucos números.</b> Ligar cada pixel de uma imagem 64 × 64 a um neurônio custaria 4.096 pesos por neurônio. Um filtro 3 × 3 usa 9 pesos em todas as posições: a camada 1 real inteira tem 32 × 9 = 288.</li>
+        <li class="frag" style="margin-top:8px"><b>Borda não muda com a luz.</b> Os pesos do filtro de borda somam 0 (−1 −1 −1 +1 +1 +1). Escureça a foto no controle: todos os pixels mudam, a saída fica igual.</li>
+        <li class="frag" style="margin-top:8px"><b>Camadas empilham.</b> A camada 2 aplica filtros nas saídas da camada 1: bordas viram cantos e curvas, que viram olho e boca, que viram expressão. É a estrutura do detector de emoção, que vamos ver no passo 4.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
 <!-- FUNDAMENTO APRENDER -->
 <section class="slide" data-titulo="Fundamento: aprender">
   <h2>Aprender é ajustar um número a partir de exemplos</h2>
@@ -2148,6 +2171,21 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
   }
   sl.querySelectorAll('input').forEach((inp) => (inp.oninput = () => { notas[+inp.dataset.i][1] = +inp.value; atualizar(); }));
   atualizar();
+})();
+
+(() => { // slide por que filtros: borda vertical nao muda ao escurecer a foto inteira
+  const ent = document.getElementById('pqEntrada'); if (!ent) return;
+  const sai = document.getElementById('pqSaida'), sl = document.getElementById('pqBrilho'), val = document.getElementById('pqValor'), conta = document.getElementById('pqConta');
+  const K = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]];
+  function atualizar() {
+    const d = +sl.value, v = ROSTO.map((c) => c - d);
+    desenharGrade(ent, v, 14, 15, cinza);
+    const out = convoluir(v, 14, K), mx = Math.max(...out.map(Math.abs));
+    desenharGrade(sai, out, 12, 15, (x) => corDiv(x, mx));
+    val.textContent = d ? '−' + d : '0';
+    conta.innerHTML = `pixel do olho na entrada: <b>${v[5 * 14 + 4]}</b><br>mesmo ponto na saída: <b class="amarelo">${fmt(out[5 * 12 + 3])}</b>`;
+  }
+  sl.oninput = atualizar; atualizar();
 })();
 
 // ---------- início ----------
