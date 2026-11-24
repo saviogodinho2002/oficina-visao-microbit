@@ -4,7 +4,7 @@ A ideia da oficina é mostrar que dá para montar um projeto de visão computaci
 
 A oficina tem **dois dias**, com a mesma apresentação dividida em duas partes.
 
-**Dia 1: visão computacional** (passos 1 a 4). Abre com fundamentos curtos (uma imagem é uma tabela de números; regra escrita × modelo aprendido) e tem slides "Por dentro" depois dos passos 1, 3 e 4: os quatro modelos em sequência, regra e modelo no nosso código, com que dados o detector de emoção aprendeu (FER2013) e limites e cuidados.
+**Dia 1: visão computacional** (passos 1 a 4). Abre com fundamentos interativos: uma imagem é uma tabela de números, um filtro 3 × 3 passando pela tabela (com a conta de cada pixel), aprender um limiar a partir de exemplos (descida do gradiente rodando na tela) e um neurônio com pesos ajustáveis. Depois dos passos 1, 3 e 4 vêm slides "Por dentro": os quatro modelos em sequência (com tempo por quadro medido), regra e modelo no nosso código, o detector de emoção camada por camada com os 32 filtros reais extraídos do `emotion.bin`, o softmax, treino e teste, o FER2013 e limites e cuidados (com a mesma foto medida em várias condições).
 
 **Dia 2: micro:bit** (passos 5 e 6). O que é um microcontrolador, a placa por fora, um teste em MakeCode para cada componente (13 programas) e, no fim, a emoção da webcam na matriz de LED.
 

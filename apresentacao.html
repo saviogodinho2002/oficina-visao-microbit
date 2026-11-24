@@ -128,7 +128,7 @@
   .placa .rot { position: absolute; bottom: 8px; width: 100%; text-align: center; font-size: 13px; color: #888; }
   .abas { display: flex; gap: 6px; flex-wrap: wrap; }
   .abas button { font: inherit; font-size: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--borda); background: var(--painel2); color: var(--suave); cursor: pointer; }
-  .abas button.sel { color: var(--sobre-destaque); background: var(--amarelo); border-color: var(--amarelo); }
+  .abas button.sel, #convFiltros button.sel { color: var(--sobre-destaque); background: var(--amarelo); border-color: var(--amarelo); }
 
   /* serial */
   .serial { display: grid; grid-template-columns: 330px 1fr 300px; gap: 18px; align-items: center; }
@@ -170,6 +170,28 @@
   .modelos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .modelos .cartao { padding: 14px 16px; }
   .modelos .seta { text-align: center; color: var(--suave); }
+
+  /* ML concreto */
+  .grade { display: grid; gap: 1px; background: var(--borda); padding: 1px; width: max-content; border-radius: 6px; }
+  .grade div { display: flex; align-items: center; justify-content: center; font: 8px ui-monospace, Menlo, Consolas, monospace; cursor: crosshair; }
+  .grade div.janela { outline: 2px solid var(--amarelo); outline-offset: -2px; z-index: 1; }
+  .conv { display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: start; }
+  .kernel { display: grid; grid-template-columns: repeat(3, 54px); gap: 3px; margin: 10px 0; }
+  .kernel div { height: 40px; display: flex; align-items: center; justify-content: center; font: 14px ui-monospace, Menlo, Consolas, monospace; border-radius: 4px; border: 1px solid var(--borda); }
+  .conta { font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px; min-height: 120px; white-space: pre-wrap; }
+  .neuronio td, .neuronio th { padding: 5px 10px; font-size: 18px; }
+  .neuronio input[type=range] { width: 140px; accent-color: var(--amarelo); }
+  .camadas { display: flex; flex-direction: column; gap: 6px; }
+  .camadas div { padding: 7px 12px; border-radius: 8px; background: var(--painel); border: 1px solid var(--borda); font-size: 16px; }
+  .camadas div.chave { border-color: var(--amarelo); }
+  .filtros { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .filtros .mini { display: grid; grid-template-columns: repeat(3, 12px); gap: 1px; cursor: pointer; padding: 2px; border-radius: 4px; border: 2px solid transparent; }
+  .filtros .mini.sel { border-color: var(--amarelo); }
+  .filtros .mini div { width: 12px; height: 12px; }
+  .sm-barra { display: grid; grid-template-columns: 80px 1fr 50px; gap: 8px; align-items: center; margin: 4px 0; font-size: 17px; }
+  .sm-barra .b { height: 16px; border-radius: 4px; background: var(--ciano); transition: width .2s; }
+  .divisao { display: flex; height: 46px; border-radius: 8px; overflow: hidden; font-size: 15px; font-weight: 700; color: #fff; }
+  .divisao div { display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
@@ -236,27 +258,60 @@
   </div>
 </section>
 
-<!-- FUNDAMENTO MODELO -->
-<section class="slide" data-titulo="Fundamento: modelo">
-  <h2>Regra escrita × modelo aprendido</h2>
-  <div class="cols">
-    <div class="cartao">
-      <h3>Regra escrita</h3>
-      <p class="peq">Alguém pensa na lógica e escreve o código. Dá para explicar cada passo.</p>
-      <pre class="code" data-lang="js" style="margin-top:10px">if (razao &lt; 0.20) {
-  olhoFechado = true;
-}</pre>
-      <p class="peq suave" style="margin-top:8px">É o que vamos escrever nos passos 2 e 3.</p>
+<!-- FUNDAMENTO FILTRO -->
+<section class="slide" data-titulo="Fundamento: filtro">
+  <h2>Um filtro passando pela tabela</h2>
+  <div class="conv">
+    <div><p class="peq suave">entrada: o rosto (14 × 14)</p><div class="grade" id="convEntrada"></div></div>
+    <div>
+      <div class="abas" id="convFiltros"></div>
+      <p class="peq" style="margin-top:8px">filtro 3 × 3:</p>
+      <div class="kernel" id="convKernel"></div>
+      <div class="conta" id="convConta">passe o mouse num pixel da saída</div>
     </div>
-    <div class="cartao frag">
-      <h3>Modelo aprendido (machine learning)</h3>
-      <p class="peq">Ninguém escreve o <code>if</code> que diz o que é "feliz". Em vez disso:</p>
-      <ol class="peq" style="margin:8px 0 0;padding-left:24px">
-        <li>junta milhares de fotos com a resposta certa (feliz, triste...)</li>
-        <li>o treino ajusta números internos (os <b>pesos</b>) até o modelo acertar a maioria</li>
-        <li>o modelo pronto é esse monte de números</li>
-      </ol>
-      <p class="peq" style="margin-top:10px">O detector de emoção que vamos usar tem <b>205 mil</b> números aprendidos, guardados em <code>models/emotion.bin</code>.</p>
+    <div><p class="peq suave">saída (12 × 12)</p><div class="grade" id="convSaida"></div></div>
+  </div>
+  <p class="peq">Cada pixel da saída é a janela 3 × 3 da entrada multiplicada pelos 9 números do filtro e somada. <span class="ciano">Azul</span> é negativo, <span class="amarelo">laranja</span> é positivo: o filtro de borda acende onde o claro encontra o escuro. É assim que a primeira camada de uma rede olha a imagem.</p>
+</section>
+
+<!-- FUNDAMENTO APRENDER -->
+<section class="slide" data-titulo="Fundamento: aprender">
+  <h2>Aprender é ajustar um número a partir de exemplos</h2>
+  <div class="cols c64">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <svg viewBox="0 0 640 150" id="aprSvg" style="width:100%"></svg>
+      <label class="peq">limiar: <b id="aprValor"></b> <input type="range" id="aprLimiar" min="0" max="0.5" step="0.005" value="0.45" style="width:60%;accent-color:var(--amarelo)"></label>
+      <div style="display:flex;gap:10px;align-items:center"><button class="acao principal" id="aprTreinar">treinar</button><button class="acao" id="aprReset">recomeçar</button><span class="peq" id="aprErros"></span></div>
+      <svg viewBox="0 0 640 80" id="aprCurva" style="width:100%"></svg>
+    </div>
+    <div class="cartao">
+      <ul class="peq">
+        <li><b>exemplo rotulado</b>: uma medida (a razão do olho) e a resposta certa (<span class="ciano">aberto</span> ou <span class="vermelho">fechado</span>)</li>
+        <li><b>parâmetro</b>: o número que o modelo pode mudar; aqui, o limiar</li>
+        <li><b>erro</b>: quantos exemplos ficam do lado errado do limiar</li>
+        <li><b>treino</b>: a cada passo, ver para que lado o erro diminui e mover o parâmetro um pouco para lá (é a "descida do gradiente")</li>
+      </ul>
+      <p class="peq" style="margin-top:8px">No passo 3 você escolhe 0,20 na mão. Aqui a máquina acha o limiar a partir dos exemplos.</p>
+      <p class="peq suave" style="margin-top:6px">Pontos inventados para mostrar a ideia. O modelo de emoção faz o mesmo com 205 mil parâmetros ao mesmo tempo e 28 mil fotos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO NEURONIO -->
+<section class="slide" data-titulo="Fundamento: neurônio">
+  <h2>Um neurônio: multiplicar, somar, cortar o negativo</h2>
+  <div class="cols c64">
+    <div class="cartao">
+      <table class="neuronio" id="neuronio"></table>
+      <p class="medidas" id="neuronioConta" style="margin-top:10px;font-size:18px"></p>
+    </div>
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag">Entradas: 3 pixels (de 0 a 1). Pesos: o quanto cada um importa; podem ser negativos</li>
+        <li class="frag">Saída: soma dos produtos mais o viés; se der negativo, vira 0 (a função ReLU)</li>
+        <li class="frag">O filtro do slide anterior é um neurônio com 9 entradas e 9 pesos</li>
+        <li class="frag">Uma rede empilha camadas de neurônios: a saída de uma vira entrada da próxima. Os 205 mil números do <code>emotion.bin</code> são os pesos e vieses de todos eles</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -324,16 +379,16 @@ npx serve                      # http://localhost:3000
   <div class="cols c37">
     <div class="cartao" id="chaves">
       <h3>Ligar / desligar</h3>
-      <label class="chave"><input type="checkbox" data-flag="description" checked><span class="trilho"></span>idade e gênero</label>
-      <label class="chave"><input type="checkbox" data-flag="emotion" checked><span class="trilho"></span>emoção</label>
-      <label class="chave"><input type="checkbox" data-flag="body" checked><span class="trilho"></span>corpo</label>
-      <label class="chave"><input type="checkbox" data-flag="hand" checked><span class="trilho"></span>mãos</label>
-      <label class="chave"><input type="checkbox" data-flag="gesture" checked><span class="trilho"></span>gestos</label>
+      <label class="chave"><input type="checkbox" data-flag="description" checked><span class="trilho"></span>idade e gênero <span class="suave" style="font-size:15px">(6,8 MB)</span></label>
+      <label class="chave"><input type="checkbox" data-flag="emotion" checked><span class="trilho"></span>emoção <span class="suave" style="font-size:15px">(0,8 MB)</span></label>
+      <label class="chave"><input type="checkbox" data-flag="body" checked><span class="trilho"></span>corpo <span class="suave" style="font-size:15px">(4,5 MB)</span></label>
+      <label class="chave"><input type="checkbox" data-flag="hand" checked><span class="trilho"></span>mãos <span class="suave" style="font-size:15px">(4,8 MB)</span></label>
+      <label class="chave"><input type="checkbox" data-flag="gesture" checked><span class="trilho"></span>gestos <span class="suave" style="font-size:15px">(sem arquivo, são regras)</span></label>
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         <button class="acao" id="cfgOriginal">original</button>
         <button class="acao" id="cfgPasso2">como no passo 2</button>
       </div>
-      <p class="suave peq" style="margin-top:12px">Cada <code>true</code> carrega mais um modelo e roda ele em todo quadro. Menos coisa ligada, mais FPS.</p>
+      <p class="suave peq" style="margin-top:12px">Cada <code>true</code> carrega mais um modelo e roda ele em todo quadro. Medido num Mac com Chrome: tudo ligado, cerca de <b>22</b> quadros por segundo; só malha e íris (passo 2), cerca de <b>53</b>.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
       <pre class="code" id="cfgCodigo" data-lang="js" data-inicio="22"></pre>
@@ -378,7 +433,7 @@ human.video(human.webcam.element);       // detecta sem parar, em paralelo</pre>
   </div>
   <ul class="peq">
     <li class="frag">Cada modelo é um par de arquivos em <code>human/models/</code>: o <code>.json</code> descreve as camadas, o <code>.bin</code> guarda os números aprendidos</li>
-    <li class="frag">Rodam <b>no seu navegador</b>, na placa de vídeo, com a biblioteca TensorFlow.js. A imagem da câmera não sai do computador</li>
+    <li class="frag">Rodam <b>no seu navegador</b> com a biblioteca TensorFlow.js, usando a placa de vídeo (no Chrome do Mac em que medimos, pelo WebGPU). Malha e íris levam cerca de <b>19 ms</b> por quadro; com a emoção, <b>26 ms</b>. A imagem da câmera não sai do computador</li>
     <li class="frag">A saída de um vira a entrada do próximo: o Human só junta as peças. Nós vamos usar a saída do 2 (os pontos) e do 4 (a emoção)</li>
   </ul>
 </section>
@@ -669,7 +724,7 @@ if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&
     </table>
   </div>
   <p class="frag">O padrão é comum: um modelo aprendido transforma a imagem em algo fácil de usar (pontos), e em cima disso a gente escreve regras simples.</p>
-  <p class="frag suave peq">Escrever regra direto nos 2,7 milhões de números da imagem seria inviável. Sobre 478 pontos, cabe num <code>if</code>.</p>
+  <p class="frag suave peq">Cada quadro tem 2.764.800 números; a malha resume isso em 478 pontos, cerca de 5.800 vezes menos. Sobre 478 pontos, a regra cabe num <code>if</code>.</p>
 </section>
 
 <!-- 18. PASSO 4 -->
@@ -746,6 +801,75 @@ lerEmocao();</pre>
   </div>
 </section>
 
+<!-- POR DENTRO CAMADAS -->
+<section class="slide" data-titulo="Por dentro: camadas">
+  <h2><span class="passo">Por dentro</span> · O detector de emoção, camada por camada</h2>
+  <div class="cols">
+    <div class="camadas">
+      <div><b>entrada</b>: o rosto em 64 × 64, cinza = 4.096 números</div>
+      <div class="chave"><b>camada 1</b>: 32 filtros 3 × 3 (os da direita)</div>
+      <div><b>camada 2</b>: 64 filtros 3 × 3, sobre as 32 saídas da camada 1</div>
+      <div><b>blocos</b> com 128 e depois 256 canais, 2 reduções de tamanho e 2 atalhos que somam camadas</div>
+      <div class="chave"><b>última camada</b>: 7 filtros, um por emoção</div>
+      <div><b>média</b> de cada um dos 7 e <b>softmax</b>: 7 notas que somam 1</div>
+      <p class="peq suave">13 camadas de filtros no total. Lido do próprio <code>models/emotion.json</code>.</p>
+    </div>
+    <div class="cartao">
+      <h3>Os 32 filtros reais da camada 1</h3>
+      <div class="filtros" id="filtrosReais"></div>
+      <p class="peq" style="margin-top:10px">Clique num filtro para passá-lo no rosto:</p>
+      <div style="display:flex;gap:14px;align-items:flex-start;margin-top:6px">
+        <div class="grade" id="reaisEntrada"></div><div class="grade" id="reaisSaida"></div>
+      </div>
+      <p class="peq suave" style="margin-top:8px">Ninguém desenhou esses números: o treino achou. Pesos de <code>conv2d_1</code>, extraídos do <code>emotion.bin</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- POR DENTRO SOFTMAX -->
+<section class="slide" data-titulo="Por dentro: softmax">
+  <h2><span class="passo">Por dentro</span> · Das 7 notas à resposta</h2>
+  <div class="cols">
+    <div class="cartao">
+      <h3>Uma foto de verdade</h3>
+      <p class="peq">Mulher sorrindo, foto de exemplo do MediaPipe, num quadro de webcam:</p>
+      <div id="smReal" style="margin-top:8px"></div>
+      <p class="peq suave" style="margin-top:6px">Soma 0,98: o Human corta cada nota em 2 casas. A tela mostra a maior, <code>emotion[0]</code>. Aqui o modelo disse <b>neutro</b> para um sorriso.</p>
+    </div>
+    <div class="cartao">
+      <h3>O softmax na mão</h3>
+      <p class="peq">A última camada dá números quaisquer, até negativos. O softmax transforma em porcentagens: <code>e^nota ÷ soma de todos os e^nota</code>.</p>
+      <div id="smSliders" style="margin-top:8px"></div>
+      <div id="smSaida" style="margin-top:8px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- POR DENTRO TREINO E TESTE -->
+<section class="slide" data-titulo="Por dentro: treino e teste">
+  <h2><span class="passo">Por dentro</span> · Treino e teste</h2>
+  <div class="divisao">
+    <div style="flex:28709;background:var(--ciano)">treino: 28.709 fotos</div>
+    <div style="flex:3589;background:var(--roxo)">validação: 3.589</div>
+    <div style="flex:3589;background:var(--amarelo)">teste: 3.589</div>
+  </div>
+  <div class="cols">
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag"><b>Treino</b>: as fotos com resposta que o modelo usa para ajustar os pesos, como a lista de exercícios com gabarito</li>
+        <li class="frag"><b>Validação</b>: para escolher detalhes do treino (quando parar, tamanho da rede) sem olhar o teste</li>
+        <li class="frag"><b>Teste</b>: fotos que o modelo nunca viu, como a prova. Os <b>66%</b> são aqui: de cada 100 fotos novas, acerta 66</li>
+      </ul>
+    </div>
+    <div class="cartao frag">
+      <h3>Decorar × aprender</h3>
+      <p class="peq">Um modelo grande pode acertar quase 100% das fotos de treino só por decorá-las, e errar muito nas novas (<i>overfitting</i>). É como um teste unitário escrito só para os casos que você já sabe que passam.</p>
+      <p class="peq" style="margin-top:8px">Por isso a nota que vale é a do teste. E por isso a nossa webcam, que não estava nas fotos de treino, às vezes erra.</p>
+    </div>
+  </div>
+  <p class="peq suave">Divisão do FER2013 em Goodfellow et al., <i>Challenges in Representation Learning</i> (2013).</p>
+</section>
+
 <!-- FUNDAMENTO EMOCAO POR DENTRO -->
 <section class="slide" data-titulo="Por dentro: o detector de emoção">
   <h2><span class="passo">Por dentro</span> · Com que o detector de emoção aprendeu</h2>
@@ -781,18 +905,26 @@ lerEmocao();</pre>
       <h3>O que o modelo não sabe</h3>
       <ul class="peq">
         <li class="frag">Ele lê <b>expressão</b>, não sentimento: dá para sorrir triste</li>
-        <li class="frag">Aprendeu com fotos de internet, muitas posadas: careta exagerada funciona melhor que expressão sutil</li>
-        <li class="frag">Luz, ângulo, óculos e barba mudam o resultado</li>
         <li class="frag">Se um tipo de rosto aparece pouco nas fotos de treino, o modelo erra mais com ele (viés do dado)</li>
       </ul>
+      <p class="peq frag" style="margin-top:8px">A mesma foto de uma mulher sorrindo, medida aqui:</p>
+      <table class="peq frag" style="width:100%;margin-top:4px">
+        <tr><th>variação</th><th>resposta</th></tr>
+        <tr><td>original</td><td>neutro 0,65 · feliz 0,26</td></tr>
+        <tr><td>escurecida (40% do brilho)</td><td>neutro 0,81 · feliz 0,14</td></tr>
+        <tr><td>inclinada 30°</td><td>feliz 0,66 · neutro 0,25</td></tr>
+        <tr><td>inclinada 60°</td><td>feliz 0,41 · <b class="vermelho">medo 0,29</b></td></tr>
+        <tr><td>rosto pela metade do tamanho</td><td>feliz 0,71 · neutro 0,23</td></tr>
+        <tr><td>espelhada</td><td>neutro 0,60 · feliz 0,32</td></tr>
+      </table>
     </div>
     <div class="cartao">
       <h3>Câmera e privacidade</h3>
       <ul class="peq">
         <li class="frag">Na nossa página, os modelos vêm da pasta <code>models/</code> e tudo roda no navegador: a imagem não é enviada para lugar nenhum</li>
-        <li class="frag">Muitos serviços de reconhecimento facial funcionam ao contrário: mandam a imagem para um servidor</li>
-        <li class="frag">Filmar e analisar o rosto de alguém pede consentimento. Usar detector de emoção para avaliar pessoas (na escola, no trabalho) é um uso polêmico</li>
+                <li class="frag">Filmar e analisar o rosto de alguém pede consentimento. Na União Europeia, o AI Act proíbe desde fevereiro de 2025 sistemas que inferem emoções pelo rosto ou pela voz no trabalho e na escola, salvo por motivo médico ou de segurança</li>
       </ul>
+      <p class="peq suave" style="margin-top:6px">Fontes: Bundesnetzagentur (regulador alemão) e Future of Privacy Forum.</p>
     </div>
   </div>
 </section>
@@ -830,7 +962,7 @@ lerEmocao();</pre>
         <tr><td>memória do programa</td><td>256 KB</td><td>512 KB</td></tr>
         <tr><td>memória de trabalho</td><td>16 KB</td><td>128 KB</td></tr>
       </table>
-      <p class="peq" style="margin-top:12px">Um notebook tem milhares de vezes mais memória. A placa compensa fazendo uma coisa só.</p>
+      <p class="peq" style="margin-top:12px">Um notebook com 8 GB tem 65.536 vezes a memória de trabalho do V2 (8 GB ÷ 128 KB). A placa compensa fazendo uma coisa só.</p>
     </div>
   </div>
 </section>
@@ -1198,7 +1330,7 @@ basic.forever(function () {
 <!-- 22. PASSO 6 PROTOCOLO -->
 <section class="slide" id="passo6" data-titulo="Passo 6: protocolo">
   <h2><span class="passo">Passo 6</span> · Do PC para a matriz de LED</h2>
-  <p class="peq">Protocolo: <b class="amarelo">uma palavra por linha</b>, terminada em <code>\n</code>, a 115200 bauds. A página só envia quando a emoção <b>muda</b>.</p>
+  <p class="peq">Protocolo: <b class="amarelo">uma palavra por linha</b>, terminada em <code>\n</code>, a 115200 bauds. A página só envia quando a emoção <b>muda</b>. <code>feliz\n</code> são 6 bytes; com 1 bit de início e 1 de fim por byte, 60 bits, que a 115200 bits por segundo levam cerca de <b>0,5 ms</b>.</p>
   <div class="serial">
     <div>
       <p class="peq suave" style="margin-bottom:8px">navegador: emoção detectada</p>
@@ -1867,6 +1999,155 @@ function criarMatriz(placa) {
     mostrar = !mostrar;
     [...grade.children].forEach((d, i) => { d.textContent = mostrar ? v[i] : ''; });
   };
+})();
+
+// ---------- ML concreto ----------
+const ROSTO = (() => { // a mesma grade 14x14 do slide "Uma imagem e uma tabela de numeros"
+  const N = 14, v = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const dx = x - 6.5, dy = y - 6.5, r = Math.hypot(dx, dy * 0.85);
+    let c = r < 6.2 ? 205 - Math.round(r * 6) : 245;
+    if (r >= 5.6 && r < 6.4) c = 120;
+    if ((x === 4 || x === 9) && (y === 5 || y === 6)) c = 30;
+    if (y === 10 && x >= 4 && x <= 9) c = 70;
+    if (y === 9 && (x === 3 || x === 10)) c = 90;
+    v.push(c);
+  }
+  return v;
+})();
+const FILTROS_REAIS = [[[0.0607, -0.4137, -0.4113], [1.2064, 0.6278, 0.0047], [0.2571, 0.2442, -0.2273]], [[0.1637, -0.0665, -0.0493], [0.1302, -0.3385, -0.3075], [-0.0609, -0.3587, -0.4211]], [[-0.6391, 1.781, -1.0779], [-0.5697, 4.8755, -5.4084], [-2.3163, 8.6412, -5.1559]], [[-2.6318, 0.9976, 1.5], [-5.4913, 1.287, 3.9553], [-3.8054, 1.8173, 2.3594]], [[0.2095, 0.2195, 0.3122], [0.0006, -1.4983, -1.4918], [0.6607, 0.1625, -0.18]], [[-0.5458, -1.6313, 1.8664], [3.4967, -6.8663, 2.8564], [6.8693, -7.7308, 1.1789]], [[1.7899, 3.0403, 2.0218], [-1.4118, -0.9274, -1.4437], [-0.0208, -1.9253, -1.2675]], [[-1.1393, -0.462, -0.8661], [-0.5856, 1.7186, 1.1562], [-0.475, 0.5245, 0.2504]], [[-0.9221, -0.2253, 0.0222], [-0.9276, -0.612, -0.3116], [0.9002, 1.5838, 1.678]], [[-0.2028, 1.3583, -0.1825], [0.2944, -0.7796, -0.4816], [-0.5485, -0.4338, -0.102]], [[0.0086, -1.7987, -1.7905], [0.3672, 0.3875, -1.5204], [2.1153, 2.325, 0.3056]], [[-1.3857, -1.0348, 0.2376], [-0.5018, -0.0491, 0.3045], [0.3013, 0.4516, 0.5435]], [[-1.2628, -2.4355, -2.8799], [4.2519, 8.3753, 5.6275], [-2.8925, -6.1569, -2.9105]], [[-0.2954, 0.0248, 0.9466], [-0.5915, -0.7802, 0.6929], [-0.1294, -0.6038, 0.2615]], [[0.9064, 1.5412, 0.5465], [1.7263, 0.7059, -1.0199], [0.2304, -1.4457, -3.0623]], [[-1.2138, -4.2667, -2.9233], [1.5949, 4.6607, 3.8338], [-0.6687, 0.0022, -1.0449]], [[0.4523, 1.894, -0.6415], [-1.3902, 1.7955, 0.7817], [-2.6477, -1.1789, 0.7297]], [[5.8461, -7.2435, 1.5151], [1.72, -8.1065, 4.7426], [-1.1283, -0.953, 3.9266]], [[2.5426, -0.8676, -0.5827], [4.381, -2.849, -1.9549], [1.1923, -1.7789, -0.2172]], [[-2.5426, -2.8236, -1.9991], [0.2347, -0.6527, 0.5268], [2.2469, 2.7126, 2.0733]], [[-0.8795, 2.2961, 6.8136], [-3.8016, -8.537, -1.3865], [6.7215, 0.6757, -1.542]], [[-0.2882, 1.464, 0.406], [-0.6462, 0.6923, 0.1087], [-0.4525, -0.0265, 0.0522]], [[0.4142, 0.1468, 0.3873], [-0.2419, -0.6459, -0.0545], [-0.4187, -0.9712, -0.096]], [[-5.1207, -0.0418, 2.7596], [-0.965, 5.2233, -0.2436], [0.7332, 1.4144, -3.4288]], [[1.9931, 2.1021, -4.2968], [1.6941, 3.1639, -4.2028], [0.8524, 0.5781, -2.0415]], [[0.2772, 0.4406, -0.0693], [0.9471, 0.8911, -0.2426], [-0.277, -0.5733, -0.7329]], [[-0.0829, -0.6355, -0.7704], [-0.6927, -0.1878, -0.8152], [0.519, 0.6094, 0.8805]], [[-0.1007, 1.8334, 1.2853], [-1.6864, 1.0439, 2.7707], [-2.5993, -2.1103, -0.2629]], [[0.7838, 0.6861, -0.2794], [0.4887, 0.7681, -0.2907], [-0.5791, -1.7903, -1.1877]], [[5.1687, 4.1456, -0.2452], [-4.038, -9.3623, -5.0463], [-0.5852, 4.0723, 5.4535]], [[-2.3076, -0.2966, 2.1869], [3.0681, 2.4943, -4.7199], [-1.1166, -1.2504, 1.3366]], [[1.5946, 2.143, 1.5277], [1.0583, -0.3401, -0.2448], [-2.3115, -2.3115, -1.0133]]];
+function convoluir(v, N, k) { // convolucao 'valida': saida (N-2) x (N-2)
+  const out = [];
+  for (let i = 0; i < N - 2; i++) for (let j = 0; j < N - 2; j++) {
+    let s = 0;
+    for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) s += v[(i + a) * N + (j + b)] * k[a][b];
+    out.push(s);
+  }
+  return out;
+}
+function corDiv(x, max) { // azul negativo, laranja positivo
+  const t = Math.min(1, Math.abs(x) / (max || 1));
+  return x >= 0 ? `rgba(214, 120, 0, ${t})` : `rgba(11, 111, 134, ${t})`;
+}
+function desenharGrade(el, valores, N, tam, cor) {
+  el.innerHTML = ''; el.style.gridTemplateColumns = `repeat(${N}, ${tam}px)`;
+  valores.forEach((x) => { const d = document.createElement('div'); d.style.width = d.style.height = tam + 'px'; d.style.background = cor(x); el.appendChild(d); });
+}
+const cinza = (c) => `rgb(${c},${c},${c})`;
+const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
+
+(() => { // slide do filtro
+  const ent = document.getElementById('convEntrada'); if (!ent) return;
+  const sai = document.getElementById('convSaida'), kel = document.getElementById('convKernel'), conta = document.getElementById('convConta'), abas = document.getElementById('convFiltros');
+  const K = { 'borda vertical': [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]], 'borda horizontal': [[-1, -1, -1], [0, 0, 0], [1, 1, 1]], 'suavizar': [[1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9]] };
+  desenharGrade(ent, ROSTO, 14, 20, cinza);
+  function usar(nome) {
+    [...abas.children].forEach((b) => b.classList.toggle('sel', b.textContent === nome));
+    const k = K[nome];
+    kel.innerHTML = k.flat().map((w) => `<div style="background:${corDiv(w, 1)}">${fmt(w)}</div>`).join('');
+    const out = convoluir(ROSTO, 14, k), max = Math.max(...out.map(Math.abs));
+    if (nome === 'suavizar') desenharGrade(sai, out, 12, 22, (x) => cinza(Math.round(x)));
+    else desenharGrade(sai, out, 12, 22, (x) => corDiv(x, max));
+    [...sai.children].forEach((d, idx) => {
+      const i = Math.floor(idx / 12), j = idx % 12;
+      d.onmouseenter = () => {
+        [...ent.children].forEach((c, t) => { const y = Math.floor(t / 14), x = t % 14; c.classList.toggle('janela', y >= i && y < i + 3 && x >= j && x < j + 3); });
+        const termos = [];
+        for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) termos.push(`${ROSTO[(i + a) * 14 + j + b]}×${fmt(k[a][b])}`);
+        conta.textContent = `${termos.slice(0, 3).join(' + ')}\n+ ${termos.slice(3, 6).join(' + ')}\n+ ${termos.slice(6).join(' + ')}\n= ${fmt(out[idx])}`;
+      };
+    });
+    conta.textContent = 'passe o mouse num pixel da saída';
+  }
+  Object.keys(K).forEach((nome) => { const b = document.createElement('button'); b.textContent = nome; b.onclick = () => usar(nome); abas.appendChild(b); });
+  usar('borda vertical');
+})();
+
+(() => { // slide aprender: descida do gradiente num limiar
+  const svg = document.getElementById('aprSvg'); if (!svg) return;
+  const aberto = [0.24, 0.26, 0.28, 0.29, 0.31, 0.32, 0.34, 0.35, 0.37, 0.38, 0.40, 0.42];
+  const fechado = [0.05, 0.08, 0.10, 0.12, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23];
+  const X = (r) => 30 + r / 0.5 * 580;
+  const slider = document.getElementById('aprLimiar'), valor = document.getElementById('aprValor'), erros = document.getElementById('aprErros'), curva = document.getElementById('aprCurva');
+  let t = 0.45, hist = [], timer = null;
+  const nErros = (t) => aberto.filter((x) => x < t).length + fechado.filter((x) => x >= t).length;
+  function desenhar() {
+    let s = `<line x1="30" y1="95" x2="610" y2="95" stroke="var(--suave)"/>`;
+    for (let r = 0; r <= 0.5001; r += 0.1) s += `<text x="${X(r)}" y="118" font-size="13" text-anchor="middle" fill="var(--suave)">${r.toFixed(1).replace('.', ',')}</text>`;
+    s += `<text x="320" y="140" font-size="13" text-anchor="middle" fill="var(--suave)">razão abertura / largura do olho</text>`;
+    aberto.forEach((x) => { const err = x < t; s += `<circle cx="${X(x)}" cy="70" r="8" fill="var(--ciano)" stroke="${err ? 'var(--vermelho)' : 'none'}" stroke-width="3"/>`; });
+    fechado.forEach((x) => { const err = x >= t; s += `<rect x="${X(x) - 7}" y="38" width="14" height="14" fill="var(--vermelho)" stroke="${err ? 'var(--amarelo)' : 'none'}" stroke-width="3"/>`; });
+    s += `<line x1="${X(t)}" y1="15" x2="${X(t)}" y2="100" stroke="var(--amarelo)" stroke-width="3"/><text x="${X(t)}" y="12" font-size="13" text-anchor="middle" fill="var(--amarelo)">limiar</text>`;
+    s += `<text x="30" y="20" font-size="13" fill="var(--vermelho)">■ fechado</text><text x="120" y="20" font-size="13" fill="var(--ciano)">● aberto</text>`;
+    svg.innerHTML = s;
+    slider.value = t; valor.textContent = t.toFixed(3).replace('.', ',');
+    erros.textContent = `erros: ${nErros(t)} de ${aberto.length + fechado.length}` + (hist.length ? ` · passo ${hist.length}` : '');
+    const mx = aberto.length + fechado.length; let p = '';
+    hist.forEach((e, i) => { p += `${i ? 'L' : 'M'}${30 + i * 580 / Math.max(hist.length - 1, 1)},${70 - e / mx * 60}`; });
+    curva.innerHTML = `<text x="30" y="12" font-size="12" fill="var(--suave)">erros a cada passo do treino</text><line x1="30" y1="70" x2="610" y2="70" stroke="var(--borda)"/>` + (p ? `<path d="${p}" fill="none" stroke="var(--amarelo)" stroke-width="2.5"/>` : '');
+  }
+  function passo() { // gradiente do erro total (soma das distancias dos pontos do lado errado)
+    const grad = aberto.filter((x) => x < t).length - fechado.filter((x) => x >= t).length;
+    hist.push(nErros(t));
+    if (grad === 0 || hist.length > 150) { clearInterval(timer); timer = null; desenhar(); return; }
+    t = Math.max(0, Math.min(0.5, t - 0.0025 * grad)); desenhar();
+  }
+  document.getElementById('aprTreinar').onclick = () => { if (!timer) { hist = []; timer = setInterval(passo, 70); } };
+  document.getElementById('aprReset').onclick = () => { clearInterval(timer); timer = null; t = 0.45; hist = []; desenhar(); };
+  slider.oninput = () => { t = +slider.value; hist = []; desenhar(); };
+  desenhar();
+})();
+
+(() => { // slide neuronio
+  const tab = document.getElementById('neuronio'); if (!tab) return;
+  const x = [0.12, 0.80, 0.47]; const w = [1.0, -1.0, 0.5]; let b = 0;
+  const conta = document.getElementById('neuronioConta');
+  tab.innerHTML = '<tr><th>entrada</th><th>peso</th><th></th><th>produto</th></tr>' + x.map((xi, i) =>
+    `<tr><td>pixel ${i + 1}: <b>${fmt(xi)}</b></td><td><input type="range" min="-2" max="2" step="0.1" value="${w[i]}" data-i="${i}"></td><td class="num" id="nw${i}"></td><td class="num" id="np${i}"></td></tr>`).join('') +
+    `<tr><td>viés</td><td><input type="range" min="-1" max="1" step="0.05" value="0" id="nb"></td><td class="num" id="nbv"></td><td></td></tr>`;
+  function atualizar() {
+    let s = b;
+    x.forEach((xi, i) => { document.getElementById('nw' + i).textContent = fmt(w[i]); document.getElementById('np' + i).textContent = fmt(xi * w[i]); s += xi * w[i]; });
+    document.getElementById('nbv').textContent = fmt(b);
+    conta.innerHTML = `soma = ${fmt(s)}<br>saída = máximo(0, soma) = <b class="amarelo">${fmt(Math.max(0, s))}</b>`;
+  }
+  tab.querySelectorAll('input[data-i]').forEach((inp) => (inp.oninput = () => { w[+inp.dataset.i] = +inp.value; atualizar(); }));
+  document.getElementById('nb').oninput = (e) => { b = +e.target.value; atualizar(); };
+  atualizar();
+})();
+
+(() => { // slide camadas: filtros reais
+  const caixa = document.getElementById('filtrosReais'); if (!caixa) return;
+  const ent = document.getElementById('reaisEntrada'), sai = document.getElementById('reaisSaida');
+  desenharGrade(ent, ROSTO, 14, 11, cinza);
+  const maxW = Math.max(...FILTROS_REAIS.flat(2).map(Math.abs));
+  FILTROS_REAIS.forEach((k, idx) => {
+    const m = document.createElement('div'); m.className = 'mini'; m.title = 'filtro ' + (idx + 1);
+    k.flat().forEach((wv) => { const d = document.createElement('div'); d.style.background = corDiv(wv, maxW); m.appendChild(d); });
+    m.onclick = () => {
+      [...caixa.children].forEach((c) => c.classList.remove('sel')); m.classList.add('sel');
+      const out = convoluir(ROSTO, 14, k), mx = Math.max(...out.map(Math.abs));
+      desenharGrade(sai, out, 12, 12.8, (v) => corDiv(v, mx));
+    };
+    caixa.appendChild(m);
+  });
+  caixa.children[2].onclick();
+})();
+
+(() => { // slide softmax
+  const real = document.getElementById('smReal'); if (!real) return;
+  const R = [['neutro', 0.65], ['feliz', 0.26], ['raiva', 0.04], ['triste', 0.03], ['nojo', 0], ['medo', 0], ['surpresa', 0]];
+  real.innerHTML = R.map(([n, v]) => `<div class="sm-barra"><span>${n}</span><div class="b" style="width:${v * 100}%"></div><span class="num">${fmt(v)}</span></div>`).join('');
+  const notas = [['feliz', 2.0], ['neutro', 1.0], ['triste', -1.0]];
+  const sl = document.getElementById('smSliders'), out = document.getElementById('smSaida');
+  sl.innerHTML = notas.map(([n, v], i) => `<label class="peq" style="display:block">nota crua de <b>${n}</b>: <span id="smv${i}">${fmt(v)}</span> <input type="range" min="-3" max="3" step="0.1" value="${v}" data-i="${i}" style="width:45%;accent-color:var(--amarelo)"></label>`).join('');
+  function atualizar() {
+    const ex = notas.map(([, v]) => Math.exp(v)), soma = ex.reduce((a, c) => a + c, 0);
+    out.innerHTML = notas.map(([n], i) => `<div class="sm-barra"><span>${n}</span><div class="b" style="width:${ex[i] / soma * 100}%;background:var(--amarelo)"></div><span class="num">${fmt(ex[i] / soma)}</span></div>`).join('') + `<p class="peq suave">soma: 1</p>`;
+    notas.forEach(([, v], i) => (document.getElementById('smv' + i).textContent = fmt(v)));
+  }
+  sl.querySelectorAll('input').forEach((inp) => (inp.oninput = () => { notas[+inp.dataset.i][1] = +inp.value; atualizar(); }));
+  atualizar();
 })();
 
 // ---------- início ----------
