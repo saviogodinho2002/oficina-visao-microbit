@@ -192,6 +192,13 @@
   .sm-barra .b { height: 16px; border-radius: 4px; background: var(--ciano); transition: width .2s; }
   .divisao { display: flex; height: 46px; border-radius: 8px; overflow: hidden; font-size: 15px; font-weight: 700; color: #fff; }
   .divisao div { display: flex; align-items: center; justify-content: center; }
+
+  .grade div.marcado { outline: 2px solid var(--vermelho); outline-offset: -2px; }
+  .grade div.linha-sel { outline: 2px solid var(--amarelo); outline-offset: -1px; }
+  table.linha-borda { border-collapse: separate; border-spacing: 3px; }
+  table.linha-borda td { width: 50px; height: 34px; text-align: center; font: 14px ui-monospace, Menlo, Consolas, monospace; border-radius: 4px; padding: 0; border: none; }
+  table.linha-borda th { font-size: 14px; color: var(--suave); text-align: right; padding-right: 8px; border: none; white-space: nowrap; }
+  table.linha-borda td.borda { font-weight: 800; outline: 2px solid var(--vermelho); }
 </style>
 </head>
 <body>
@@ -233,7 +240,7 @@
 <section class="slide divisoria" id="dia1" data-titulo="Dia 1">
   <div class="dia">Dia 1</div>
   <h1>Visão computacional</h1>
-  <p class="suave" style="font-size:26px">O que é uma imagem para o computador, o que é um modelo, e quatro passos com a webcam: malha, piscadas (duas versões) e emoção.</p>
+  <p class="suave" style="font-size:26px">Como o computador acha padrões numa imagem (bordas e filtros), depois quatro passos com a webcam: malha, piscadas (duas versões) e emoção. No meio, como uma máquina aprende.</p>
 </section>
 
 <!-- FUNDAMENTO IMAGEM -->
@@ -258,9 +265,50 @@
   </div>
 </section>
 
+<!-- FUNDAMENTO PROBLEMA -->
+<section class="slide" data-titulo="Fundamento: o problema">
+  <h2>O problema: achar o olho nessa tabela</h2>
+  <div class="cols c46">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="grade" id="probGrade"></div>
+      <label class="peq">escurecer a sala: <b id="probValor">0</b> <input type="range" id="probLuz" min="0" max="180" step="5" value="0" style="width:55%;accent-color:var(--amarelo)"></label>
+      <p class="peq" id="probInfo"></p>
+    </div>
+    <div class="cartao">
+      <p class="peq">Primeira ideia: o olho é escuro, então</p>
+      <pre class="code" data-lang="js" style="margin:8px 0">if (pixel &lt; 50) {
+  // é olho
+}</pre>
+      <ul class="peq">
+        <li class="frag">Com a luz normal, funciona: marca só os 4 pixels dos olhos</li>
+        <li class="frag">Escureça a sala: a pele fica abaixo de 50 e a regra chama o rosto inteiro de olho</li>
+        <li class="frag">O número de um pixel sozinho depende da luz. O que continua igual é a <b>diferença entre vizinhos</b>: o olho é bem mais escuro que a pele ao lado dele</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDAMENTO BORDA -->
+<section class="slide" data-titulo="Fundamento: borda">
+  <h2>O que é uma borda</h2>
+  <div style="display:flex;gap:22px;align-items:center">
+    <div class="grade" id="bordaGrade"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label class="peq">linha da imagem: <b id="bordaLinhaValor"></b> <input type="range" id="bordaLinha" min="0" max="13" step="1" value="5" style="width:220px;accent-color:var(--amarelo)"></label>
+      <label class="peq">escurecer: <b id="bordaLuzValor">0</b> <input type="range" id="bordaLuz" min="0" max="25" step="1" value="0" style="width:220px;accent-color:var(--amarelo)"></label>
+    </div>
+  </div>
+  <table class="linha-borda" id="bordaTabela"></table>
+  <ul class="peq">
+    <li class="frag">Para cada pixel: <b>vizinho da direita − vizinho da esquerda</b>. Perto de 0: nada muda ali. Número grande (positivo ou negativo): <b>borda</b>, o contorno do rosto, do olho, da boca</li>
+    <li class="frag">Escureça: os números da linha mudam, as diferenças não</li>
+    <li class="frag">Essa conta tem um nome: aplicar o <b>filtro</b> <code>[−1, 0, +1]</code> (−1 no vizinho da esquerda, 0 no próprio pixel, +1 no da direita)</li>
+  </ul>
+</section>
+
 <!-- FUNDAMENTO FILTRO -->
 <section class="slide" data-titulo="Fundamento: filtro">
-  <h2>Um filtro passando pela tabela</h2>
+  <h2>O filtro faz essa conta na imagem toda</h2>
   <div class="conv">
     <div><p class="peq suave">entrada: o rosto (14 × 14)</p><div class="grade" id="convEntrada"></div></div>
     <div>
@@ -271,70 +319,28 @@
     </div>
     <div><p class="peq suave">saída (12 × 12)</p><div class="grade" id="convSaida"></div></div>
   </div>
-  <p class="peq">Cada pixel da saída é a janela 3 × 3 da entrada multiplicada pelos 9 números do filtro e somada. <span class="ciano">Azul</span> é negativo, <span class="amarelo">laranja</span> é positivo: o filtro de borda acende onde o claro encontra o escuro. É assim que a primeira camada de uma rede olha a imagem.</p>
+  <p class="peq">O filtro de borda vertical é a conta do slide anterior em 3 linhas de uma vez: −1 na coluna da esquerda, +1 na da direita, somado. Ele passa por todas as posições e monta uma imagem nova. Passe o mouse na saída para ver a conta. <span class="ciano">Azul</span> é negativo, <span class="amarelo">laranja</span> é positivo.</p>
 </section>
 
-<!-- FUNDAMENTO POR QUE FILTROS -->
-<section class="slide" data-titulo="Fundamento: por que filtros">
-  <h2>Por que filtros?</h2>
+<!-- FUNDAMENTO O QUE O FILTRO RESOLVE -->
+<section class="slide" data-titulo="Fundamento: o que o filtro resolve">
+  <h2>O que o filtro resolve</h2>
   <div class="cols c46">
     <div style="display:flex;flex-direction:column;gap:8px">
       <div style="display:flex;gap:14px;align-items:flex-start">
         <div><p class="peq suave">entrada</p><div class="grade" id="pqEntrada"></div></div>
         <div><p class="peq suave">borda vertical</p><div class="grade" id="pqSaida"></div></div>
       </div>
-      <label class="peq">escurecer a foto inteira: <b id="pqValor">0</b> <input type="range" id="pqBrilho" min="0" max="25" step="1" value="0" style="width:45%;accent-color:var(--amarelo)"></label>
+      <label class="peq">escurecer a sala: <b id="pqValor">0</b> <input type="range" id="pqBrilho" min="0" max="25" step="1" value="0" style="width:45%;accent-color:var(--amarelo)"></label>
       <p class="medidas" id="pqConta" style="font-size:16px"></p>
     </div>
     <div class="cartao">
       <ol class="peq" style="margin:0;padding-left:22px">
-        <li class="frag"><b>Acha o padrão em qualquer lugar.</b> Os mesmos 9 números passam pela imagem toda: o filtro que acende num olho acende no outro, sem ninguém dizer onde ficam os olhos.</li>
-        <li class="frag" style="margin-top:8px"><b>Usa poucos números.</b> Ligar cada pixel de uma imagem 64 × 64 a um neurônio custaria 4.096 pesos por neurônio. Um filtro 3 × 3 usa 9 pesos em todas as posições: a camada 1 real inteira tem 32 × 9 = 288.</li>
-        <li class="frag" style="margin-top:8px"><b>Borda não muda com a luz.</b> Os pesos do filtro de borda somam 0 (−1 −1 −1 +1 +1 +1). Escureça a foto no controle: todos os pixels mudam, a saída fica igual.</li>
-        <li class="frag" style="margin-top:8px"><b>Camadas empilham.</b> A camada 2 aplica filtros nas saídas da camada 1: bordas viram cantos e curvas, que viram olho e boca, que viram expressão. É a estrutura do detector de emoção, que vamos ver no passo 4.</li>
+        <li class="frag"><b>A luz não atrapalha.</b> Os pesos do filtro somam 0 (três −1 e três +1). Escureça: todos os pixels da entrada mudam, a saída fica igual. Era isso que quebrava a regra <code>pixel &lt; 50</code>.</li>
+        <li class="frag" style="margin-top:8px"><b>Acha o padrão em qualquer lugar.</b> Os mesmos 9 números passam pela imagem toda: a saída acende nos dois olhos sem ninguém dizer onde eles ficam.</li>
+        <li class="frag" style="margin-top:8px"><b>Usa poucos números.</b> 9 números, reaproveitados em todas as 144 posições da saída. Um modelo que olhasse cada pixel de uma imagem 64 × 64 separadamente precisaria de 4.096 números para cada padrão.</li>
+        <li class="frag" style="margin-top:8px"><b>Filtro sobre filtro.</b> Aplicando filtros na saída de outros filtros, bordas viram cantos e curvas, que viram olho e boca. O detector de emoção do passo 4 é isso, com filtros que ninguém escreveu à mão.</li>
       </ol>
-    </div>
-  </div>
-</section>
-
-<!-- FUNDAMENTO APRENDER -->
-<section class="slide" data-titulo="Fundamento: aprender">
-  <h2>Aprender é ajustar um número a partir de exemplos</h2>
-  <div class="cols c64">
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <svg viewBox="0 0 640 150" id="aprSvg" style="width:100%"></svg>
-      <label class="peq">limiar: <b id="aprValor"></b> <input type="range" id="aprLimiar" min="0" max="0.5" step="0.005" value="0.45" style="width:60%;accent-color:var(--amarelo)"></label>
-      <div style="display:flex;gap:10px;align-items:center"><button class="acao principal" id="aprTreinar">treinar</button><button class="acao" id="aprReset">recomeçar</button><span class="peq" id="aprErros"></span></div>
-      <svg viewBox="0 0 640 80" id="aprCurva" style="width:100%"></svg>
-    </div>
-    <div class="cartao">
-      <ul class="peq">
-        <li><b>exemplo rotulado</b>: uma medida (a razão do olho) e a resposta certa (<span class="ciano">aberto</span> ou <span class="vermelho">fechado</span>)</li>
-        <li><b>parâmetro</b>: o número que o modelo pode mudar; aqui, o limiar</li>
-        <li><b>erro</b>: quantos exemplos ficam do lado errado do limiar</li>
-        <li><b>treino</b>: a cada passo, ver para que lado o erro diminui e mover o parâmetro um pouco para lá (é a "descida do gradiente")</li>
-      </ul>
-      <p class="peq" style="margin-top:8px">No passo 3 você escolhe 0,20 na mão. Aqui a máquina acha o limiar a partir dos exemplos.</p>
-      <p class="peq suave" style="margin-top:6px">Pontos inventados para mostrar a ideia. O modelo de emoção faz o mesmo com 205 mil parâmetros ao mesmo tempo e 28 mil fotos.</p>
-    </div>
-  </div>
-</section>
-
-<!-- FUNDAMENTO NEURONIO -->
-<section class="slide" data-titulo="Fundamento: neurônio">
-  <h2>Um neurônio: multiplicar, somar, cortar o negativo</h2>
-  <div class="cols c64">
-    <div class="cartao">
-      <table class="neuronio" id="neuronio"></table>
-      <p class="medidas" id="neuronioConta" style="margin-top:10px;font-size:18px"></p>
-    </div>
-    <div class="cartao">
-      <ul class="peq">
-        <li class="frag">Entradas: 3 pixels (de 0 a 1). Pesos: o quanto cada um importa; podem ser negativos</li>
-        <li class="frag">Saída: soma dos produtos mais o viés; se der negativo, vira 0 (a função ReLU)</li>
-        <li class="frag">O filtro do slide anterior é um neurônio com 9 entradas e 9 pesos</li>
-        <li class="frag">Uma rede empilha camadas de neurônios: a saída de uma vira entrada da próxima. Os 205 mil números do <code>emotion.bin</code> são os pesos e vieses de todos eles</li>
-      </ul>
     </div>
   </div>
 </section>
@@ -455,7 +461,7 @@ human.video(human.webcam.element);       // detecta sem parar, em paralelo</pre>
     <div class="cartao"><h3>4. Emoção</h3><p class="peq">Recebe o rosto reduzido a 64 × 64 em cinza e dá uma nota para cada uma das 7 emoções.</p><p class="peq suave" style="margin-top:6px"><code>emotion</code> · 205 mil números</p></div>
   </div>
   <ul class="peq">
-    <li class="frag">Cada modelo é um par de arquivos em <code>human/models/</code>: o <code>.json</code> descreve as camadas, o <code>.bin</code> guarda os números aprendidos</li>
+    <li class="frag">Cada modelo é um par de arquivos em <code>human/models/</code>: o <code>.json</code> descreve as camadas, o <code>.bin</code> guarda os números aprendidos no treino (como uma máquina aprende, vemos depois do passo 3)</li>
     <li class="frag">Rodam <b>no seu navegador</b> com a biblioteca TensorFlow.js, usando a placa de vídeo (no Chrome do Mac em que medimos, pelo WebGPU). Malha e íris levam cerca de <b>19 ms</b> por quadro; com a emoção, <b>26 ms</b>. A imagem da câmera não sai do computador</li>
     <li class="frag">A saída de um vira a entrada do próximo: o Human só junta as peças. Nós vamos usar a saída do 2 (os pontos) e do 4 (a emoção)</li>
   </ul>
@@ -748,6 +754,48 @@ if (openRight &lt; 0.2) gestures.push({ face: i, gesture: &#x27;blink right eye&
   </div>
   <p class="frag">O padrão é comum: um modelo aprendido transforma a imagem em algo fácil de usar (pontos), e em cima disso a gente escreve regras simples.</p>
   <p class="frag suave peq">Cada quadro tem 2.764.800 números; a malha resume isso em 478 pontos, cerca de 5.800 vezes menos. Sobre 478 pontos, a regra cabe num <code>if</code>.</p>
+</section>
+
+<!-- POR DENTRO APRENDER -->
+<section class="slide" data-titulo="Por dentro: aprender">
+  <h2><span class="passo">Por dentro</span> · Aprender é ajustar um número</h2>
+  <div class="cols c64">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <svg viewBox="0 0 640 150" id="aprSvg" style="width:100%"></svg>
+      <label class="peq">limiar: <b id="aprValor"></b> <input type="range" id="aprLimiar" min="0" max="0.5" step="0.005" value="0.45" style="width:60%;accent-color:var(--amarelo)"></label>
+      <div style="display:flex;gap:10px;align-items:center"><button class="acao principal" id="aprTreinar">treinar</button><button class="acao" id="aprReset">recomeçar</button><span class="peq" id="aprErros"></span></div>
+      <svg viewBox="0 0 640 80" id="aprCurva" style="width:100%"></svg>
+    </div>
+    <div class="cartao">
+      <p class="peq">No passo 3 você escolheu o limiar <b>0,20</b> na mão. E se a máquina achasse esse número sozinha, a partir de exemplos?</p>
+      <ul class="peq" style="margin-top:8px">
+        <li><b>exemplo rotulado</b>: uma razão do olho medida e a resposta certa (<span class="ciano">aberto</span> ou <span class="vermelho">fechado</span>)</li>
+        <li><b>parâmetro</b>: o número que pode mudar; aqui, o limiar</li>
+        <li><b>erro</b>: quantos exemplos ficam do lado errado</li>
+        <li><b>treino</b>: a cada passo, ver para que lado o erro diminui e mover o parâmetro um pouco para lá (a "descida do gradiente")</li>
+      </ul>
+      <p class="peq suave" style="margin-top:6px">Pontos inventados para mostrar a ideia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- POR DENTRO NEURONIO -->
+<section class="slide" data-titulo="Por dentro: neurônio">
+  <h2><span class="passo">Por dentro</span> · Um neurônio: multiplicar, somar, cortar o negativo</h2>
+  <div class="cols c64">
+    <div class="cartao">
+      <table class="neuronio" id="neuronio"></table>
+      <p class="medidas" id="neuronioConta" style="margin-top:10px;font-size:18px"></p>
+    </div>
+    <div class="cartao">
+      <ul class="peq">
+        <li class="frag">Entradas: 3 pixels (de 0 a 1). <b>Pesos</b>: quanto cada um importa, podem ser negativos</li>
+        <li class="frag">Saída: soma dos produtos mais o <b>viés</b>; se der negativo, vira 0 (a função ReLU)</li>
+        <li class="frag">O filtro 3 × 3 do começo do dia é um neurônio com 9 entradas: os pesos são os 9 números do filtro</li>
+        <li class="frag">Uma <b>rede neural</b> são camadas de neurônios, a saída de uma entrando na próxima. Treinar é a descida do gradiente do slide anterior, mexendo em todos os pesos ao mesmo tempo: no detector de emoção do passo 4, 205 mil</li>
+      </ul>
+    </div>
+  </div>
 </section>
 
 <!-- 18. PASSO 4 -->
@@ -1995,49 +2043,22 @@ function criarMatriz(placa) {
   reiniciar();
 })();
 
-// ---------- fundamento: grade de pixels ----------
-(() => {
-  const N = 14, grade = document.getElementById('pixels');
-  if (!grade) return;
-  const v = [];
+// ---------- fundamentos: imagem, borda, filtro, aprender, neuronio, modelo de emocao ----------
+// a grade 14x14 do rosto, usada em todos os slides de fundamentos
+const ROSTO = (() => {
+  const N = 14, v = [];
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
     const dx = x - 6.5, dy = y - 6.5, r = Math.hypot(dx, dy * 0.85);
-    let c = r < 6.2 ? 205 - Math.round(r * 6) : 245;               // rosto claro, fundo mais claro
+    let c = r < 6.2 ? 205 - Math.round(r * 6) : 245;               // pele clara, fundo mais claro
     if (r >= 5.6 && r < 6.4) c = 120;                                // contorno
     if ((x === 4 || x === 9) && (y === 5 || y === 6)) c = 30;       // olhos
     if (y === 10 && x >= 4 && x <= 9) c = 70;                        // boca
     if (y === 9 && (x === 3 || x === 10)) c = 90;                    // cantos da boca
     v.push(c);
   }
-  let mostrar = false;
-  const info = document.getElementById('pixelsInfo');
-  v.forEach((c, i) => {
-    const d = document.createElement('div');
-    d.style.background = `rgb(${c},${c},${c})`;
-    d.style.color = c < 128 ? '#fff' : '#000';
-    d.onmouseenter = () => { info.textContent = `linha ${Math.floor(i / N)}, coluna ${i % N}: ${c}`; };
-    grade.appendChild(d);
-  });
-  document.getElementById('pixelsNumeros').onclick = () => {
-    mostrar = !mostrar;
-    [...grade.children].forEach((d, i) => { d.textContent = mostrar ? v[i] : ''; });
-  };
-})();
-
-// ---------- ML concreto ----------
-const ROSTO = (() => { // a mesma grade 14x14 do slide "Uma imagem e uma tabela de numeros"
-  const N = 14, v = [];
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    const dx = x - 6.5, dy = y - 6.5, r = Math.hypot(dx, dy * 0.85);
-    let c = r < 6.2 ? 205 - Math.round(r * 6) : 245;
-    if (r >= 5.6 && r < 6.4) c = 120;
-    if ((x === 4 || x === 9) && (y === 5 || y === 6)) c = 30;
-    if (y === 10 && x >= 4 && x <= 9) c = 70;
-    if (y === 9 && (x === 3 || x === 10)) c = 90;
-    v.push(c);
-  }
   return v;
 })();
+// os 32 filtros 3x3 da camada 1 do detector de emocao (conv2d_1 em models/emotion.bin)
 const FILTROS_REAIS = [[[0.0607, -0.4137, -0.4113], [1.2064, 0.6278, 0.0047], [0.2571, 0.2442, -0.2273]], [[0.1637, -0.0665, -0.0493], [0.1302, -0.3385, -0.3075], [-0.0609, -0.3587, -0.4211]], [[-0.6391, 1.781, -1.0779], [-0.5697, 4.8755, -5.4084], [-2.3163, 8.6412, -5.1559]], [[-2.6318, 0.9976, 1.5], [-5.4913, 1.287, 3.9553], [-3.8054, 1.8173, 2.3594]], [[0.2095, 0.2195, 0.3122], [0.0006, -1.4983, -1.4918], [0.6607, 0.1625, -0.18]], [[-0.5458, -1.6313, 1.8664], [3.4967, -6.8663, 2.8564], [6.8693, -7.7308, 1.1789]], [[1.7899, 3.0403, 2.0218], [-1.4118, -0.9274, -1.4437], [-0.0208, -1.9253, -1.2675]], [[-1.1393, -0.462, -0.8661], [-0.5856, 1.7186, 1.1562], [-0.475, 0.5245, 0.2504]], [[-0.9221, -0.2253, 0.0222], [-0.9276, -0.612, -0.3116], [0.9002, 1.5838, 1.678]], [[-0.2028, 1.3583, -0.1825], [0.2944, -0.7796, -0.4816], [-0.5485, -0.4338, -0.102]], [[0.0086, -1.7987, -1.7905], [0.3672, 0.3875, -1.5204], [2.1153, 2.325, 0.3056]], [[-1.3857, -1.0348, 0.2376], [-0.5018, -0.0491, 0.3045], [0.3013, 0.4516, 0.5435]], [[-1.2628, -2.4355, -2.8799], [4.2519, 8.3753, 5.6275], [-2.8925, -6.1569, -2.9105]], [[-0.2954, 0.0248, 0.9466], [-0.5915, -0.7802, 0.6929], [-0.1294, -0.6038, 0.2615]], [[0.9064, 1.5412, 0.5465], [1.7263, 0.7059, -1.0199], [0.2304, -1.4457, -3.0623]], [[-1.2138, -4.2667, -2.9233], [1.5949, 4.6607, 3.8338], [-0.6687, 0.0022, -1.0449]], [[0.4523, 1.894, -0.6415], [-1.3902, 1.7955, 0.7817], [-2.6477, -1.1789, 0.7297]], [[5.8461, -7.2435, 1.5151], [1.72, -8.1065, 4.7426], [-1.1283, -0.953, 3.9266]], [[2.5426, -0.8676, -0.5827], [4.381, -2.849, -1.9549], [1.1923, -1.7789, -0.2172]], [[-2.5426, -2.8236, -1.9991], [0.2347, -0.6527, 0.5268], [2.2469, 2.7126, 2.0733]], [[-0.8795, 2.2961, 6.8136], [-3.8016, -8.537, -1.3865], [6.7215, 0.6757, -1.542]], [[-0.2882, 1.464, 0.406], [-0.6462, 0.6923, 0.1087], [-0.4525, -0.0265, 0.0522]], [[0.4142, 0.1468, 0.3873], [-0.2419, -0.6459, -0.0545], [-0.4187, -0.9712, -0.096]], [[-5.1207, -0.0418, 2.7596], [-0.965, 5.2233, -0.2436], [0.7332, 1.4144, -3.4288]], [[1.9931, 2.1021, -4.2968], [1.6941, 3.1639, -4.2028], [0.8524, 0.5781, -2.0415]], [[0.2772, 0.4406, -0.0693], [0.9471, 0.8911, -0.2426], [-0.277, -0.5733, -0.7329]], [[-0.0829, -0.6355, -0.7704], [-0.6927, -0.1878, -0.8152], [0.519, 0.6094, 0.8805]], [[-0.1007, 1.8334, 1.2853], [-1.6864, 1.0439, 2.7707], [-2.5993, -2.1103, -0.2629]], [[0.7838, 0.6861, -0.2794], [0.4887, 0.7681, -0.2907], [-0.5791, -1.7903, -1.1877]], [[5.1687, 4.1456, -0.2452], [-4.038, -9.3623, -5.0463], [-0.5852, 4.0723, 5.4535]], [[-2.3076, -0.2966, 2.1869], [3.0681, 2.4943, -4.7199], [-1.1166, -1.2504, 1.3366]], [[1.5946, 2.143, 1.5277], [1.0583, -0.3401, -0.2448], [-2.3115, -2.3115, -1.0133]]];
 function convoluir(v, N, k) { // convolucao 'valida': saida (N-2) x (N-2)
   const out = [];
@@ -2058,6 +2079,53 @@ function desenharGrade(el, valores, N, tam, cor) {
 }
 const cinza = (c) => `rgb(${c},${c},${c})`;
 const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
+
+(() => { // slide imagem: hover mostra o valor, botao mostra os numeros
+  const grade = document.getElementById('pixels'); if (!grade) return;
+  const info = document.getElementById('pixelsInfo'); let mostrar = false;
+  ROSTO.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.style.background = cinza(c); d.style.color = c < 128 ? '#fff' : '#000';
+    d.onmouseenter = () => { info.textContent = `linha ${Math.floor(i / 14)}, coluna ${i % 14}: ${c}`; };
+    grade.appendChild(d);
+  });
+  document.getElementById('pixelsNumeros').onclick = () => {
+    mostrar = !mostrar;
+    [...grade.children].forEach((d, i) => { d.textContent = mostrar ? ROSTO[i] : ''; });
+  };
+})();
+
+(() => { // slide problema: a regra 'pixel < 50' quebra quando escurece
+  const grade = document.getElementById('probGrade'); if (!grade) return;
+  const sl = document.getElementById('probLuz'), val = document.getElementById('probValor'), info = document.getElementById('probInfo');
+  function atualizar() {
+    const d = +sl.value, v = ROSTO.map((c) => Math.max(0, c - d));
+    desenharGrade(grade, v, 14, 20, cinza);
+    let n = 0;
+    [...grade.children].forEach((c, i) => { const olho = v[i] < 50; c.classList.toggle('marcado', olho); if (olho) n++; });
+    val.textContent = d ? '−' + d : '0';
+    info.innerHTML = `pixels que a regra chama de olho: <b class="vermelho">${n}</b> de 196`;
+  }
+  sl.oninput = atualizar; atualizar();
+})();
+
+(() => { // slide borda: uma linha, os numeros e as diferencas entre vizinhos
+  const grade = document.getElementById('bordaGrade'); if (!grade) return;
+  const slL = document.getElementById('bordaLinha'), slD = document.getElementById('bordaLuz'), tab = document.getElementById('bordaTabela');
+  function atualizar() {
+    const y = +slL.value, d = +slD.value, v = ROSTO.map((c) => c - d);
+    desenharGrade(grade, v, 14, 11, cinza);
+    [...grade.children].forEach((c, i) => c.classList.toggle('linha-sel', Math.floor(i / 14) === y));
+    const linha = v.slice(y * 14, y * 14 + 14);
+    const dif = linha.map((_, j) => (j === 0 || j === 13 ? null : linha[j + 1] - linha[j - 1]));
+    const mx = Math.max(...dif.filter((x) => x !== null).map(Math.abs), 1);
+    tab.innerHTML = '<tr><th>pixels da linha</th>' + linha.map((c) => `<td style="background:${cinza(c)};color:${c < 128 ? '#fff' : '#000'}">${c}</td>`).join('') + '</tr>' +
+      '<tr><th>direita − esquerda</th>' + dif.map((x) => (x === null ? '<td></td>' : `<td class="${Math.abs(x) >= 60 ? 'borda' : ''}" style="background:${corDiv(x, mx)}">${x}</td>`)).join('') + '</tr>';
+    document.getElementById('bordaLinhaValor').textContent = y + (y === 5 ? ' (a dos olhos)' : '');
+    document.getElementById('bordaLuzValor').textContent = d ? '−' + d : '0';
+  }
+  slL.oninput = atualizar; slD.oninput = atualizar; atualizar();
+})();
 
 (() => { // slide do filtro
   const ent = document.getElementById('convEntrada'); if (!ent) return;
@@ -2084,6 +2152,21 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
   }
   Object.keys(K).forEach((nome) => { const b = document.createElement('button'); b.textContent = nome; b.onclick = () => usar(nome); abas.appendChild(b); });
   usar('borda vertical');
+})();
+
+(() => { // slide o que o filtro resolve: a borda nao muda ao escurecer a foto inteira
+  const ent = document.getElementById('pqEntrada'); if (!ent) return;
+  const sai = document.getElementById('pqSaida'), sl = document.getElementById('pqBrilho'), val = document.getElementById('pqValor'), conta = document.getElementById('pqConta');
+  const K = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]];
+  function atualizar() {
+    const d = +sl.value, v = ROSTO.map((c) => c - d);
+    desenharGrade(ent, v, 14, 15, cinza);
+    const out = convoluir(v, 14, K), mx = Math.max(...out.map(Math.abs));
+    desenharGrade(sai, out, 12, 15, (x) => corDiv(x, mx));
+    val.textContent = d ? '−' + d : '0';
+    conta.innerHTML = `pixel do olho na entrada: <b>${v[5 * 14 + 4]}</b><br>mesmo ponto na saída: <b class="amarelo">${fmt(out[5 * 12 + 3])}</b>`;
+  }
+  sl.oninput = atualizar; atualizar();
 })();
 
 (() => { // slide aprender: descida do gradiente num limiar
@@ -2171,21 +2254,6 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
   }
   sl.querySelectorAll('input').forEach((inp) => (inp.oninput = () => { notas[+inp.dataset.i][1] = +inp.value; atualizar(); }));
   atualizar();
-})();
-
-(() => { // slide por que filtros: borda vertical nao muda ao escurecer a foto inteira
-  const ent = document.getElementById('pqEntrada'); if (!ent) return;
-  const sai = document.getElementById('pqSaida'), sl = document.getElementById('pqBrilho'), val = document.getElementById('pqValor'), conta = document.getElementById('pqConta');
-  const K = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]];
-  function atualizar() {
-    const d = +sl.value, v = ROSTO.map((c) => c - d);
-    desenharGrade(ent, v, 14, 15, cinza);
-    const out = convoluir(v, 14, K), mx = Math.max(...out.map(Math.abs));
-    desenharGrade(sai, out, 12, 15, (x) => corDiv(x, mx));
-    val.textContent = d ? '−' + d : '0';
-    conta.innerHTML = `pixel do olho na entrada: <b>${v[5 * 14 + 4]}</b><br>mesmo ponto na saída: <b class="amarelo">${fmt(out[5 * 12 + 3])}</b>`;
-  }
-  sl.oninput = atualizar; atualizar();
 })();
 
 // ---------- início ----------
