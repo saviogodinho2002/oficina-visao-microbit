@@ -179,7 +179,7 @@
   .kernel { display: grid; grid-template-columns: repeat(3, 54px); gap: 3px; margin: 10px 0; }
   .kernel div { height: 40px; display: flex; align-items: center; justify-content: center; font: 14px ui-monospace, Menlo, Consolas, monospace; border-radius: 4px; border: 1px solid var(--borda); }
   .conta { font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px; min-height: 120px; white-space: pre-wrap; }
-  .neuronio td, .neuronio th { padding: 5px 10px; font-size: 18px; }
+  .neuronio td, .neuronio th { padding: var(--pad, 5px) 10px; font-size: 18px; }
   .neuronio input[type=range] { width: 140px; accent-color: var(--amarelo); }
   .camadas { display: flex; flex-direction: column; gap: 6px; }
   .camadas div { padding: 7px 12px; border-radius: 8px; background: var(--painel); border: 1px solid var(--borda); font-size: 16px; }
@@ -370,21 +370,24 @@
   </div>
 </section>
 
-<!-- FUNDAMENTO NEURONIO -->
-<section class="slide" data-titulo="Fundamento: neurônio">
-  <h2>Um neurônio: multiplicar, somar, cortar o negativo</h2>
-  <div class="cols c64">
+<!-- FUNDAMENTO NEURONIO E REDE -->
+<section class="slide" data-titulo="Fundamento: neurônio e rede">
+  <h2>Do neurônio à rede neural</h2>
+  <div class="cols" style="grid-template-columns:5fr 6fr;gap:20px">
     <div class="cartao">
-      <table class="neuronio" id="neuronio"></table>
-      <p class="medidas" id="neuronioConta" style="margin-top:10px;font-size:18px"></p>
+      <h3>Um neurônio</h3>
+      <table class="neuronio" id="neuronio" style="--pad:3px"></table>
+      <p class="medidas" id="neuronioConta" style="margin-top:4px;font-size:16px;line-height:1.4"></p>
+      <p class="peq" style="margin-top:4px">Multiplica cada entrada pelo <b>peso</b>, soma o <b>viés</b> e corta o negativo (ReLU).</p>
+      <p class="peq frag" style="margin-top:8px">O filtro 3 × 3 dos slides 7 e 8 é um neurônio de 9 entradas: os pesos são os 9 números do filtro.</p>
+      <p class="peq frag" style="margin-top:8px">Uma rede é uma função feita de neurônios, como a da direita. Lá os pesos fomos nós que escolhemos; numa rede de verdade, o treino ajusta todos pela descida do gradiente.</p>
     </div>
     <div class="cartao">
-      <ul class="peq">
-        <li class="frag">Entradas: 3 pixels (de 0 a 1). <b>Pesos</b>: quanto cada um importa, podem ser negativos</li>
-        <li class="frag">Saída: soma dos produtos mais o <b>viés</b>; se der negativo, vira 0 (a função ReLU)</li>
-        <li class="frag">O filtro 3 × 3 dos slides 7 e 8 é um neurônio com 9 entradas: os pesos são os 9 números do filtro</li>
-        <li class="frag">Uma <b>rede neural</b> é uma função grande feita de camadas de neurônios, a saída de uma entrando na próxima. Treinar é a descida do gradiente do slide anterior, ajustando todos os pesos ao mesmo tempo</li>
-      </ul>
+      <h3>Uma rede: 3 neurônios em 2 camadas</h3>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0" id="redeBotoes"></div>
+      <svg viewBox="0 0 560 190" id="redeSvg" style="width:100%"></svg>
+      <p class="medidas" id="redeConta" style="font-size:15px;line-height:1.5"></p>
+      <p class="peq frag" style="margin-top:6px">Sozinho, nenhum neurônio acha o olho: o 1 vê borda à esquerda, o 2 à direita, o 3 só acende com as duas. "Tudo escuro" não engana a rede (a regra do slide 5 caía nele) e a sala escura não muda a resposta.</p>
     </div>
   </div>
 </section>
@@ -2241,6 +2244,31 @@ const fmt = (x) => (Math.round(x * 100) / 100).toString().replace('.', ',');
   document.getElementById('aprReset').onclick = () => { clearInterval(timer); timer = null; t = 230; hist = []; desenhar(); };
   slider.oninput = () => { t = +slider.value; hist = []; desenhar(); };
   desenhar();
+})();
+
+(() => { // slide neuronio e rede: rede 3 -> 2 -> 1 que acha "meio mais escuro que os dois vizinhos"
+  const svg = document.getElementById('redeSvg'); if (!svg) return;
+  const conta = document.getElementById('redeConta'), botoes = document.getElementById('redeBotoes');
+  const EX = { 'pele': [0.8, 0.8, 0.8], 'tudo escuro': [0.2, 0.2, 0.2], 'borda': [0.9, 0.3, 0.3], 'olho': [0.9, 0.3, 0.9], 'olho, sala escura': [0.6, 0, 0.6] };
+  const VIES_SAIDA = -0.8;
+  const IN = [[80, 35], [80, 100], [80, 165]], H = [[290, 60], [290, 140]], OUT = [500, 100], NOMES = ['esq', 'meio', 'dir'];
+  const aresta = (a, b, w) => { const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${corDiv(w, 1)}" stroke-width="4"/><rect x="${mx - 17}" y="${my - 11}" width="34" height="20" rx="4" fill="var(--painel)"/><text x="${mx}" y="${my + 4}" font-size="13" text-anchor="middle" fill="var(--texto)">${w > 0 ? '+' : ''}${fmt(w)}</text>`; };
+  const no = (c, txt, fundo, cor, rot) => `<circle cx="${c[0]}" cy="${c[1]}" r="24" fill="${fundo}" stroke="var(--borda)" stroke-width="2"/><text x="${c[0]}" y="${c[1] + 5}" font-size="14" text-anchor="middle" fill="${cor}" font-weight="700">${txt}</text>` + (rot ? `<text x="${c[0]}" y="${c[1] - 30}" font-size="13" text-anchor="middle" fill="var(--suave)">${rot}</text>` : '');
+  function usar(nome) {
+    [...botoes.children].forEach((b) => b.classList.toggle('principal', b.textContent === nome));
+    const [e, m, d] = EX[nome];
+    const h1 = Math.max(0, e - m), h2 = Math.max(0, d - m), saida = Math.max(0, h1 + h2 + VIES_SAIDA);
+    let t = aresta(IN[0], H[0], 1) + aresta(IN[1], H[0], -1) + aresta(IN[1], H[1], -1) + aresta(IN[2], H[1], 1) + aresta(H[0], OUT, 1) + aresta(H[1], OUT, 1);
+    [e, m, d].forEach((v, i) => { t += no(IN[i], fmt(v), cinza(Math.round(v * 255)), v < 0.5 ? '#fff' : '#111', '') + `<text x="${IN[i][0] - 30}" y="${IN[i][1] + 5}" font-size="13" text-anchor="end" fill="var(--suave)">${NOMES[i]}</text>`; });
+    t += no(H[0], fmt(h1), 'var(--painel)', 'var(--texto)', 'neurônio 1') + no(H[1], fmt(h2), 'var(--painel)', 'var(--texto)', 'neurônio 2');
+    t += no(OUT, fmt(saida), saida > 0 ? 'var(--amarelo)' : 'var(--painel)', saida > 0 ? '#fff' : 'var(--texto)', 'neurônio 3');
+    t += `<text x="${OUT[0]}" y="${OUT[1] + 44}" font-size="13" text-anchor="middle" fill="var(--suave)">viés ${fmt(VIES_SAIDA)}</text><text x="${OUT[0]}" y="${OUT[1] + 62}" font-size="14" text-anchor="middle" font-weight="700" fill="${saida > 0 ? 'var(--amarelo)' : 'var(--suave)'}">${saida > 0 ? 'olho' : 'não é olho'}</text>`;
+    svg.innerHTML = t;
+    conta.innerHTML = `n1 = máximo(0, esq − meio) = máximo(0, ${fmt(e)} − ${fmt(m)}) = <b>${fmt(h1)}</b><br>n2 = máximo(0, dir − meio) = máximo(0, ${fmt(d)} − ${fmt(m)}) = <b>${fmt(h2)}</b><br>n3 = máximo(0, n1 + n2 − 0,8) = <b class="amarelo">${fmt(saida)}</b>`;
+  }
+  Object.keys(EX).forEach((nome) => { const b = document.createElement('button'); b.className = 'acao'; b.textContent = nome; b.onclick = () => usar(nome); botoes.appendChild(b); });
+  usar('olho');
 })();
 
 (() => { // slide neuronio
