@@ -2,17 +2,23 @@
 
 Objetivo: entender o que é a placa e testar cada componente com um programa curto, antes de ligar ela ao projeto da webcam no passo 6. Os programas são em **MakeCode** (JavaScript que vira blocos).
 
-## O que é um microcontrolador
+## O que é o micro:bit
 
-Um computador inteiro num chip só: processador, memória e entradas/saídas. Diferente do PC, não tem sistema operacional nem roda vários programas: roda **um programa só, para sempre, em laço**, lendo sensores (entradas) e mexendo em LEDs, som e pinos (saídas). É o mesmo modelo do `drawLoop` da página no passo 1.
+Um computador de bolso numa placa só (*single board computer*): chips, sensores e saídas soldados juntos. É comum ouvir que o micro:bit "é um microcontrolador", mas a própria Micro:bit Educational Foundation descreve como uma placa que **contém** um microcontrolador e que, com botões e display, fica mais perto de um computador.
+
+- **Chip principal (microcontrolador)**: processador, memória e entradas/saídas num chip só. É ele que roda o seu programa. Diferente do PC, não tem sistema operacional nem roda vários programas: roda **um programa só, para sempre, em laço**, lendo sensores (entradas) e mexendo em LEDs, som e pinos (saídas). É o mesmo modelo do `drawLoop` da página no passo 1.
+- **Chip da USB**: um segundo chip, perto do conector, que não liga em nenhum sensor. Roda o DAPLink e cuida de três coisas: a unidade MICROBIT (arrastar o `.hex`), a serial entre PC e chip principal e a gravação pelo navegador. É ele que aparece como **BBC micro:bit CMSIS-DAP** no MakeCode. No passo 6, a palavra da emoção faz o caminho PC → USB → chip da USB → serial → chip principal → LEDs.
 
 | | V1 | V2 |
 |---|---|---|
-| Processador | nRF51822, 16 MHz | nRF52833, 64 MHz |
+| Chip principal | nRF51822, Cortex-M0, 16 MHz | nRF52833, Cortex-M4, 64 MHz |
 | Memória para o programa (flash) | 256 KB | 512 KB |
 | Memória de trabalho (RAM) | 16 KB | 128 KB |
+| Chip da USB | KL26 | KL27 (V2.0) ou nRF52820/nRF52833 (V2.2x) |
 
-Para comparar: um notebook comum tem milhares de vezes mais memória. A placa compensa fazendo uma coisa só. Fontes: [Nordic](https://blog.nordicsemi.com/getconnected/microbit-v2-offers-much-more-to-tomorrows-innovators), [Kitronik](https://kitronik.co.uk/blogs/resources/explore-micro-bit-v1-microbit-v2-differences).
+Para comparar: um notebook com 8 GB tem 65.536 vezes a memória de trabalho do V2. A placa compensa fazendo uma coisa só.
+
+Fontes: [What is a micro:bit?](https://support.microbit.org/support/solutions/articles/19000013983-what-is-a-micro-bit-) (Micro:bit Educational Foundation), [Hardware](https://tech.microbit.org/hardware/) e páginas de revisão [1.5](https://tech.microbit.org/hardware/1-5-revision/), [2.0](https://tech.microbit.org/hardware/2-0-revision/), [2.2x](https://tech.microbit.org/hardware/2-2-revision/), [DAPLink e a interface USB](https://tech.microbit.org/software/daplink-interface).
 
 ## A placa por fora
 

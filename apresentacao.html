@@ -1052,23 +1052,27 @@ lerEmocao();</pre>
 </section>
 
 <!-- DIA 2 MICROCONTROLADOR -->
-<section class="slide" id="passo5" data-titulo="Passo 5: microcontrolador">
-  <h2><span class="passo">Passo 5</span> · O que é um microcontrolador</h2>
-  <div class="cols">
+<section class="slide" id="passo5" data-titulo="Passo 5: o que é o micro:bit">
+  <h2><span class="passo">Passo 5</span> · O que é o micro:bit</h2>
+  <div class="cols c64">
     <div class="cartao">
       <ul class="peq">
-        <li class="frag">Um computador inteiro num chip: processador, memória e entradas/saídas</li>
-        <li class="frag">Sem sistema operacional: roda <b>um programa só, para sempre, em laço</b>, como o <code>drawLoop</code> da página</li>
-        <li class="frag"><b>Entradas</b> (sensores): botões, acelerômetro, bússola, luz, temperatura, toque, microfone</li>
-        <li class="frag"><b>Saídas</b> (atuadores): LEDs, alto-falante, pinos, rádio</li>
+        <li class="frag">Um computador de bolso numa placa só (<i>single board computer</i>): chips, sensores e saídas soldados juntos</li>
+        <li class="frag">No centro, um <b>microcontrolador</b>: um chip com processador, memória e entradas/saídas. É ele que roda o seu programa, sozinho e em laço, sem sistema operacional como o do PC (como o <code>drawLoop</code> da página)</li>
+        <li class="frag">Em volta dele, na placa: <b>entradas</b> (botões, acelerômetro, bússola, luz, temperatura, toque, microfone) e <b>saídas</b> (LEDs, alto-falante, pinos, rádio)</li>
+        <li class="frag">Um <b>segundo chip</b>, perto da USB, só cuida da USB: gravar o programa e passar a serial para o PC. É ele que aparece como <b>BBC micro:bit CMSIS-DAP</b> no MakeCode</li>
       </ul>
+      <div class="pipeline frag" style="font-size:16px;gap:6px;margin-top:14px">
+        <span class="no" style="padding:8px 12px">PC</span><span class="seta">⇄</span><span class="no" style="padding:8px 12px">chip da USB</span><span class="seta">⇄ serial ⇄</span><span class="no" style="padding:8px 12px">chip principal</span><span class="seta">⇄</span><span class="no" style="padding:8px 12px">sensores e LEDs</span>
+      </div>
     </div>
     <div class="cartao frag">
       <table class="peq" style="width:100%">
-        <tr><th></th><th>micro:bit V1</th><th>micro:bit V2</th></tr>
-        <tr><td>processador</td><td>16 MHz</td><td>64 MHz</td></tr>
+        <tr><th></th><th>V1</th><th>V2</th></tr>
+        <tr><td>chip principal</td><td>nRF51822, 16 MHz</td><td>nRF52833, 64 MHz</td></tr>
         <tr><td>memória do programa</td><td>256 KB</td><td>512 KB</td></tr>
         <tr><td>memória de trabalho</td><td>16 KB</td><td>128 KB</td></tr>
+        <tr><td>chip da USB</td><td>KL26</td><td>KL27 ou nRF52820</td></tr>
       </table>
       <p class="peq" style="margin-top:12px">Um notebook com 8 GB tem 65.536 vezes a memória de trabalho do V2 (8 GB ÷ 128 KB). A placa compensa fazendo uma coisa só.</p>
     </div>
