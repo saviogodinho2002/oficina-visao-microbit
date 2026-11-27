@@ -179,6 +179,7 @@
   .kernel { display: grid; grid-template-columns: repeat(3, 54px); gap: 3px; margin: 10px 0; }
   .kernel div { height: 40px; display: flex; align-items: center; justify-content: center; font: 14px ui-monospace, Menlo, Consolas, monospace; border-radius: 4px; border: 1px solid var(--borda); }
   .conta { font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--code-bg); border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px; min-height: 120px; white-space: pre-wrap; }
+  .arquivo { align-self: flex-start; font-size: 17px; padding: 6px 14px; border-radius: 8px; background: var(--painel2); border: 1px solid var(--borda); margin-top: -6px; }
   .neuronio td, .neuronio th { padding: var(--pad, 5px) 10px; font-size: 18px; }
   .neuronio input[type=range] { width: 140px; accent-color: var(--amarelo); }
   .camadas { display: flex; flex-direction: column; gap: 6px; }
@@ -492,6 +493,7 @@ npx serve                      # http://localhost:3000
 <!-- 7. PASSO 1 CONFIG -->
 <section class="slide" data-titulo="Passo 1: configuração">
   <h2><span class="passo">Passo 1</span> · A configuração é um painel de feature flags</h2>
+  <p class="arquivo"><b>Arquivo:</b> <code>human/demo/video/index.html</code>, linhas 22 a 31. Só para ler: no passo 1 nada é editado.</p>
   <div class="cols c37">
     <div class="cartao" id="chaves">
       <h3>Ligar / desligar</h3>
@@ -504,11 +506,11 @@ npx serve                      # http://localhost:3000
         <button class="acao" id="cfgOriginal">original</button>
         <button class="acao" id="cfgPasso2">como no passo 2</button>
       </div>
-      <p class="suave peq" style="margin-top:12px">Cada <code>true</code> carrega mais um modelo e roda ele em todo quadro. Medido num Mac com Chrome: tudo ligado, cerca de <b>22</b> quadros por segundo; só malha e íris (passo 2), cerca de <b>53</b>.</p>
+      <p class="suave peq" style="margin-top:12px">Cada <code>true</code> carrega mais um modelo, que roda em todo quadro. Num Mac com Chrome: tudo ligado, <b>22</b> quadros por segundo; só malha e íris (passo 2), <b>53</b>.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
       <pre class="code" id="cfgCodigo" data-lang="js" data-inicio="22"></pre>
-      <p class="peq suave" id="cfgMuda">Linhas 22 a 31 de <code>demo/video/index.html</code>.</p>
+      <p class="peq suave" id="cfgMuda"></p>
     </div>
   </div>
 </section>
@@ -516,6 +518,7 @@ npx serve                      # http://localhost:3000
 <!-- 8. PASSO 1 LOOP -->
 <section class="slide" data-titulo="Passo 1: laço de desenho">
   <h2><span class="passo">Passo 1</span> · O laço de desenho é um game loop</h2>
+  <p class="arquivo"><b>Arquivo:</b> <code>human/demo/video/index.html</code>, linhas 35 a 40 e 44 a 45. Só para ler.</p>
   <div class="cols c46">
     <div class="loop" id="loopEtapas">
       <div class="etapa"><b>1.</b> pega o resultado mais recente<br><code>human.next()</code></div>
@@ -548,7 +551,7 @@ human.video(human.webcam.element);       // detecta sem parar, em paralelo</pre>
     <div class="cartao"><h3>4. Emoção</h3><p class="peq">Recebe o rosto reduzido a 64 × 64 em cinza e dá uma nota para cada uma das 7 emoções.</p><p class="peq suave" style="margin-top:6px"><code>emotion</code> · 205 mil números</p></div>
   </div>
   <ul class="peq">
-    <li class="frag">Cada modelo é um par de arquivos em <code>human/models/</code>: o <code>.json</code> descreve as camadas, o <code>.bin</code> guarda os números aprendidos no treino (como uma máquina aprende, vemos depois do passo 3)</li>
+    <li class="frag">Cada modelo é um par de arquivos em <code>human/models/</code>: o <code>.json</code> descreve as camadas, o <code>.bin</code> guarda os números aprendidos no treino (como esses números são aprendidos: slides 9 a 11)</li>
     <li class="frag">Rodam <b>no seu navegador</b> com a biblioteca TensorFlow.js, usando a placa de vídeo (no Chrome do Mac em que medimos, pelo WebGPU). Malha e íris levam cerca de <b>19 ms</b> por quadro; com a emoção, <b>26 ms</b>. A imagem da câmera não sai do computador</li>
     <li class="frag">A saída de um vira a entrada do próximo: o Human só junta as peças. Nós vamos usar a saída do 2 (os pontos) e do 4 (a emoção)</li>
   </ul>
@@ -583,6 +586,7 @@ leftEyeLower0: [263, 249, 390, 373, 374, 380, 381, 382, 362], // linha 35</pre>
 <!-- PASSO 2 ABERTURA EM CODIGO -->
 <section class="slide" data-titulo="Passo 2: a abertura em código">
   <h2><span class="passo">Passo 2</span> · A abertura em código</h2>
+  <p class="arquivo"><b>Prévia, ainda não edite.</b> Vai em <code>human/demo/video/piscadas.html</code>, cópia do <code>index.html</code> feita na edição 1.</p>
   <div class="cols c46">
     <div class="cartao">
       <ul class="peq">
