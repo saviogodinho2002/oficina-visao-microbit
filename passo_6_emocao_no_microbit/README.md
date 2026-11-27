@@ -9,14 +9,14 @@ Este é o único passo em que usamos LLM: o código de comunicação serial dos 
 | Lado | Arquivo | Tecnologia |
 |---|---|---|
 | PC (navegador) | `human/demo/video/piscadas.html` (gabarito: [gabarito/piscadas.html](gabarito/piscadas.html)) | **Web Serial API** do Chrome/Edge |
-| micro:bit (python.microbit.org) | [microbit_receptor.py](microbit_receptor.py) | MicroPython, módulo `uart` |
-| micro:bit (MakeCode) | [microbit_receptor_makecode.js](microbit_receptor_makecode.js) | JavaScript do MakeCode, `serial` (vira blocos) |
+| micro:bit (MakeCode, caminho da oficina) | [microbit_receptor_makecode.js](microbit_receptor_makecode.js), em blocos: [blocos/receptor_makecode.svg](blocos/receptor_makecode.svg) | MakeCode, blocos de `serial` |
+| micro:bit (python.microbit.org, alternativa) | [microbit_receptor.py](microbit_receptor.py) | MicroPython, módulo `uart` |
 
 Documentação:
 
 - Web Serial: <https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API>
-- UART do micro:bit (MicroPython): <https://microbit-micropython.readthedocs.io/en/v2-docs/uart.html>
 - Serial no MakeCode: <https://makecode.microbit.org/reference/serial>
+- UART do micro:bit (MicroPython): <https://microbit-micropython.readthedocs.io/en/v2-docs/uart.html>
 
 ## O protocolo
 
@@ -30,18 +30,18 @@ surpresa\n
 
 É como um `stdin` lido linha a linha. A página só envia quando a emoção **muda**, para não mandar a mesma palavra 30 vezes por segundo.
 
-No micro:bit, os bytes chegam aos pedaços (uma linha pode chegar partida em dois `read()`, ou duas linhas juntas num só). Por isso o receptor junta tudo num `buffer` e só processa quando encontra um `\n`, igual a ler um stream de rede.
+No micro:bit, os bytes chegam aos pedaços. No MakeCode, o bloco **serial nos dados recebidos (nova linha)** já espera o `\n` e entrega a linha inteira. No MicroPython o receptor junta tudo num `buffer` e só processa quando encontra um `\n`, igual a ler um stream de rede.
 
-| palavra recebida | imagem na matriz |
-|---|---|
-| `feliz` | `Image.HAPPY` |
-| `triste` | `Image.SAD` |
-| `raiva` | `Image.ANGRY` |
-| `surpresa` | `Image.SURPRISED` |
-| `medo` | `Image.CONFUSED` |
-| `nojo` | `Image.SILLY` |
-| `neutro` | `Image.MEH` |
-| (esperando) | `Image.ASLEEP` |
+| palavra recebida | ícone no MakeCode | imagem no MicroPython |
+|---|---|---|
+| `feliz` | `IconNames.Happy` | `Image.HAPPY` |
+| `triste` | `IconNames.Sad` | `Image.SAD` |
+| `raiva` | `IconNames.Angry` | `Image.ANGRY` |
+| `surpresa` | `IconNames.Surprised` | `Image.SURPRISED` |
+| `medo` | `IconNames.Confused` | `Image.CONFUSED` |
+| `nojo` | `IconNames.Silly` | `Image.SILLY` |
+| `neutro` | `IconNames.Meh` | `Image.MEH` |
+| (esperando) | `IconNames.Asleep` | `Image.ASLEEP` |
 
 ## Prompt sugerido para a LLM
 
@@ -49,21 +49,46 @@ Qualquer LLM gratuita serve. Algo como:
 
 > Tenho uma página web em JavaScript (módulo ES) com uma variável `emocaoAtual` que contém uma palavra em português sem acento (feliz, triste, raiva, surpresa, medo, nojo, neutro) e uma função `lerEmocao()` chamada umas 30 vezes por segundo.
 > 1. Escreva o código JavaScript que, ao clicar num botão com id `conectar`, usa a Web Serial API para abrir a porta de um BBC micro:bit (filtro `usbVendorId: 0x0d28`) a 115200 baud, e uma função `enviarEmocao(emocao)` que manda a palavra seguida de `\n`, só quando ela mudar. Trate erro de desconexão.
+> 2. Escreva o programa em JavaScript do MakeCode (makecode.microbit.org) para o micro:bit, só com comandos que tenham bloco (sem `.trim()`), que lê essas linhas com `serial.onDataReceived` e `serial.readLine()` a 115200 e mostra com `basic.showIcon`: `IconNames.Happy` para feliz, `IconNames.Sad` para triste, `IconNames.Angry` para raiva, `IconNames.Surprised` para surpresa, `IconNames.Confused` para medo, `IconNames.Silly` para nojo, `IconNames.Meh` para neutro, e `IconNames.Asleep` enquanto não chega nada.
+
+A resposta do item 2 vai na aba JavaScript do MakeCode; voltando para Blocos, ela vira blocos. Se aparecer um bloco cinza, a LLM usou algo que não tem bloco (como `.trim()`): use a versão pronta.
+
+Para a alternativa em MicroPython, troque o item 2 por:
+
 > 2. Escreva um programa MicroPython para o micro:bit (compatível com V1 e V2) que lê essas linhas pela UART da USB a 115200 e mostra `Image.HAPPY` para feliz, `Image.SAD` para triste, `Image.ANGRY` para raiva, `Image.SURPRISED` para surpresa, `Image.CONFUSED` para medo, `Image.SILLY` para nojo, `Image.MEH` para neutro, e `Image.ASLEEP` enquanto não chega nada.
-
-Se a turma usa o **MakeCode** em vez do python.microbit.org, troque o item 2 por:
-
-> 2. Escreva o programa em JavaScript do MakeCode (makecode.microbit.org) para o micro:bit que, com `serial.onDataReceived` e `serial.readLine()` a 115200, mostra `IconNames.Happy` para feliz, `IconNames.Sad` para triste, `IconNames.Angry` para raiva, `IconNames.Surprised` para surpresa, `IconNames.Confused` para medo, `IconNames.Silly` para nojo, `IconNames.Meh` para neutro, e `IconNames.Asleep` enquanto não chega nada. Use `.trim()` na linha lida.
 
 ## Fazer
 
-### Parte A: micro:bit
+### Parte A: micro:bit, no MakeCode
 
-1. Abra <https://python.microbit.org>, cole o programa do micro:bit (o gerado pela LLM ou [microbit_receptor.py](microbit_receptor.py)) e grave na placa com **Send to micro:bit** (pela USB). Não arraste o `.hex` no macOS: ver o passo 5.
+São os mesmos blocos dos slides. Dá para montar arrastando do menu ou colar o JavaScript.
+
+1. Abra <https://makecode.microbit.org> e crie um **Novo projeto**.
+2. Monte os 3 trechos abaixo, ou vá na aba **JavaScript**, apague o que tiver, cole [microbit_receptor_makecode.js](microbit_receptor_makecode.js) e volte para **Blocos**.
+3. Grave pela USB: **"..." ao lado de Download → Conectar dispositivo → BBC micro:bit CMSIS-DAP**, depois **Download**. No macOS não baixe e arraste o `.hex` (ver o passo 5).
+4. A matriz mostra a carinha dormindo.
+5. **Feche a aba do MakeCode** (ou desconecte a placa no menu dele): enquanto ele estiver conectado, segura a porta USB e a nossa página não consegue abrir.
+
+Os blocos de serial ficam em **Avançado → Serial** e não precisam de extensão.
+
+1. **Ligar a serial**, dentro do **Ao iniciar**: redireciona a serial para a USB, define 115200 (a velocidade da página) e mostra a carinha dormindo enquanto espera.
+
+   ![trecho 1: Ao iniciar com serial redirecionar para USB, taxa 115200 e mostrar ícone dormindo](blocos/receptor_trecho1.svg)
+
+2. **Ler a palavra**: **serial nos dados recebidos (nova linha)** é um evento, como o **no botão** do passo 5. Roda a cada `\n` que chega. **definir texto para serial ler linha** guarda a palavra (sem o `\n`) na variável `texto`, e o **se** compara com cada palavra e mostra a carinha. O **⊕** embaixo do **se** cria cada **senão se**.
+3. **As 7 emoções**: o bloco inteiro, com os 7 **senão se**:
+
+   ![trecho 2 e 3: serial nos dados recebidos, com se e senão se para as 7 palavras](blocos/receptor_trecho2.svg)
+
+Não usamos `.trim()` depois do `serial.readLine()`: no MakeCode ele não tem bloco e apareceria como um bloco cinza de JavaScript. A nossa página manda só `\n`, sem `\r`, então não faz falta.
+
+#### Alternativa: MicroPython (python.microbit.org)
+
+1. Abra <https://python.microbit.org>, cole o programa do micro:bit (o gerado pela LLM com o item 2 em MicroPython, ou [microbit_receptor.py](microbit_receptor.py)) e grave na placa com **Send to micro:bit** (pela USB).
 2. A matriz deve mostrar a carinha dormindo (`Image.ASLEEP`).
-3. **Feche a aba do python.microbit.org** (ou desconecte pelo menu do editor). Enquanto o editor estiver conectado ele segura a porta USB, e a nossa página não consegue abrir.
+3. **Feche a aba do python.microbit.org**: ela também segura a porta USB.
 
-O receptor tem três trechos (é a mesma ordem dos slides):
+O receptor em MicroPython tem três trechos:
 
 1. **As carinhas**: o dicionário `IMAGENS` liga cada palavra que a página manda a uma imagem pronta do micro:bit. Palavra que não está nele é ignorada.
    ```python
@@ -83,18 +108,6 @@ O receptor tem três trechos (é a mesma ordem dos slides):
            ...
            fim = buffer.find(b"\n")
    ```
-
-#### Usando o MakeCode em vez do python.microbit.org
-
-O `uart` acima é da API do MicroPython e não existe no MakeCode. No MakeCode a mesma coisa se chama `serial`, e não precisa de extensão: os blocos ficam em **Avançado → Serial**.
-
-1. Abra <https://makecode.microbit.org> e crie um **Novo projeto**.
-2. Vá na aba **JavaScript**, apague o que tiver e cole [microbit_receptor_makecode.js](microbit_receptor_makecode.js).
-3. Volte para **Blocos**: o MakeCode converte sozinho (`serial on data received`, `serial read line`, `show icon`).
-4. Grave na placa pela USB: **"..." ao lado de Download → Conectar dispositivo → BBC micro:bit CMSIS-DAP**, depois **Download**. No macOS não baixe e arraste o `.hex` (ver o passo 5).
-5. Feche a aba do MakeCode (ou desconecte a placa no menu dele): ele também segura a porta USB.
-
-Mesmo protocolo da versão MicroPython: uma palavra por linha, 115200. São dois trechos: o primeiro liga a serial na USB a 115200 e mostra a carinha dormindo; o segundo, `serial.onDataReceived`, roda a cada `\n` que chega, lê a linha com `serial.readLine()` (já sem o `\n`), tira um `\r` com `.trim()` e compara com as 7 palavras. As carinhas (`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep`) são as mesmas imagens do MicroPython.
 
 ### Parte B: página
 
@@ -260,16 +273,16 @@ O que o código da página faz:
 
 ## Problemas comuns
 
-- **A unidade MICROBIT mostra `FAIL.TXT`** (`The transfer timed out` ou `Checksum calculation failure`): a gravação por cópia do `.hex` falhou, comum no macOS. Tire e recoloque o cabo e grave pela USB (**Send to micro:bit** ou **Conectar dispositivo** no MakeCode).
+- **A unidade MICROBIT mostra `FAIL.TXT`** (`The transfer timed out` ou `Checksum calculation failure`): a gravação por cópia do `.hex` falhou, comum no macOS. Tire e recoloque o cabo e grave pela USB (**Conectar dispositivo** no MakeCode, ou **Send to micro:bit** no python.microbit.org).
 - **A janela de escolha vem vazia**: cabo só de carga (troque por um de dados) ou micro:bit não reconhecido. Conferir se a unidade MICROBIT aparece no sistema.
-- **"Falhou: Failed to open serial port"**: outra coisa está usando a porta. Feche a aba do python.microbit.org ou do MakeCode (o "Conectar dispositivo" dele segura a placa), monitores serial (Arduino IDE, PuTTY, `screen`) e outras abas com a página.
+- **"Falhou: Failed to open serial port"**: outra coisa está usando a porta. Feche a aba do MakeCode ou do python.microbit.org (o "Conectar dispositivo" dele segura a placa), monitores serial (Arduino IDE, PuTTY, `screen`) e outras abas com a página.
 - **Linux, falha ao abrir mesmo com tudo fechado**: o usuário precisa de permissão na porta serial. `sudo usermod -aG dialout $USER`, depois sair e entrar de novo na sessão.
 - **Botão diz "Use Chrome ou Edge"**: Firefox e Safari não têm Web Serial.
-- **Matriz continua dormindo**: conferir se os dois lados estão em 115200, se a página manda `\n` no fim e se as palavras são as mesmas dos dois lados (sem acento).
+- **Matriz continua dormindo**: conferir se os dois lados estão em 115200, se a página manda `\n` no fim (e não `\r\n`: o receptor do MakeCode compara a linha sem tirar o `\r`) e se as palavras são as mesmas dos dois lados (sem acento).
 - **A carinha fica piscando entre duas emoções**: o modelo oscila quando a expressão está no meio-termo. Fica como desafio abaixo.
 
 ## Desafios
 
 - Só enviar a emoção depois que ela se repetir em, por exemplo, 10 leituras seguidas (filtra a oscilação).
-- Mandar também as piscadas (ex.: linha `piscou`) e fazer o micro:bit mostrar `Image.YES` por meio segundo.
-- Caminho de volta: apertar o botão A do micro:bit e a página zerar o contador de piscadas (o micro:bit usa `print("zerar")`, a página lê com `porta.readable`).
+- Mandar também as piscadas (ex.: linha `piscou`) e fazer o micro:bit mostrar `IconNames.Yes` por meio segundo.
+- Caminho de volta: apertar o botão A do micro:bit e a página zerar o contador de piscadas (o micro:bit usa **serial escrever linha** "zerar", a página lê com `porta.readable`).

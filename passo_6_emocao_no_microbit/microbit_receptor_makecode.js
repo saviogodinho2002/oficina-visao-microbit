@@ -1,5 +1,6 @@
 // Receptor do passo 6, versao MakeCode (makecode.microbit.org). Funciona no V1 e no V2.
 // Como usar: Novo projeto > aba JavaScript > apagar tudo > colar este arquivo > voltar para Blocos.
+// Sem .trim(): no MakeCode ele nao tem bloco e viraria um bloco cinza de JavaScript.
 // Nao precisa de extensao: a serial vem no nucleo (Avancado > Serial).
 // Mesmo protocolo da versao MicroPython (microbit_receptor.py): uma palavra por linha, 115200.
 
@@ -8,7 +9,7 @@ serial.setBaudRate(BaudRate.BaudRate115200)
 basic.showIcon(IconNames.Asleep) // esperando a primeira mensagem
 
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-    let texto = serial.readLine().trim() // le ate o \n; trim tira o \r se a pagina mandar \r\n
+    let texto = serial.readLine() // le ate o \n (a pagina manda so \n, sem \r)
     if (texto == "feliz") {
         basic.showIcon(IconNames.Happy)
     } else if (texto == "triste") {

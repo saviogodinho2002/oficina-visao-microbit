@@ -1,6 +1,6 @@
 # Passo 5 (dia 2): o micro:bit por dentro
 
-Objetivo: entender o que é a placa e testar cada componente com um programa curto, antes de ligar ela ao projeto da webcam no passo 6. Os programas são em **MakeCode** (JavaScript que vira blocos).
+Objetivo: entender o que é a placa e fazer dois testes curtos com o que o passo 6 usa: a matriz de LED, eventos (botão, sensor) e uma variável. Os programas são em **blocos do MakeCode**; cada um também tem o JavaScript equivalente, que vira os mesmos blocos ao colar na aba JavaScript.
 
 ## O que é o micro:bit
 
@@ -47,47 +47,57 @@ Fontes: [What is a micro:bit?](https://support.microbit.org/support/solutions/ar
 
 Não precisa de extensão para nenhum teste: tudo vem no núcleo do MakeCode (rádio, música e serial incluídos).
 
-## Tour dos componentes
+## Teste 1: matriz de LED e botões
 
-Um programa por componente, na pasta [makecode/](makecode/). Cole, grave e faça o teste da coluna "na placa".
+Arquivo: [makecode/teste1_matriz_botoes.js](makecode/teste1_matriz_botoes.js). Cole na aba JavaScript e volte para Blocos, ou monte os blocos.
 
-| Arquivo | Componente | Na placa | Placa |
-|---|---|---|---|
-| [01_matriz_led.js](makecode/01_matriz_led.js) | matriz de LED | texto, coração e os 25 LEDs acendendo um a um (`led.plot(x, y)`) | V1 e V2 |
-| [02_botoes.js](makecode/02_botoes.js) | botões | A soma 1, B zera, A+B mostra um coração | V1 e V2 |
-| [03_acelerometro_dado.js](makecode/03_acelerometro_dado.js) | acelerômetro | sacuda: aparece um número de 1 a 6 | V1 e V2 |
-| [04_acelerometro_nivel.js](makecode/04_acelerometro_nivel.js) | acelerômetro | nível de bolha: o ponto escorrega para o lado mais baixo | V1 e V2 |
-| [05_bussola.js](makecode/05_bussola.js) | bússola | mostra N, L, S ou O; na primeira vez pede calibração (incline até acender tudo) | V1 e V2 |
-| [06_temperatura.js](makecode/06_temperatura.js) | temperatura | botão A mostra a temperatura em graus | V1 e V2 |
-| [07_luz.js](makecode/07_luz.js) | luz | barra de luz; tampe a placa com a mão e veja baixar | V1 e V2 |
-| [08_pinos.js](makecode/08_pinos.js) | pinos de toque | segure o GND e toque em P0, P1 ou P2 | V1 e V2 |
-| [09_logo_toque.js](makecode/09_logo_toque.js) | logo de toque | encoste no logo: coração; solte: apaga | só V2 |
-| [10_microfone.js](makecode/10_microfone.js) | microfone | barra de som; bata palma: carinha surpresa | só V2 |
-| [11_som.js](makecode/11_som.js) | som | A toca uma escala, B um efeito de risada | V2 (no V1, só a escala, pelo pino 0 com fone ou buzzer) |
-| [12_radio.js](makecode/12_radio.js) | rádio | em dupla, mesmo grupo: A manda "oi", B manda "tchau", a outra placa mostra | V1 e V2 |
-| [13_serial_grafico.js](makecode/13_serial_grafico.js) | serial | "Mostrar console do dispositivo" no MakeCode: gráfico ao vivo da inclinação | V1 e V2 |
+![Ao iniciar mostra ícone dormindo; botão A mostra feliz; botão B mostra triste; A+B limpa a tela](blocos/teste1_matriz_botoes.svg)
 
-Pontos para comentar:
+- **O que é**: a matriz é uma tela de 25 pixels (5 × 5), como a imagem do dia 1; **mostrar ícone** acende um desenho pronto. **no botão A pressionado** é um evento: a placa roda os blocos de dentro quando o botão é apertado, como um `onclick` na página.
+- **Na placa**: começa dormindo. A: feliz. B: triste. A+B: apaga.
+- **Onde achar**: **Básico** (mostrar ícone, limpar tela), **Entrada** (no botão pressionado).
+- **No passo 6**: as carinhas são as mesmas da emoção. Lá o evento deixa de ser o botão e passa a ser "chegou uma palavra pela serial".
 
-- **01**: a matriz é uma grade de coordenadas, como os pixels de uma imagem no dia 1. `x` é a coluna e `y` a linha, de 0 a 4.
-- **02**: os `input.onButtonPressed` são eventos: a placa chama a função quando o botão é apertado, como um `onclick` na página.
-- **04**: `Math.map` converte a faixa da aceleração (-1023 a 1023) para a faixa da tela (0 a 4). É a mesma ideia de normalizar uma medida, como a razão do olho no passo 3.
-- **07**: a luz é medida pela própria matriz de LED, sem sensor separado.
-- **08**: o corpo humano conduz eletricidade e fecha o circuito entre o pino e o GND.
-- **12**: o número do grupo é como um canal: só placas no mesmo grupo se ouvem. Cada dupla escolhe um número diferente (0 a 255) para não misturar com as vizinhas.
-- **13**: é a serial no sentido micro:bit para PC. No passo 6 fazemos o contrário: o PC manda a emoção para a placa.
+## Teste 2: dado, com variável e evento de sensor
 
-## Desafio
+Arquivo: [makecode/teste2_dado.js](makecode/teste2_dado.js).
 
-Junte dois componentes num programa só. Exemplos: sacudir sorteia uma carinha e toca um som; o botão A manda pelo rádio a temperatura da sua placa para a da dupla.
+![em agitar define numero para escolher aleatório de 1 até 6 e mostra; botão A mostra numero](blocos/teste2_dado.svg)
+
+- **O que é**: **em agitar** é um evento de sensor: o acelerômetro percebe a sacudida e a placa roda os blocos de dentro. `numero` é uma variável: guarda o sorteio até o próximo.
+- **Na placa**: sacuda e aparece um número de 1 a 6. Aperte A: o mesmo número de novo, porque a variável guardou.
+- **Onde achar**: **Entrada** (em agitar, no botão), **Variáveis** (criar `numero`, definir), **Matemática** (escolher aleatório), **Básico** (mostrar número).
+- **No passo 6**: o mesmo padrão. **serial nos dados recebidos** é o evento, `texto` é a variável que guarda a palavra e um **se** escolhe a carinha.
+
+## Para ir além (fora da oficina)
+
+Um programa para cada componente da placa, cada um com a imagem dos blocos. Não entram nos slides; servem para quem quiser explorar depois.
+
+| Programa | Blocos | Componente | Na placa | Placa |
+|---|---|---|---|---|
+| [01_matriz_led.js](makecode/01_matriz_led.js) | [ver](blocos/01_matriz_led.svg) | matriz de LED | texto, coração e os 25 LEDs acendendo um a um (`led.plot(x, y)`) | V1 e V2 |
+| [02_botoes.js](makecode/02_botoes.js) | [ver](blocos/02_botoes.svg) | botões | A soma 1, B zera, A+B mostra um coração | V1 e V2 |
+| [03_acelerometro_dado.js](makecode/03_acelerometro_dado.js) | [ver](blocos/03_acelerometro_dado.svg) | acelerômetro | sacuda: aparece um número de 1 a 6 | V1 e V2 |
+| [04_acelerometro_nivel.js](makecode/04_acelerometro_nivel.js) | [ver](blocos/04_acelerometro_nivel.svg) | acelerômetro | nível de bolha: o ponto escorrega para o lado mais baixo | V1 e V2 |
+| [05_bussola.js](makecode/05_bussola.js) | [ver](blocos/05_bussola.svg) | bússola | mostra N, L, S ou O; na primeira vez pede calibração | V1 e V2 |
+| [06_temperatura.js](makecode/06_temperatura.js) | [ver](blocos/06_temperatura.svg) | temperatura | botão A mostra a temperatura em graus | V1 e V2 |
+| [07_luz.js](makecode/07_luz.js) | [ver](blocos/07_luz.svg) | luz | barra de luz; tampe a placa com a mão e veja baixar | V1 e V2 |
+| [08_pinos.js](makecode/08_pinos.js) | [ver](blocos/08_pinos.svg) | pinos de toque | segure o GND e toque em P0, P1 ou P2 | V1 e V2 |
+| [09_logo_toque.js](makecode/09_logo_toque.js) | [ver](blocos/09_logo_toque.svg) | logo de toque | encoste no logo: coração; solte: apaga | só V2 |
+| [10_microfone.js](makecode/10_microfone.js) | [ver](blocos/10_microfone.svg) | microfone | barra de som; bata palma: carinha surpresa | só V2 |
+| [11_som.js](makecode/11_som.js) | [ver](blocos/11_som.svg) | som | A toca uma escala, B um efeito de risada | V2 (no V1, só a escala, pelo pino 0) |
+| [12_radio.js](makecode/12_radio.js) | [ver](blocos/12_radio.svg) | rádio | em dupla, mesmo grupo: A manda "oi", B manda "tchau" | V1 e V2 |
+| [13_serial_grafico.js](makecode/13_serial_grafico.js) | [ver](blocos/13_serial_grafico.svg) | serial | "Mostrar console do dispositivo" no MakeCode: gráfico da inclinação | V1 e V2 |
+
+As imagens dos blocos foram geradas pelo próprio MakeCode, a partir do JavaScript de cada arquivo, com o renderizador oficial ([Blocks embed](https://makecode.microbit.org/blocks-embed)).
 
 ## Carinhas prontas usadas no passo 6
 
-`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep` (no MakeCode, bloco **mostrar ícone**). Teste trocando o `IconNames.Heart` do 01 por cada uma.
+`IconNames.Happy`, `Sad`, `Angry`, `Surprised`, `Confused`, `Silly`, `Meh`, `Asleep` (no MakeCode, bloco **mostrar ícone**). Teste trocando o ícone do botão A do teste 1 por cada uma (no bloco **mostrar ícone**, clique no desenho e escolha outro).
 
 ## Alternativa em MicroPython
 
-Para quem usar o <https://python.microbit.org> em vez do MakeCode, os programas desta pasta em Python cobrem parte do tour:
+Para quem usar o <https://python.microbit.org> em vez do MakeCode (aí não tem blocos), os programas desta pasta em Python cobrem parte dos componentes:
 
 | Arquivo | Mostra |
 |---|---|

@@ -45,7 +45,7 @@ Números de linha do arquivo como ficou no fim do passo 3.
 
 ## Passo 5: micro:bit
 
-Nenhuma linha alterada no `piscadas.html`. Só gravar no micro:bit os testes de componentes de `passo_5_microbit/makecode/` (MakeCode; os `.py` da pasta são a alternativa em MicroPython).
+Nenhuma linha alterada no `piscadas.html`. Só gravar no micro:bit os dois testes do MakeCode: `passo_5_microbit/makecode/teste1_matriz_botoes.js` e `teste2_dado.js` (os blocos estão em `passo_5_microbit/blocos/`).
 
 ## Passo 6: emoção no micro:bit
 
@@ -57,4 +57,4 @@ Números de linha do arquivo como ficou no fim do passo 4.
 | 2 | depois da 85 | inserir `enviarEmocao(emocaoAtual);` | Manda a emoção lida para o micro:bit. |
 | 3 | depois da 17 | inserir `<button id="conectar" ...>Conectar micro:bit</button>` | O navegador só deixa abrir a porta serial a partir de um clique do usuário. |
 
-No micro:bit: gravar `passo_6_emocao_no_microbit/microbit_receptor.py` pelo python.microbit.org (arquivo novo, não é edição). No MakeCode: colar `microbit_receptor_makecode.js` na aba JavaScript.
+No micro:bit (arquivo novo, não é edição): no MakeCode, montar os blocos de `passo_6_emocao_no_microbit/blocos/` ou colar `microbit_receptor_makecode.js` na aba JavaScript. Alternativa: `microbit_receptor.py` pelo python.microbit.org.
