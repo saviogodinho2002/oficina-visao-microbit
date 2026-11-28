@@ -45,7 +45,7 @@ Números de linha do arquivo como ficou no fim do passo 3.
 
 ## Passo 5: micro:bit
 
-Nenhuma linha alterada no `piscadas.html`. Só gravar no micro:bit os dois testes do MakeCode: `passo_5_microbit/makecode/teste1_matriz_botoes.js` e `teste2_dado.js` (os blocos estão em `passo_5_microbit/blocos/`).
+Nenhuma linha alterada no `piscadas.html`. Só gravar no micro:bit os três testes do MakeCode: `passo_5_microbit/makecode/teste1_matriz_botoes.js`, `teste2_dado.js` e `teste3_dado_faces.js` (os blocos estão em `passo_5_microbit/blocos/`).
 
 ## Passo 6: emoção no micro:bit
 

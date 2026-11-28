@@ -1,6 +1,6 @@
 # Passo 5 (dia 2): o micro:bit por dentro
 
-Objetivo: entender o que é a placa e fazer dois testes curtos com o que o passo 6 usa: a matriz de LED, eventos (botão, sensor) e uma variável. Os programas são em **blocos do MakeCode**; cada um também tem o JavaScript equivalente, que vira os mesmos blocos ao colar na aba JavaScript.
+Objetivo: entender o que é a placa e fazer três testes curtos com o que o passo 6 usa: a matriz de LED, eventos (botão, sensor), uma variável e o **se**. Os programas são em **blocos do MakeCode**; cada um também tem o JavaScript equivalente, que vira os mesmos blocos ao colar na aba JavaScript.
 
 ## O que é o micro:bit
 
@@ -67,7 +67,18 @@ Arquivo: [makecode/teste2_dado.js](makecode/teste2_dado.js).
 - **O que é**: **em agitar** é um evento de sensor: o acelerômetro percebe a sacudida e a placa roda os blocos de dentro. `numero` é uma variável: guarda o sorteio até o próximo.
 - **Na placa**: sacuda e aparece um número de 1 a 6. Aperte A: o mesmo número de novo, porque a variável guardou.
 - **Onde achar**: **Entrada** (em agitar, no botão), **Variáveis** (criar `numero`, definir), **Matemática** (escolher aleatório), **Básico** (mostrar número).
-- **No passo 6**: o mesmo padrão. **serial nos dados recebidos** é o evento, `texto` é a variável que guarda a palavra e um **se** escolhe a carinha.
+- **No passo 6**: o mesmo padrão. **serial nos dados recebidos** é o evento e `texto` é a variável que guarda a palavra.
+
+## Teste 3: dado com faces, usando se
+
+Arquivo: [makecode/teste3_dado_faces.js](makecode/teste3_dado_faces.js).
+
+![em agitar sorteia numero de 1 a 6; se numero = 1 mostra a face 1 com mostrar leds; senão se para 2 a 6](blocos/teste3_dado_faces.svg)
+
+- **O que é**: **se** compara `numero` e roda só o caminho que deu certo; cada **senão se** é mais um caminho. **mostrar LEDs** desenha qualquer figura: é só clicar nos quadradinhos.
+- **Na placa**: sacuda e aparece a face do dado sorteada.
+- **Onde achar**: **Lógica** (se, `=`; o **⊕** embaixo do se cria cada senão se), **Básico** (mostrar LEDs).
+- **No passo 6**: o receptor é este mesmo bloco, com `texto` no lugar de `numero`, as palavras no lugar de 1 a 6 e as carinhas no lugar das faces.
 
 ## Para ir além (fora da oficina)
 

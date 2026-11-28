@@ -6,7 +6,7 @@ A oficina tem **dois dias**, com a mesma apresentação dividida em duas partes.
 
 **Dia 1: visão computacional** (passos 1 a 4). Abre com o problema antes da solução, tudo interativo: uma imagem é uma tabela de números; a regra `pixel < 50` acha o olho mas quebra quando a sala escurece; uma borda é a diferença entre vizinhos, que não muda com a luz; o filtro faz essa conta na imagem toda; e o que o filtro resolve. Os fundamentos fecham com machine learning: aprender a função da regra `pixel < 50` por descida do gradiente (o treino ajusta o limiar dentro dela), o neurônio (o filtro é um neurônio de 9 entradas) e uma rede de 3 neurônios que acha o olho como "meio mais escuro que os dois vizinhos", sem cair no caso "tudo escuro", um filtro real aprendido pelo detector de emoção ao lado do nosso (os dois acham borda vertical) e o que no projeto é regra escrita e o que é modelo aprendido. Depois do passo 1 vem um slide "Por dentro" com os quatro modelos em sequência (com tempo por quadro medido). Depois do passo 4: o detector de emoção camada por camada com os 32 filtros reais extraídos do `emotion.bin`, o softmax, treino e teste, o FER2013 e limites e cuidados (com a mesma foto medida em várias condições).
 
-**Dia 2: micro:bit** (passos 5 e 6). O que é o micro:bit (uma placa com um microcontrolador e um chip só para a USB), a placa por fora, dois testes em blocos do MakeCode (matriz de LED e botões; um dado, com variável e evento de sensor) e, no fim, a emoção da webcam na matriz de LED, também em blocos.
+**Dia 2: micro:bit** (passos 5 e 6). O que é o micro:bit (uma placa com um microcontrolador e um chip só para a USB), a placa por fora, três testes em blocos do MakeCode (matriz de LED e botões; um dado, com variável e evento de sensor; um dado com faces, usando se) e, no fim, a emoção da webcam na matriz de LED, também em blocos.
 
 O que vamos construir, em 6 passos:
 
@@ -16,7 +16,7 @@ O que vamos construir, em 6 passos:
 | 2 | [passo_2_piscadas_distancia](passo_2_piscadas_distancia/) | Contar piscadas medindo a abertura do olho em pixels (e ver isso falhar) | 4 linhas trocadas, ~40 coladas |
 | 3 | [passo_3_piscadas_razao](passo_3_piscadas_razao/) | Consertar: usar a razão abertura / largura do olho | 4 trechos trocados |
 | 4 | [passo_4_emocoes](passo_4_emocoes/) | Ligar o detector de emoções que já vem no repositório | 1 palavra + 12 linhas |
-| 5 | [passo_5_microbit](passo_5_microbit/) | Dia 2: o que é o micro:bit e dois testes em blocos: LEDs e botões, um dado | 2 programas prontos |
+| 5 | [passo_5_microbit](passo_5_microbit/) | Dia 2: o que é o micro:bit e três testes em blocos: LEDs e botões, um dado, um dado com faces (se) | 3 programas prontos |
 | 6 | [passo_6_emocao_no_microbit](passo_6_emocao_no_microbit/) | Mandar a emoção do PC para a matriz de LED do micro:bit pela USB | trecho gerado por LLM |
 
 **Resumo das edições:** [LINHAS_ALTERADAS.md](LINHAS_ALTERADAS.md) lista, para todos os passos, só as linhas que mudam e por quê, numa página.
