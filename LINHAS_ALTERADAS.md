@@ -67,9 +67,9 @@ Números de linha do arquivo como ficou no fim do passo 6.
 |---|---|---|---|
 | 1 | depois da 118 | inserir `lerDoMicrobit();` | Começa a ler o que a placa manda assim que conecta. Sem `await`: fica lendo em paralelo. |
 | 2 | depois da 97 | inserir `if (leitor) { await leitor.cancel(); leitor.releaseLock(); leitor = null; }` | Sem soltar o leitor, a porta não fecha e conectar de novo dá porta já aberta. |
-| 3 | depois da 89 | colar `alvo`, `quadros`, `leitor` | O estado do jogo, que precisa durar de um quadro para o outro. |
+| 3 | depois da 89 | colar `alvo`, `quadros`, `leitor`, `resultado`, `quadrosResultado` | O estado do jogo, que precisa durar de um quadro para o outro. |
 | 4 | logo abaixo | colar `lerDoMicrobit()` | Lê as linhas da placa; `alvo:feliz` guarda o alvo e começa a contar 90 quadros. |
-| 5 | logo abaixo | colar `jogar()` | Desconta um quadro, escreve 3, 2, 1 e no zero manda `acertou` ou `errou`. |
+| 5 | logo abaixo | colar `jogar()` | Mostra `Faça: feliz` e o tempo 3, 2, 1; no zero mostra `Acertou!` ou `Errou` e manda `acertou` ou `errou` para a placa. |
 | 6 | depois da 87 | inserir `jogar();` | Roda o jogo a cada quadro, depois de ler a emoção. |
 
 No micro:bit (arquivo novo): `desafio_imite_a_emocao/microbit_imite_a_emocao.js`, em blocos no MakeCode.

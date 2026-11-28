@@ -92,6 +92,8 @@
       let alvo = '';
       let quadros = 0;
       let leitor = null;
+      let resultado = ''; // texto do fim da rodada
+      let quadrosResultado = 0; // por quantos quadros mostrar o resultado
 
       async function lerDoMicrobit() { // le o que a placa manda, linha por linha
         leitor = porta.readable.getReader();
@@ -112,13 +114,20 @@
       }
 
       function jogar() { // chamada a cada quadro, depois de ler a emocao
-        if (!alvo) return;
-        quadros--;
-        escrever(`Imite: ${alvo} ${Math.ceil(quadros / 30)}`, 4);
-        if (quadros === 0) {
-          const resposta = emocaoAtual === alvo ? 'acertou' : 'errou';
-          escritor.write(new TextEncoder().encode(resposta + '\n'));
-          alvo = '';
+        if (alvo) {
+          quadros--;
+          escrever(`Faça: ${alvo}`, 4);
+          escrever(`Tempo: ${Math.ceil(quadros / 30)}`, 5);
+          if (quadros === 0) {
+            const acertou = emocaoAtual === alvo;
+            escritor.write(new TextEncoder().encode((acertou ? 'acertou' : 'errou') + '\n'));
+            resultado = acertou ? 'Acertou!' : `Errou: era ${alvo}, deu ${emocaoAtual}`;
+            quadrosResultado = 60; // ~2 segundos
+            alvo = '';
+          }
+        } else if (quadrosResultado > 0) {
+          quadrosResultado--;
+          escrever(resultado, 4);
         }
       }
 
