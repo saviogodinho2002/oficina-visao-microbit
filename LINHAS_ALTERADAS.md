@@ -58,3 +58,16 @@ Números de linha do arquivo como ficou no fim do passo 4.
 | 3 | depois da 17 | inserir `<button id="conectar" ...>Conectar micro:bit</button>` | O navegador só deixa abrir a porta serial a partir de um clique do usuário. |
 
 No micro:bit (arquivo novo, não é edição): no MakeCode, montar os blocos de `passo_6_emocao_no_microbit/blocos/` ou colar `microbit_receptor_makecode.js` na aba JavaScript. Alternativa: `microbit_receptor.py` pelo python.microbit.org.
+
+## Desafio: imite a emoção
+
+Números de linha do arquivo como ficou no fim do passo 6.
+
+| Ordem | Linha | O que fazer | Por quê |
+|---|---|---|---|
+| 1 | depois da 118 | inserir `lerDoMicrobit();` | Começa a ler o que a placa manda assim que conecta. Sem `await`: fica lendo em paralelo. |
+| 2 | depois da 97 | inserir `if (leitor) { await leitor.cancel(); leitor.releaseLock(); leitor = null; }` | Sem soltar o leitor, a porta não fecha e conectar de novo dá porta já aberta. |
+| 3 | depois da 89 | colar o bloco: `alvo`, `quadros`, `leitor`, `lerDoMicrobit()`, `jogar()` | Lê as linhas `alvo:feliz`, conta 90 quadros (~3 s) e manda `acertou` ou `errou`. Trecho gerado com LLM na oficina. |
+| 4 | depois da 87 | inserir `jogar();` | Roda o jogo a cada quadro, depois de ler a emoção. |
+
+No micro:bit (arquivo novo): `desafio_imite_a_emocao/microbit_imite_a_emocao.js`, em blocos no MakeCode.

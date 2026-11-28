@@ -285,4 +285,4 @@ O que o código da página faz:
 
 - Só enviar a emoção depois que ela se repetir em, por exemplo, 10 leituras seguidas (filtra a oscilação).
 - Mandar também as piscadas (ex.: linha `piscou`) e fazer o micro:bit mostrar `IconNames.Yes` por meio segundo.
-- Caminho de volta: apertar o botão A do micro:bit e a página zerar o contador de piscadas (o micro:bit usa **serial escrever linha** "zerar", a página lê com `porta.readable`).
+- Caminho de volta: o desafio de fechamento, **imite a emoção**, está em [desafio_imite_a_emocao/](../desafio_imite_a_emocao/). Outra ideia curta: apertar o botão A do micro:bit e a página zerar o contador de piscadas (o micro:bit usa **serial grava linha** "zerar", a página lê com `porta.readable`).
