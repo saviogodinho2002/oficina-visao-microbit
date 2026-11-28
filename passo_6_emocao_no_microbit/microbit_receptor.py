@@ -1,6 +1,5 @@
 # Receptor do passo 6: le a emocao que o navegador manda pela serial USB
 # e mostra a carinha correspondente na matriz de LED. Funciona no V1 e no V2.
-# Trecho gerado com LLM na oficina; esta e a versao de referencia.
 from microbit import *
 
 IMAGENS = {

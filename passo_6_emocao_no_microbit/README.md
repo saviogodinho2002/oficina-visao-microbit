@@ -2,7 +2,7 @@
 
 Objetivo: tirar a informação da tela do PC e levar para o mundo físico. A página detecta a emoção (passo 4) e manda a palavra pelo cabo USB; o micro:bit recebe e desenha a carinha correspondente.
 
-Este é o único passo em que usamos LLM: o código de comunicação serial dos dois lados é algo que qualquer LLM gratuita gera em segundos. Os arquivos desta pasta são a versão de referência, para comparar ou usar se o código gerado não funcionar.
+Os arquivos desta pasta são a versão de referência: o receptor em blocos e o gabarito da página no fim do passo.
 
 ## Peças
 
@@ -43,20 +43,6 @@ No micro:bit, os bytes chegam aos pedaços. No MakeCode, o bloco **serial nos da
 | `neutro` | `IconNames.Meh` | `Image.MEH` |
 | (esperando) | `IconNames.Asleep` | `Image.ASLEEP` |
 
-## Prompt sugerido para a LLM
-
-Qualquer LLM gratuita serve. Algo como:
-
-> Tenho uma página web em JavaScript (módulo ES) com uma variável `emocaoAtual` que contém uma palavra em português sem acento (feliz, triste, raiva, surpresa, medo, nojo, neutro) e uma função `lerEmocao()` chamada umas 30 vezes por segundo.
-> 1. Escreva o código JavaScript que, ao clicar num botão com id `conectar`, usa a Web Serial API para abrir a porta de um BBC micro:bit (filtro `usbVendorId: 0x0d28`) a 115200 baud, e uma função `enviarEmocao(emocao)` que manda a palavra seguida de `\n`, só quando ela mudar. Trate erro de desconexão.
-> 2. Escreva o programa em JavaScript do MakeCode (makecode.microbit.org) para o micro:bit, só com comandos que tenham bloco (sem `.trim()`), que lê essas linhas com `serial.onDataReceived` e `serial.readLine()` a 115200 e mostra com `basic.showIcon`: `IconNames.Happy` para feliz, `IconNames.Sad` para triste, `IconNames.Angry` para raiva, `IconNames.Surprised` para surpresa, `IconNames.Confused` para medo, `IconNames.Silly` para nojo, `IconNames.Meh` para neutro, e `IconNames.Asleep` enquanto não chega nada.
-
-A resposta do item 2 vai na aba JavaScript do MakeCode; voltando para Blocos, ela vira blocos. Se aparecer um bloco cinza, a LLM usou algo que não tem bloco (como `.trim()`): use a versão pronta.
-
-Para a alternativa em MicroPython, troque o item 2 por:
-
-> 2. Escreva um programa MicroPython para o micro:bit (compatível com V1 e V2) que lê essas linhas pela UART da USB a 115200 e mostra `Image.HAPPY` para feliz, `Image.SAD` para triste, `Image.ANGRY` para raiva, `Image.SURPRISED` para surpresa, `Image.CONFUSED` para medo, `Image.SILLY` para nojo, `Image.MEH` para neutro, e `Image.ASLEEP` enquanto não chega nada.
-
 ## Fazer
 
 ### Parte A: micro:bit, no MakeCode
@@ -84,7 +70,7 @@ Não usamos `.trim()` depois do `serial.readLine()`: no MakeCode ele não tem bl
 
 #### Alternativa: MicroPython (python.microbit.org)
 
-1. Abra <https://python.microbit.org>, cole o programa do micro:bit (o gerado pela LLM com o item 2 em MicroPython, ou [microbit_receptor.py](microbit_receptor.py)) e grave na placa com **Send to micro:bit** (pela USB).
+1. Abra <https://python.microbit.org>, cole [microbit_receptor.py](microbit_receptor.py) e grave na placa com **Send to micro:bit** (pela USB).
 2. A matriz deve mostrar a carinha dormindo (`Image.ASLEEP`).
 3. **Feche a aba do python.microbit.org**: ela também segura a porta USB.
 
@@ -113,10 +99,10 @@ O receptor em MicroPython tem três trechos:
 
 Continuamos editando `human/demo/video/piscadas.html` do jeito que ficou no fim do passo 4 (113 linhas). Se perdeu, copie `../passo_4_emocoes/gabarito/piscadas.html` para lá. Edições de baixo para cima:
 
-**1. Linha 86** (a `}` que fecha `lerEmocao`): depois dela e da linha em branco seguinte, cole o código serial (o gerado pela LLM ou este):
+**1. Linha 86** (a `}` que fecha `lerEmocao`): depois dela e da linha em branco seguinte, cole o código serial:
 
 ```js
-      // OFICINA: envio pela serial (trecho gerado com LLM na oficina)
+      // OFICINA: envio pela serial
       const botao = document.getElementById('conectar');
       let porta = null; // porta serial aberta
       let escritor = null; // writer da porta, por onde mandamos bytes
@@ -220,7 +206,7 @@ O que o código da página faz:
 +        enviarEmocao(emocaoAtual);
        }
  
-+      // OFICINA: envio pela serial (trecho gerado com LLM na oficina)
++      // OFICINA: envio pela serial
 +      const botao = document.getElementById('conectar');
 +      let porta = null; // porta serial aberta
 +      let escritor = null; // writer da porta, por onde mandamos bytes

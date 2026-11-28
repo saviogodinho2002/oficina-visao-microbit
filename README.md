@@ -17,14 +17,12 @@ O que vamos construir, em 6 passos:
 | 3 | [passo_3_piscadas_razao](passo_3_piscadas_razao/) | Consertar: usar a razão abertura / largura do olho | 4 trechos trocados |
 | 4 | [passo_4_emocoes](passo_4_emocoes/) | Ligar o detector de emoções que já vem no repositório | 1 palavra + 12 linhas |
 | 5 | [passo_5_microbit](passo_5_microbit/) | Dia 2: o que é o micro:bit e três testes em blocos: LEDs e botões, um dado, um dado com faces (se) | 3 programas prontos |
-| 6 | [passo_6_emocao_no_microbit](passo_6_emocao_no_microbit/) | Mandar a emoção do PC para a matriz de LED do micro:bit pela USB | trecho gerado por LLM |
+| 6 | [passo_6_emocao_no_microbit](passo_6_emocao_no_microbit/) | Mandar a emoção do PC para a matriz de LED do micro:bit pela USB | receptor em blocos + 6 edições |
 | desafio | [desafio_imite_a_emocao](desafio_imite_a_emocao/) | Fechamento: o micro:bit manda dados de volta; jogo "imite a emoção" com contagem de 3 segundos | placa em blocos, 6 edições na página |
 
 **Resumo das edições:** [LINHAS_ALTERADAS.md](LINHAS_ALTERADAS.md) lista, para todos os passos, só as linhas que mudam e por quê, numa página.
 
 **Apresentação:** [apresentacao.html](apresentacao.html) tem o passo a passo em slides, com simulador do contador de piscadas (pixel contra razão), micro:bit clicável e animação da serial. É um arquivo único sem dependências: abre com duplo clique, funciona sem internet. Setas ou espaço para navegar, `F` tela cheia, `T` alterna para o tema escuro (o padrão é claro), `?` atalhos. Para abrir direto no começo do Dia 2, acrescente `#dia2` ao endereço (ex.: `apresentacao.html#dia2`). Os slides falam com os alunos; a justificativa da proposta fica neste README.
-
-A única parte em que usamos LLM é o código de comunicação serial do passo 6. A pasta do passo traz uma versão de referência caso a LLM gere algo que não funcione.
 
 ## Repositório usado
 
