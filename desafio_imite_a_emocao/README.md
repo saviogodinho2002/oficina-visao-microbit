@@ -33,14 +33,16 @@ Arquivo: [microbit_imite_a_emocao.js](microbit_imite_a_emocao.js). No MakeCode, 
 - **serial nos dados recebidos**: `resposta` guarda a linha; `acertou` soma 1 em `pontos` e mostra ✓, `errou` mostra ✗. As palavras de emoção que a página continua mandando não entram em nenhum **se** e são ignoradas.
 - **no botão A**: mostra `pontos`.
 
-## A página (parte da LLM)
+## A página: 6 edições no `piscadas.html`
 
-O código serial é a parte da LLM, como no passo 6. Prompt:
+O código vai direto nos slides, em 6 edições de baixo para cima, no arquivo como ficou no fim do passo 6 (lista com linhas em [LINHAS_ALTERADAS.md](../LINHAS_ALTERADAS.md)):
 
-> Minha página (JavaScript, módulo ES) já tem: porta (Web Serial aberta a 115200), escritor (writer da porta), emocaoAtual (a palavra da emoção), lerEmocao() chamada umas 30 vezes por segundo e escrever(texto, linha), que escreve no canvas. Do jeito mais simples possível:
-> 1. Uma função lerDoMicrobit() que lê porta.readable linha a linha e, quando chegar "alvo:feliz", guarda "feliz" em alvo e começa a contar 90 quadros.
-> 2. Uma função jogar(), chamada no fim de lerEmocao(), que enquanto houver alvo desconta um quadro, escreve "Imite: feliz 3" (depois 2 e 1) na linha 4 e, no último quadro, manda "acertou" ou "errou" com \n pelo escritor e limpa o alvo.
-> 3. Onde chamar lerDoMicrobit() depois de conectar, e como cancelar e soltar o leitor dentro de desconectar().
+1. depois da linha 118: `lerDoMicrobit();` (ler a placa ao conectar);
+2. depois da linha 97: soltar o leitor no `desconectar()`;
+3. depois da linha 89: o estado do jogo (`alvo`, `quadros`, `leitor`);
+4. logo abaixo: `lerDoMicrobit()`;
+5. logo abaixo: `jogar()`;
+6. depois da linha 87: `jogar();` a cada quadro.
 
 Versão de referência: [gabarito/piscadas.html](gabarito/piscadas.html) (o gabarito do passo 6 mais as linhas marcadas com `// DESAFIO`). Como os outros gabaritos, só roda copiado para `human/demo/video/`.
 
