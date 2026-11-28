@@ -65,11 +65,13 @@ Números de linha do arquivo como ficou no fim do passo 6.
 
 | Ordem | Linha | O que fazer | Por quê |
 |---|---|---|---|
-| 1 | depois da 118 | inserir `lerDoMicrobit();` | Começa a ler o que a placa manda assim que conecta. Sem `await`: fica lendo em paralelo. |
-| 2 | depois da 97 | inserir `if (leitor) { await leitor.cancel(); leitor.releaseLock(); leitor = null; }` | Sem soltar o leitor, a porta não fecha e conectar de novo dá porta já aberta. |
-| 3 | depois da 89 | colar `alvo`, `quadros`, `leitor`, `resultado`, `quadrosResultado` | O estado do jogo, que precisa durar de um quadro para o outro. |
-| 4 | logo abaixo | colar `lerDoMicrobit()` | Lê as linhas da placa; `alvo:feliz` guarda o alvo e começa a contar 90 quadros. |
-| 5 | logo abaixo | colar `jogar()` | Mostra `Faça: feliz` e o tempo 3, 2, 1; no zero mostra `Acertou!` ou `Errou` e manda `acertou` ou `errou` para a placa. |
-| 6 | depois da 87 | inserir `jogar();` | Roda o jogo a cada quadro, depois de ler a emoção. |
+| 1 | 140 | apagar `contarPiscadas(); // OFICINA` | No jogo, Piscadas e Razão só sujam a tela. |
+| 2 | depois da 118 | inserir `lerDoMicrobit();` | Começa a ler o que a placa manda assim que conecta. Sem `await`: fica lendo em paralelo. |
+| 3 | depois da 97 | inserir `if (leitor) { await leitor.cancel(); leitor.releaseLock(); leitor = null; }` | Sem soltar o leitor, a porta não fecha e conectar de novo dá porta já aberta. |
+| 4 | depois da 89 | colar `alvo`, `quadros`, `leitor`, `resultado`, `quadrosResultado` | O estado do jogo, que precisa durar de um quadro para o outro. |
+| 5 | logo abaixo | colar `lerDoMicrobit()` | Lê as linhas da placa; `alvo:feliz` guarda o alvo e começa a contar 90 quadros. |
+| 6 | logo abaixo | colar `jogar()` | Linha 1 `Alvo`, linha 3 `Tempo` 3, 2, 1; no zero, `Acertou!` ou `Errou` na linha 1 e `acertou`/`errou` para a placa. |
+| 7 | depois da 87 | inserir `jogar();` | Roda o jogo a cada quadro, depois de ler a emoção. |
+| 8 | 86 | no `escrever` da Emoção, `3` vira `2` | A emoção que a câmera vê fica na linha 2, embaixo do alvo. |
 
 No micro:bit (arquivo novo): `desafio_imite_a_emocao/microbit_imite_a_emocao.js`, em blocos no MakeCode.

@@ -5,8 +5,8 @@ Fecha a oficina usando a serial nos dois sentidos. A placa sorteia uma emoção 
 ## Regras e mensagens
 
 1. Sacuda a placa: ela sorteia **feliz, triste, surpresa ou raiva**, mostra a carinha e manda `alvo:feliz`.
-2. A página escreve `Faça: feliz` e `Tempo: 3`, `2`, `1` no canto da tela. São 90 quadros, uns 3 segundos (o `drawLoop` roda a uns 30 quadros por segundo; em máquina lenta demora um pouco mais).
-3. No último quadro, a página compara com a emoção detectada, escreve `Acertou!` ou `Errou: era feliz, deu triste` por uns 2 segundos e manda `acertou` ou `errou` para a placa.
+2. A página mostra, uma embaixo da outra: `Alvo: feliz` (linha 1), `Emoção` (linha 2, o que a câmera vê) e `Tempo: 3`, `2`, `1` (linha 3). Piscadas e Razão saem da tela. São 90 quadros, uns 3 segundos (o `drawLoop` roda a uns 30 quadros por segundo; em máquina lenta demora um pouco mais).
+3. No último quadro, a página compara com a emoção detectada, escreve no lugar do alvo `Acertou!` ou `Errou: era feliz, deu triste` por uns 2 segundos e manda `acertou` ou `errou` para a placa.
 4. A placa mostra ✓ e soma um ponto, ou ✗. O botão A mostra os pontos.
 
 Só 4 emoções porque são as mais fáceis de fazer com o rosto; nojo e medo o modelo erra muito.
@@ -33,16 +33,18 @@ Arquivo: [microbit_imite_a_emocao.js](microbit_imite_a_emocao.js). No MakeCode, 
 - **serial nos dados recebidos**: `resposta` guarda a linha; `acertou` soma 1 em `pontos` e mostra ✓, `errou` mostra ✗. As palavras de emoção que a página continua mandando não entram em nenhum **se** e são ignoradas.
 - **no botão A**: mostra `pontos`.
 
-## A página: 6 edições no `piscadas.html`
+## A página: 8 edições no `piscadas.html`
 
-O código vai direto nos slides, em 6 edições de baixo para cima, no arquivo como ficou no fim do passo 6 (lista com linhas em [LINHAS_ALTERADAS.md](../LINHAS_ALTERADAS.md)):
+O código vai direto nos slides, em 8 edições de baixo para cima, no arquivo como ficou no fim do passo 6 (lista com linhas em [LINHAS_ALTERADAS.md](../LINHAS_ALTERADAS.md)):
 
-1. depois da linha 118: `lerDoMicrobit();` (ler a placa ao conectar);
-2. depois da linha 97: soltar o leitor no `desconectar()`;
-3. depois da linha 89: o estado do jogo (`alvo`, `quadros`, `leitor`, `resultado`, `quadrosResultado`);
-4. logo abaixo: `lerDoMicrobit()`;
-5. logo abaixo: `jogar()`;
-6. depois da linha 87: `jogar();` a cada quadro.
+1. linha 140: apagar `contarPiscadas();` (Piscadas e Razão saem da tela);
+2. depois da linha 118: `lerDoMicrobit();` (ler a placa ao conectar);
+3. depois da linha 97: soltar o leitor no `desconectar()`;
+4. depois da linha 89: o estado do jogo (`alvo`, `quadros`, `leitor`, `resultado`, `quadrosResultado`);
+5. logo abaixo: `lerDoMicrobit()`;
+6. logo abaixo: `jogar()`;
+7. depois da linha 87: `jogar();` a cada quadro;
+8. linha 86: a Emoção passa da linha 3 para a linha 2 da tela.
 
 Versão de referência: [gabarito/piscadas.html](gabarito/piscadas.html) (o gabarito do passo 6 mais as linhas marcadas com `// DESAFIO`). Como os outros gabaritos, só roda copiado para `human/demo/video/`.
 
@@ -74,8 +76,8 @@ async function lerDoMicrobit() { // le o que a placa manda, linha por linha
 function jogar() { // chamada a cada quadro, depois de ler a emocao
   if (alvo) {
     quadros--;
-    escrever(`Faça: ${alvo}`, 4);
-    escrever(`Tempo: ${Math.ceil(quadros / 30)}`, 5);
+    escrever(`Alvo: ${alvo}`, 1);
+    escrever(`Tempo: ${Math.ceil(quadros / 30)}`, 3);
     if (quadros === 0) {
       const acertou = emocaoAtual === alvo;
       escritor.write(new TextEncoder().encode((acertou ? 'acertou' : 'errou') + '\n'));
@@ -85,23 +87,24 @@ function jogar() { // chamada a cada quadro, depois de ler a emocao
     }
   } else if (quadrosResultado > 0) {
     quadrosResultado--;
-    escrever(resultado, 4);
+    escrever(resultado, 1);
   }
 }
 ```
 
-E três linhas em lugares que já existem:
+E quatro mudanças em lugares que já existem:
 
 - `jogar();` no fim de `lerEmocao()`, depois de `enviarEmocao(emocaoAtual);`
 - `lerDoMicrobit();` no `botao.onclick`, depois de `botao.textContent = 'micro:bit conectado';` (sem `await`: fica lendo em paralelo)
 - `if (leitor) { await leitor.cancel(); leitor.releaseLock(); leitor = null; }` no começo do `try` de `desconectar()`
+- apagar `contarPiscadas();` do `drawLoop` e trocar o `3` por `2` no `escrever` da Emoção, para a tela ficar só com o jogo
 
 O que cada parte faz:
 
 - `getReader()` pega o leitor da porta; `read()` devolve os bytes que chegaram (`done` fica `true` quando o leitor é cancelado).
 - Os bytes chegam aos pedaços: o texto vai sendo juntado e só é usado quando aparece o `\n`. `trim()` tira o `\r` que o MakeCode põe antes do `\n`.
 - O tempo é contado em quadros, sem relógio: `jogar()` roda uma vez por quadro, então 90 chamadas dão uns 3 segundos e `Math.ceil(quadros / 30)` mostra 3, 2, 1.
-- Na tela: `Faça: feliz` (linha 4) e `Tempo` (linha 5) durante a rodada; no fim, `Acertou!` ou `Errou: era feliz, deu triste` fica 60 quadros (uns 2 segundos). A linha 3, `Emoção`, continua mostrando o que o modelo vê agora.
+- Na tela, uma informação por linha: 1 `Alvo: feliz` (no fim, `Acertou!` ou `Errou: era feliz, deu triste` por 60 quadros, uns 2 segundos), 2 `Emoção` (o que o modelo vê agora), 3 `Tempo`.
 
 ## Problemas comuns
 

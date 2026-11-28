@@ -83,7 +83,7 @@
         const rosto = human.result.face[0];
         if (!rosto || !rosto.emotion || rosto.emotion.length === 0) return;
         emocaoAtual = EMOCOES[rosto.emotion[0].emotion]; // a lista vem ordenada, maior score primeiro
-        escrever(`Emoção: ${emocaoAtual}`, 3);
+        escrever(`Emoção: ${emocaoAtual}`, 2); // DESAFIO: linha 2, embaixo do alvo
         enviarEmocao(emocaoAtual);
         jogar(); // DESAFIO
       }
@@ -116,8 +116,8 @@
       function jogar() { // chamada a cada quadro, depois de ler a emocao
         if (alvo) {
           quadros--;
-          escrever(`Faça: ${alvo}`, 4);
-          escrever(`Tempo: ${Math.ceil(quadros / 30)}`, 5);
+          escrever(`Alvo: ${alvo}`, 1);
+          escrever(`Tempo: ${Math.ceil(quadros / 30)}`, 3);
           if (quadros === 0) {
             const acertou = emocaoAtual === alvo;
             escritor.write(new TextEncoder().encode((acertou ? 'acertou' : 'errou') + '\n'));
@@ -127,7 +127,7 @@
           }
         } else if (quadrosResultado > 0) {
           quadrosResultado--;
-          escrever(resultado, 4);
+          escrever(resultado, 1);
         }
       }
 
@@ -183,7 +183,6 @@
         const interpolated = human.next(); // get smoothened result using last-known results which are continously updated based on input webcam video
         human.draw.canvas(human.webcam.element, canvas); // draw webcam video to screen canvas // better than using procesed image as this loop happens faster than processing loop
         await human.draw.all(canvas, interpolated); // draw labels, boxes, lines, etc.
-        contarPiscadas(); // OFICINA
         lerEmocao(); // OFICINA
         setTimeout(drawLoop, 30); // use to slow down refresh from max refresh rate to target of 1000/30 ~ 30 fps
       }
